@@ -55,6 +55,9 @@ function MantineTheme({ children }: { children: React.ReactNode }) {
 		>
 			<MantineProvider
 				theme={{ colorScheme }}
+				defaultProps={{
+					Button: { radius: "lg" },
+				}}
 				withNormalizeCSS
 				withGlobalStyles
 			>

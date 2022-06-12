@@ -7,7 +7,7 @@ export default function Index() {
 	return (
 		<Switch
 			color={dark ? "yellow" : "blue"}
-			checked={dark}
+			defaultChecked={dark}
 			label="Dark theme"
 			onClick={() => toggleColorScheme()}
 		/>
