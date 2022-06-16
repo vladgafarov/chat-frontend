@@ -1,16 +1,14 @@
-import { Box, Button, Container, Group } from "@mantine/core"
-import { useLocation, useNavigate, useOutlet } from "@remix-run/react"
+import { Box, Group } from "@mantine/core"
+import { useOutlet } from "@remix-run/react"
 import { AnimatePresence, motion } from "framer-motion"
 import WelcomeComponent from "~/components/welcome"
 
 export default function Welcome() {
-	const navigate = useNavigate()
 	const outlet = useOutlet()
-	const location = useLocation()
 
 	return (
 		<Group
-			sx={(theme) => ({
+			sx={() => ({
 				backgroundImage: "url(/auth.png)",
 				backgroundSize: "cover",
 				height: "100vh",
@@ -19,27 +17,23 @@ export default function Welcome() {
 			position="center"
 		>
 			<AnimatePresence exitBeforeEnter initial={false}>
-				<Container
+				<Box
 					sx={(theme) => ({
 						position: "relative",
 						borderRadius: theme.radius.lg,
 						backgroundColor: theme.fn.rgba("#fff", 0.3),
 						backdropFilter: "blur(10px)",
-						flexGrow: 1,
+						flexGrow: 0.25,
+						[theme.fn.smallerThan("md")]: { flexGrow: 0.9 },
 					})}
-					size="xs"
 					p="xl"
+					component={motion.div}
+					layout
+					transition={{ ease: "easeOut" }}
 				>
 					{!outlet && <WelcomeComponent />}
-					<motion.div
-						key={location.key}
-						initial={{ opacity: 0 }}
-						animate={{ opacity: 1 }}
-						exit={{ opacity: 0 }}
-					>
-						{outlet}
-					</motion.div>
-				</Container>
+					{outlet}
+				</Box>
 			</AnimatePresence>
 		</Group>
 	)
