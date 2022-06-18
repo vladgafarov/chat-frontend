@@ -21,7 +21,7 @@ export default function Signup() {
 			exit={{ y: -10, opacity: 0 }}
 			transition={{ delay: 0.2, ease: "easeOut" }}
 		>
-			<Box sx={arrowStyles} onClick={() => navigate("../")}>
+			<Box sx={arrowStyles} onClick={() => navigate(-1)}>
 				<BsArrowLeft size={23} />
 			</Box>
 			<Title order={2}>Sign Up</Title>
