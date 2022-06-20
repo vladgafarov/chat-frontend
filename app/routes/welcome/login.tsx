@@ -7,16 +7,52 @@ import {
 	TextInput,
 	Title,
 } from "@mantine/core"
-import { Form, Link, useLocation, useNavigate } from "@remix-run/react"
+import type { ActionFunction } from "@remix-run/node"
+import { redirect } from "@remix-run/node"
+import { json } from "@remix-run/node"
+import {
+	Form,
+	Link,
+	useActionData,
+	useLocation,
+	useNavigate,
+	useTransition,
+} from "@remix-run/react"
 import { motion } from "framer-motion"
-import { BsArrowLeft } from "react-icons/bs"
-import { arrowStyles } from "~/components/welcome"
-import { MdAlternateEmail } from "react-icons/md"
 import { BiLockAlt } from "react-icons/bi"
+import { BsArrowLeft } from "react-icons/bs"
+import { MdAlternateEmail } from "react-icons/md"
+import type { ZodFormattedError } from "zod"
+import { arrowStyles } from "~/components/welcome"
+import type { LoginType } from "~/models/auth/login.server"
+import { LoginSchema } from "~/models/auth/login.server"
+
+export const action: ActionFunction = async ({ request }) => {
+	const formData = await request.formData()
+	const data = Object.fromEntries(formData)
+
+	const schema = LoginSchema.safeParse(data)
+
+	if (!schema.success) {
+		const errors = schema.error.format()
+		return json({
+			errors,
+			values: data,
+		})
+	}
+
+	return redirect("../")
+}
 
 export default function Login() {
 	const navigate = useNavigate()
 	const location = useLocation()
+	const transition = useTransition()
+
+	const actionData = useActionData<{
+		errors: ZodFormattedError<LoginType, string>
+		values: LoginType
+	}>()
 
 	return (
 		<Box
@@ -40,17 +76,23 @@ export default function Login() {
 			</Box>
 
 			<Box mt="sm">
-				<Form>
+				<Form method="post">
 					<TextInput
+						name="email"
 						label="Email:"
 						type="email"
 						icon={<MdAlternateEmail />}
+						error={actionData?.errors?.email?._errors.join("\n")}
+						defaultValue={actionData?.values.email}
 						required
 					/>
 					<PasswordInput
+						name="password"
 						label="Password:"
 						mt="xs"
 						icon={<BiLockAlt />}
+						error={actionData?.errors?.password?._errors.join("\n")}
+						defaultValue={actionData?.values.password}
 						required
 					/>
 
@@ -75,7 +117,11 @@ export default function Login() {
 							justifyContent: "center",
 						})}
 					>
-						<Button mt="sm" type="submit">
+						<Button
+							mt="sm"
+							type="submit"
+							loading={transition.state === "submitting"}
+						>
 							Submit
 						</Button>
 					</Box>
