@@ -1,10 +1,11 @@
 import { Box, Group } from "@mantine/core"
-import { useOutlet } from "@remix-run/react"
-import { AnimatePresence, motion } from "framer-motion"
+import { useLocation, useOutlet } from "@remix-run/react"
+import { AnimatePresence, LayoutGroup, motion } from "framer-motion"
 import WelcomeComponent from "~/components/welcome"
 
 export default function Welcome() {
 	const outlet = useOutlet()
+	const location = useLocation()
 
 	return (
 		<Group
@@ -16,25 +17,25 @@ export default function Welcome() {
 			align="center"
 			position="center"
 		>
-			<AnimatePresence exitBeforeEnter initial={false}>
-				<Box
-					sx={(theme) => ({
-						position: "relative",
-						borderRadius: theme.radius.lg,
-						backgroundColor: theme.fn.rgba("#fff", 0.3),
-						backdropFilter: "blur(10px)",
-						flexGrow: 0.25,
-						[theme.fn.smallerThan("md")]: { flexGrow: 0.9 },
-					})}
-					p="xl"
-					component={motion.div}
-					layout
-					transition={{ ease: "easeOut" }}
-				>
+			<Box
+				sx={(theme) => ({
+					position: "relative",
+					borderRadius: theme.radius.lg,
+					backgroundColor: theme.fn.rgba("#fff", 0.3),
+					backdropFilter: "blur(10px)",
+					flexGrow: 0.25,
+					[theme.fn.smallerThan("md")]: { flexGrow: 0.9 },
+				})}
+				p="xl"
+				component={motion.div}
+				layout
+				transition={{ ease: "easeOut" }}
+			>
+				<AnimatePresence exitBeforeEnter initial={false}>
 					{!outlet && <WelcomeComponent />}
 					{outlet}
-				</Box>
-			</AnimatePresence>
+				</AnimatePresence>
+			</Box>
 		</Group>
 	)
 }

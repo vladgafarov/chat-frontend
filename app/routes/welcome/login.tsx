@@ -33,7 +33,7 @@ export default function Login() {
 					textAlign: "center",
 				})}
 			>
-				<Box sx={arrowStyles} onClick={() => navigate(-1)}>
+				<Box sx={arrowStyles} onClick={() => navigate("../")}>
 					<BsArrowLeft size={23} />
 				</Box>
 				<Title order={2}>Log In</Title>
