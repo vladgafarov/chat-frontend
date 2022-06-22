@@ -1,5 +1,4 @@
 import {
-	Anchor,
 	Box,
 	Button,
 	Divider,
@@ -45,8 +44,7 @@ export const action: ActionFunction = async ({ request }) => {
 		})
 	}
 
-	return null
-	// return redirect("../")
+	return redirect("../")
 }
 
 export default function Signup() {

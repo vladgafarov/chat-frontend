@@ -1,4 +1,4 @@
-import { Button, Group, Image } from "@mantine/core"
+import { Button, Group } from "@mantine/core"
 import { useLocation, useNavigate } from "@remix-run/react"
 import { motion } from "framer-motion"
 
