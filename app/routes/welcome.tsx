@@ -1,4 +1,4 @@
-import { Box, Group } from "@mantine/core"
+import { Box, Center } from "@mantine/core"
 import { useOutlet } from "@remix-run/react"
 import { AnimatePresence, motion } from "framer-motion"
 import WelcomeComponent from "~/components/welcome"
@@ -7,14 +7,12 @@ export default function Welcome() {
 	const outlet = useOutlet()
 
 	return (
-		<Group
+		<Center
 			sx={() => ({
 				backgroundImage: "url(/auth.png)",
 				backgroundSize: "cover",
 				height: "100vh",
 			})}
-			align="center"
-			position="center"
 		>
 			<Box
 				sx={(theme) => ({
@@ -22,8 +20,7 @@ export default function Welcome() {
 					borderRadius: theme.radius.lg,
 					backgroundColor: theme.fn.rgba("#fff", 0.3),
 					backdropFilter: "blur(10px)",
-					flexGrow: 0.25,
-					[theme.fn.smallerThan("md")]: { flexGrow: 0.9 },
+					width: "420px",
 				})}
 				p="xl"
 				component={motion.div}
@@ -34,6 +31,6 @@ export default function Welcome() {
 					{!outlet ? <WelcomeComponent /> : outlet}
 				</AnimatePresence>
 			</Box>
-		</Group>
+		</Center>
 	)
 }
