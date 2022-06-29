@@ -4,7 +4,7 @@ import { Navbar } from "~/components/Navbar"
 
 export default function Chat() {
 	return (
-		<div>
+		<>
 			<Navbar />
 			<Box
 				sx={(theme) => ({
@@ -12,9 +12,10 @@ export default function Chat() {
 					marginLeft: "300px",
 					minHeight: "100vh",
 				})}
+				p="md"
 			>
 				<Outlet />
 			</Box>
-		</div>
+		</>
 	)
 }

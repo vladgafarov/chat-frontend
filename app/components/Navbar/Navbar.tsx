@@ -18,8 +18,8 @@ export function Navbar() {
 		<NavbarUI
 			p="xs"
 			width={{ base: 300 }}
-			// fixed
-			// position={{ top: 0, left: 0 }}
+			fixed
+			position={{ top: 0, left: 0 }}
 		>
 			<NavbarUI.Section>
 				<Title order={3}>SuperChat</Title>
@@ -29,13 +29,14 @@ export function Navbar() {
 					<UnstyledButton
 						key={i}
 						mb="md"
+						component={Link}
+						to={`/chat/${i}`}
 						sx={(theme) => ({
 							width: "100%",
 							border: `2px solid ${theme.colors.gray[1]}`,
 							borderRadius: theme.radius.md,
+							display: "block",
 						})}
-						component={Link}
-						to={`/chat/${i}`}
 					>
 						<Group>
 							<Avatar src={undefined} radius="xl" />
