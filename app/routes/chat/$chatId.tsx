@@ -9,7 +9,6 @@ export default function ChatItem() {
 		<Box
 			sx={(theme) => ({
 				height: `calc(100vh - 2 * ${theme.spacing.md}px)`,
-				// overflow: "hidden",
 				display: "flex",
 				flexDirection: "column",
 			})}

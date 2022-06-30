@@ -1,1 +1,1 @@
-export { default } from "./SendMessageArea"
+export * from "./SendMessageArea"

@@ -1,22 +1,22 @@
-import { ScrollArea } from "@mantine/core"
-import SendMessageArea from "../widgets/SendMessageArea"
+import { Group, ScrollArea } from "@mantine/core"
+import { MessageBubble, SendMessageArea } from "../widgets"
 
 const Chat = () => {
 	return (
 		<ScrollArea
 			sx={(theme) => ({
-				height: "100%",
 				backgroundColor: theme.colors.gray[1],
 				borderRadius: theme.radius.md,
 				flex: "1",
 			})}
-			p="xs"
 			mt="md"
 			type="always"
 		>
-			{Array.from({ length: 20 }).map((_, i) => (
-				<p key={i}>{i}</p>
-			))}
+			<Group p="md" direction="column" align="stretch">
+				{Array.from({ length: 20 }).map((_, i) => (
+					<MessageBubble key={i}>{Math.random()}</MessageBubble>
+				))}
+			</Group>
 			<SendMessageArea />
 		</ScrollArea>
 	)

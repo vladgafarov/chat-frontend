@@ -11,6 +11,7 @@ import {
 import { Link } from "@remix-run/react"
 import { BiExit } from "react-icons/bi"
 import { MdSettings } from "react-icons/md"
+import { UserBubble } from "../widgets"
 import { UserButton } from "./UserButton"
 
 export function Navbar() {
@@ -26,23 +27,13 @@ export function Navbar() {
 			</NavbarUI.Section>
 			<NavbarUI.Section grow mt="md" component={ScrollArea}>
 				{Array.from({ length: 10 }).map((_, i) => (
-					<UnstyledButton
+					<UserBubble
 						key={i}
-						mb="md"
-						component={Link}
-						to={`/chat/${i}`}
-						sx={(theme) => ({
-							width: "100%",
-							border: `2px solid ${theme.colors.gray[1]}`,
-							borderRadius: theme.radius.md,
-							display: "block",
-						})}
-					>
-						<Group>
-							<Avatar src={undefined} radius="xl" />
-							<Title order={6}>Jhon Thomson</Title>
-						</Group>
-					</UnstyledButton>
+						link={`/chat/${i}`}
+						data={{
+							username: "Jhon Thomson",
+						}}
+					/>
 				))}
 			</NavbarUI.Section>
 			<NavbarUI.Section>
