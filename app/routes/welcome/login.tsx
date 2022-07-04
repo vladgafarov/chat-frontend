@@ -7,8 +7,7 @@ import {
 	TextInput,
 	Title,
 } from "@mantine/core"
-import type { ActionFunction } from "@remix-run/node"
-import { redirect } from "@remix-run/node"
+import type { ActionFunction, LoaderFunction } from "@remix-run/node"
 import { json } from "@remix-run/node"
 import {
 	Form,
@@ -25,11 +24,13 @@ import { MdAlternateEmail } from "react-icons/md"
 import type { ZodFormattedError } from "zod"
 import { arrowStyles } from "~/components/welcome"
 import type { LoginType } from "~/models/auth/login.server"
+import { login } from "~/models/auth/login.server"
 import { LoginSchema } from "~/models/auth/login.server"
+import { commitSession, getSession } from "~/models/auth/session.server"
 
 export const action: ActionFunction = async ({ request }) => {
 	const formData = await request.formData()
-	const data = Object.fromEntries(formData)
+	const data = Object.fromEntries(formData) as LoginType
 
 	const schema = LoginSchema.safeParse(data)
 
@@ -41,7 +42,19 @@ export const action: ActionFunction = async ({ request }) => {
 		})
 	}
 
-	return redirect("../")
+	await login(data)
+
+	return null
+}
+
+export const loader: LoaderFunction = async ({ request }) => {
+	const session = await getSession(request.headers.get("Cookie"))
+
+	session.set("user", "test")
+	await commitSession(session)
+	console.log(session.data)
+
+	return null
 }
 
 export default function Login() {

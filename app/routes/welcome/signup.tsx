@@ -12,21 +12,24 @@ import {
 	useActionData,
 	useLocation,
 	useNavigate,
+	useTransition,
 } from "@remix-run/react"
 import { motion } from "framer-motion"
 import { BsArrowLeft } from "react-icons/bs"
 import { arrowStyles } from "~/components/welcome"
 import { MdAlternateEmail } from "react-icons/md"
 import { BiLockAlt } from "react-icons/bi"
-import type { ActionFunction } from "@remix-run/node"
-import { json, redirect } from "@remix-run/node"
+import type { ActionFunction, LoaderFunction } from "@remix-run/node"
+import { json } from "@remix-run/node"
 import type { SignupType } from "~/models/auth/signup.server"
+import { signup } from "~/models/auth/signup.server"
 import { SignupSchema } from "~/models/auth/signup.server"
 import type { ZodFormattedError } from "zod"
+import { getSession } from "~/models/auth/session.server"
 
 export const action: ActionFunction = async ({ request }) => {
 	const formData = await request.formData()
-	const data = Object.fromEntries(formData)
+	const data = Object.fromEntries(formData) as SignupType
 
 	const schema = SignupSchema.refine(
 		(data) => data.password === data.repeatPassword,
@@ -44,7 +47,21 @@ export const action: ActionFunction = async ({ request }) => {
 		})
 	}
 
-	return redirect("../")
+	const user = await signup({
+		email: data.email,
+		password: data.password,
+	})
+
+	return json(user)
+}
+
+export const loader: LoaderFunction = async ({ request }) => {
+	const session = await getSession(request.headers.get("Cookie"))
+
+	session.set("user", "test")
+	console.log(session.data)
+
+	return null
 }
 
 export default function Signup() {
@@ -55,6 +72,8 @@ export default function Signup() {
 		errors: ZodFormattedError<SignupType, string>
 		values: SignupType
 	}>()
+
+	const transition = useTransition()
 
 	return (
 		<Box
@@ -85,7 +104,7 @@ export default function Signup() {
 						type="email"
 						icon={<MdAlternateEmail />}
 						error={actionData?.errors?.email?._errors.join("\n")}
-						defaultValue={actionData?.values.email}
+						defaultValue={actionData?.values?.email}
 						required
 					/>
 					<PasswordInput
@@ -94,7 +113,7 @@ export default function Signup() {
 						mt="xs"
 						icon={<BiLockAlt />}
 						error={actionData?.errors?.password?._errors.join("\n")}
-						defaultValue={actionData?.values.password}
+						defaultValue={actionData?.values?.password}
 						required
 					/>
 					<PasswordInput
@@ -105,7 +124,7 @@ export default function Signup() {
 						error={actionData?.errors?.repeatPassword?._errors.join(
 							" - ",
 						)}
-						defaultValue={actionData?.values.repeatPassword}
+						defaultValue={actionData?.values?.repeatPassword}
 						required
 					/>
 
@@ -126,7 +145,11 @@ export default function Signup() {
 							justifyContent: "center",
 						})}
 					>
-						<Button mt="sm" type="submit">
+						<Button
+							mt="sm"
+							type="submit"
+							loading={transition.state === "submitting"}
+						>
 							Submit
 						</Button>
 					</Box>

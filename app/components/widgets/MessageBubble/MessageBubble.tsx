@@ -16,7 +16,7 @@ export const MessageBubble = ({ children, direction, data }: Props) => {
 		<Box
 			sx={(theme) => ({
 				display: "flex",
-				justifyContent: direction,
+				// justifyContent: direction,
 			})}
 		>
 			<Box
