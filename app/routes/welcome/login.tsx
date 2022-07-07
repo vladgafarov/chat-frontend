@@ -7,7 +7,8 @@ import {
 	TextInput,
 	Title,
 } from "@mantine/core"
-import type { ActionFunction, LoaderFunction } from "@remix-run/node"
+import type { ActionFunction } from "@remix-run/node"
+import { redirect } from "@remix-run/node"
 import { json } from "@remix-run/node"
 import {
 	Form,
@@ -42,19 +43,16 @@ export const action: ActionFunction = async ({ request }) => {
 		})
 	}
 
-	await login(data)
-
-	return null
-}
-
-export const loader: LoaderFunction = async ({ request }) => {
 	const session = await getSession(request.headers.get("Cookie"))
+	const tokens = await login(data)
+	session.set("access_token", tokens.access_token)
+	session.set("refresh_token", tokens.refresh_token)
 
-	session.set("user", "test")
-	await commitSession(session)
-	console.log(session.data)
-
-	return null
+	return redirect("/", {
+		headers: {
+			"Set-Cookie": await commitSession(session),
+		},
+	})
 }
 
 export default function Login() {
@@ -96,7 +94,7 @@ export default function Login() {
 						type="email"
 						icon={<MdAlternateEmail />}
 						error={actionData?.errors?.email?._errors.join("\n")}
-						defaultValue={actionData?.values.email}
+						defaultValue={actionData?.values?.email}
 						required
 					/>
 					<PasswordInput
@@ -105,7 +103,7 @@ export default function Login() {
 						mt="xs"
 						icon={<BiLockAlt />}
 						error={actionData?.errors?.password?._errors.join("\n")}
-						defaultValue={actionData?.values.password}
+						defaultValue={actionData?.values?.password}
 						required
 					/>
 

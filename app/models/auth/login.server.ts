@@ -7,7 +7,9 @@ export const LoginSchema = z.object({
 
 export type LoginType = z.infer<typeof LoginSchema>
 
-export const login = async (data: LoginType) => {
+export const login = async (
+	data: LoginType,
+): Promise<{ access_token: string; refresh_token: string }> => {
 	const user = await fetch(`${process.env.BACKEND_URL}/login`, {
 		method: "POST",
 		headers: {
@@ -16,8 +18,6 @@ export const login = async (data: LoginType) => {
 		body: JSON.stringify(data),
 		credentials: "include",
 	})
-
-	console.log(await user.json())
 
 	return await user.json()
 }
