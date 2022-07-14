@@ -3,30 +3,31 @@ import type { ActionFunction, LoaderFunction } from "@remix-run/node"
 import { json } from "@remix-run/node"
 import { redirect } from "@remix-run/node"
 import { Form, useTransition } from "@remix-run/react"
-import { destroySession, getSession } from "~/models/auth/session.server"
+import {
+	destroySession,
+	getSession,
+	requireUser,
+} from "~/models/auth/session.server"
 
 export const loader: LoaderFunction = async ({ request }) => {
-	const session = await getSession(request.headers.get("Cookie"))
+	await requireUser(request)
 
-	if (!session.has("access_token") || !session.has("refresh_token")) {
-		return redirect("/welcome/login", {
-			headers: {
-				"Set-Cookie": await destroySession(session),
-			},
-		})
-	}
+	// const session = await getSession(request.headers.get("Cookie"))
 
 	return null
 }
 
 export const action: ActionFunction = async ({ request }) => {
-	// const session = await getSession(request.headers.get("Cookie"))
+	const session = await getSession(request.headers.get("Cookie"))
+
+	console.log(session.data)
 
 	const res = await fetch(`${process.env.BACKEND_URL}/rooms`, {
 		method: "GET",
 		credentials: "include",
 		headers: {
 			"Content-Type": "application/json",
+			Cookie: `access_token=${session.get("access_token")}`,
 		},
 	})
 	console.log(res)

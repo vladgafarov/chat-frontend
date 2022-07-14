@@ -10,7 +10,7 @@ export type LoginType = z.infer<typeof LoginSchema>
 export const login = async (
 	data: LoginType,
 ): Promise<{ access_token: string; refresh_token: string }> => {
-	const user = await fetch(`${process.env.BACKEND_URL}/login`, {
+	const response = await fetch(`${process.env.BACKEND_URL}/login`, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
@@ -19,5 +19,7 @@ export const login = async (
 		credentials: "include",
 	})
 
-	return await user.json()
+	console.log(response.headers.get("Set-Cookie"))
+
+	return await response.json()
 }
