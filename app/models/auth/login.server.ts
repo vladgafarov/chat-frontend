@@ -19,7 +19,5 @@ export const login = async (
 		credentials: "include",
 	})
 
-	console.log(response.headers.get("Set-Cookie"))
-
 	return await response.json()
 }

@@ -1,7 +1,15 @@
 import { Box, Center } from "@mantine/core"
+import type { LoaderFunction } from "@remix-run/node"
 import { useOutlet } from "@remix-run/react"
 import { AnimatePresence, motion } from "framer-motion"
 import WelcomeComponent from "~/components/welcome"
+import { checkNoUser } from "~/models/auth/session.server"
+
+export const loader: LoaderFunction = async ({ request }) => {
+	await checkNoUser(request)
+
+	return null
+}
 
 export default function Welcome() {
 	const outlet = useOutlet()

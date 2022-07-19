@@ -1,10 +1,9 @@
 import { Button } from "@mantine/core"
 import type { ActionFunction, LoaderFunction } from "@remix-run/node"
 import { json } from "@remix-run/node"
-import { redirect } from "@remix-run/node"
 import { Form, useTransition } from "@remix-run/react"
 import {
-	destroySession,
+	getAccessTokenCookie,
 	getSession,
 	requireUser,
 } from "~/models/auth/session.server"
@@ -27,7 +26,7 @@ export const action: ActionFunction = async ({ request }) => {
 		credentials: "include",
 		headers: {
 			"Content-Type": "application/json",
-			Cookie: `access_token=${session.get("access_token")}`,
+			Cookie: getAccessTokenCookie(session),
 		},
 	})
 	console.log(res)

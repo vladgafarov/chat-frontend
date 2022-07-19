@@ -1,14 +1,12 @@
 import {
-	Avatar,
 	Divider,
-	Group,
 	Menu,
 	Navbar as NavbarUI,
 	ScrollArea,
 	Title,
-	UnstyledButton,
 } from "@mantine/core"
-import { Link } from "@remix-run/react"
+import type { ActionFunction } from "@remix-run/node"
+import { Form } from "@remix-run/react"
 import { BiExit } from "react-icons/bi"
 import { MdSettings } from "react-icons/md"
 import { UserBubble } from "../widgets"
@@ -51,9 +49,11 @@ export function Navbar() {
 
 					<Divider />
 
-					<Menu.Item color="red" icon={<BiExit />}>
-						Exit
-					</Menu.Item>
+					<Form method="post">
+						<Menu.Item color="red" icon={<BiExit />} type="submit">
+							Exit
+						</Menu.Item>
+					</Form>
 				</Menu>
 			</NavbarUI.Section>
 		</NavbarUI>
