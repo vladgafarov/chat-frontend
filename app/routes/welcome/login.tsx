@@ -4,16 +4,17 @@ import {
 	Button,
 	Divider,
 	PasswordInput,
+	Text,
 	TextInput,
 	Title,
 } from "@mantine/core"
-import type { ActionFunction } from "@remix-run/node"
-import { redirect } from "@remix-run/node"
-import { json } from "@remix-run/node"
+import type { ActionFunction, LoaderFunction } from "@remix-run/node"
+import { json, redirect } from "@remix-run/node"
 import {
 	Form,
 	Link,
 	useActionData,
+	useLoaderData,
 	useLocation,
 	useNavigate,
 	useTransition,
@@ -25,9 +26,23 @@ import { MdAlternateEmail } from "react-icons/md"
 import type { ZodFormattedError } from "zod"
 import { arrowStyles } from "~/components/welcome"
 import type { LoginType } from "~/models/auth/login.server"
-import { login } from "~/models/auth/login.server"
-import { LoginSchema } from "~/models/auth/login.server"
+import { login, LoginSchema } from "~/models/auth/login.server"
 import { commitSession, getSession } from "~/models/auth/session.server"
+
+export const loader: LoaderFunction = async ({ request }) => {
+	const session = await getSession(request.headers.get("Cookie"))
+
+	const message = session.get("success") || session.get("error") || null
+
+	return json(
+		{ message },
+		{
+			headers: {
+				"Set-Cookie": await commitSession(session),
+			},
+		},
+	)
+}
 
 export const action: ActionFunction = async ({ request }) => {
 	const formData = await request.formData()
@@ -44,15 +59,30 @@ export const action: ActionFunction = async ({ request }) => {
 	}
 
 	const session = await getSession(request.headers.get("Cookie"))
-	const tokens = await login(data)
-	session.set("access_token", tokens.access_token)
-	session.set("refresh_token", tokens.refresh_token)
 
-	return redirect("/", {
-		headers: {
-			"Set-Cookie": await commitSession(session),
-		},
-	})
+	try {
+		const tokens = await login(data)
+		session.set("access_token", tokens.access_token)
+		session.set("refresh_token", tokens.refresh_token)
+
+		session.flash("success", "Login successful")
+
+		return redirect("/", {
+			headers: {
+				"Set-Cookie": await commitSession(session),
+			},
+		})
+	} catch (error: any) {
+		session.flash("error", error.message)
+		return json(
+			{ values: data },
+			{
+				headers: {
+					"Set-Cookie": await commitSession(session),
+				},
+			},
+		)
+	}
 }
 
 export default function Login() {
@@ -64,6 +94,8 @@ export default function Login() {
 		errors: ZodFormattedError<LoginType, string>
 		values: LoginType
 	}>()
+
+	const { message } = useLoaderData()
 
 	return (
 		<Box
@@ -88,13 +120,16 @@ export default function Login() {
 
 			<Box mt="sm">
 				<Form method="post">
+					{message && <Text color="red">{message}</Text>}
 					<TextInput
 						name="email"
 						label="Email:"
 						type="email"
 						icon={<MdAlternateEmail />}
 						error={actionData?.errors?.email?._errors.join("\n")}
-						defaultValue={actionData?.values?.email}
+						defaultValue={
+							actionData?.values?.email || "vlad.gafarov02@gmail.com"
+						}
 						required
 					/>
 					<PasswordInput

@@ -10,14 +10,23 @@ export type LoginType = z.infer<typeof LoginSchema>
 export const login = async (
 	data: LoginType,
 ): Promise<{ access_token: string; refresh_token: string }> => {
-	const response = await fetch(`${process.env.BACKEND_URL}/login`, {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify(data),
-		credentials: "include",
-	})
+	try {
+		const response = await fetch(`${process.env.BACKEND_URL}/login`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify(data),
+			credentials: "include",
+		})
+		const resData = await response.json()
 
-	return await response.json()
+		if (response.status !== 200) {
+			throw new Error(resData.message)
+		}
+
+		return resData
+	} catch (error: any) {
+		throw new Error(error.message)
+	}
 }

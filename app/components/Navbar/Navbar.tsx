@@ -5,14 +5,15 @@ import {
 	ScrollArea,
 	Title,
 } from "@mantine/core"
-import type { ActionFunction } from "@remix-run/node"
-import { Form } from "@remix-run/react"
+import { useSubmit } from "@remix-run/react"
 import { BiExit } from "react-icons/bi"
 import { MdSettings } from "react-icons/md"
 import { UserBubble } from "../widgets"
 import { UserButton } from "./UserButton"
 
 export function Navbar() {
+	const submit = useSubmit()
+
 	return (
 		<NavbarUI
 			p="xs"
@@ -49,11 +50,15 @@ export function Navbar() {
 
 					<Divider />
 
-					<Form method="post">
-						<Menu.Item color="red" icon={<BiExit />} type="submit">
-							Exit
-						</Menu.Item>
-					</Form>
+					<Menu.Item
+						color="red"
+						icon={<BiExit />}
+						onClick={() => {
+							submit({ action: "logout" }, { method: "post" })
+						}}
+					>
+						`` Exit
+					</Menu.Item>
 				</Menu>
 			</NavbarUI.Section>
 		</NavbarUI>
