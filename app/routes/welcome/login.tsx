@@ -8,7 +8,7 @@ import {
 	TextInput,
 	Title,
 } from "@mantine/core"
-import type { ActionFunction, LoaderFunction } from "@remix-run/node"
+import type { ActionFunction, LoaderArgs } from "@remix-run/node"
 import { json, redirect } from "@remix-run/node"
 import {
 	Form,
@@ -29,13 +29,13 @@ import type { LoginType } from "~/models/auth/login.server"
 import { login, LoginSchema } from "~/models/auth/login.server"
 import { commitSession, getSession } from "~/models/auth/session.server"
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader = async ({ request }: LoaderArgs) => {
 	const session = await getSession(request.headers.get("Cookie"))
 
-	const message = session.get("success") || session.get("error") || null
+	const message = session.get("error") || null
 
 	return json(
-		{ message },
+		{ message: message as string | null },
 		{
 			headers: {
 				"Set-Cookie": await commitSession(session),
@@ -95,7 +95,7 @@ export default function Login() {
 		values: LoginType
 	}>()
 
-	const { message } = useLoaderData()
+	const { message } = useLoaderData<typeof loader>()
 
 	return (
 		<Box
