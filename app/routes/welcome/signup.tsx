@@ -25,12 +25,12 @@ import { BsArrowLeft } from "react-icons/bs"
 import { MdAlternateEmail } from "react-icons/md"
 import type { ZodFormattedError } from "zod"
 import { arrowStyles } from "~/components/welcome"
-import { commitSession, getSession } from "~/models/auth/session.server"
+import { commitSession, getUserSession } from "~/models/auth/session.server"
 import type { SignupType } from "~/models/auth/signup.server"
 import { signup, SignupSchema } from "~/models/auth/signup.server"
 
 export const loader = async ({ request }: LoaderArgs) => {
-	const session = await getSession(request.headers.get("Cookie"))
+	const session = await getUserSession(request)
 
 	const message = session.get("error") || null
 
@@ -64,7 +64,7 @@ export const action: ActionFunction = async ({ request }) => {
 		})
 	}
 
-	const session = await getSession(request.headers.get("Cookie"))
+	const session = await getUserSession(request)
 
 	try {
 		const user = await signup({

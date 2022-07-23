@@ -12,8 +12,12 @@ const { getSession, commitSession, destroySession } =
 		},
 	})
 
+const getUserSession = (request: Request) => {
+	return getSession(request.headers.get("Cookie"))
+}
+
 const requireUser = async (request: Request) => {
-	const session = await getSession(request.headers.get("Cookie"))
+	const session = await getUserSession(request)
 	if (!session.has("access_token") || !session.has("refresh_token")) {
 		throw redirect("/welcome")
 	}
@@ -21,7 +25,7 @@ const requireUser = async (request: Request) => {
 }
 
 const checkNoUser = async (request: Request) => {
-	const session = await getSession(request.headers.get("Cookie"))
+	const session = await getUserSession(request)
 	if (session.has("access_token") || session.has("refresh_token")) {
 		throw redirect("/chat")
 	}
@@ -33,6 +37,7 @@ const getAccessTokenCookie = (session: Session): string => {
 }
 
 export {
+	getUserSession,
 	getSession,
 	commitSession,
 	destroySession,

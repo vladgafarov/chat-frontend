@@ -27,10 +27,10 @@ import type { ZodFormattedError } from "zod"
 import { arrowStyles } from "~/components/welcome"
 import type { LoginType } from "~/models/auth/login.server"
 import { login, LoginSchema } from "~/models/auth/login.server"
-import { commitSession, getSession } from "~/models/auth/session.server"
+import { commitSession, getUserSession } from "~/models/auth/session.server"
 
 export const loader = async ({ request }: LoaderArgs) => {
-	const session = await getSession(request.headers.get("Cookie"))
+	const session = await getUserSession(request)
 
 	const errorMessage = session.get("error") || null
 	const signupMessage = session.get("signup-success") || null
@@ -62,7 +62,7 @@ export const action: ActionFunction = async ({ request }) => {
 		})
 	}
 
-	const session = await getSession(request.headers.get("Cookie"))
+	const session = await getUserSession(request)
 
 	try {
 		const tokens = await login(data)
