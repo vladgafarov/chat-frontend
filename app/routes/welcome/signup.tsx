@@ -3,29 +3,46 @@ import {
 	Button,
 	Divider,
 	PasswordInput,
+	Text,
 	TextInput,
 	Title,
 } from "@mantine/core"
+import type { ActionFunction, LoaderArgs } from "@remix-run/node"
+import { redirect } from "@remix-run/node"
+import { json } from "@remix-run/node"
 import {
 	Form,
 	Link,
 	useActionData,
+	useLoaderData,
 	useLocation,
 	useNavigate,
 	useTransition,
 } from "@remix-run/react"
 import { motion } from "framer-motion"
+import { BiLockAlt, BiUser } from "react-icons/bi"
 import { BsArrowLeft } from "react-icons/bs"
-import { arrowStyles } from "~/components/welcome"
 import { MdAlternateEmail } from "react-icons/md"
-import { BiLockAlt } from "react-icons/bi"
-import type { ActionFunction, LoaderFunction } from "@remix-run/node"
-import { json } from "@remix-run/node"
-import type { SignupType } from "~/models/auth/signup.server"
-import { signup } from "~/models/auth/signup.server"
-import { SignupSchema } from "~/models/auth/signup.server"
 import type { ZodFormattedError } from "zod"
-import { getSession } from "~/models/auth/session.server"
+import { arrowStyles } from "~/components/welcome"
+import { commitSession, getSession } from "~/models/auth/session.server"
+import type { SignupType } from "~/models/auth/signup.server"
+import { signup, SignupSchema } from "~/models/auth/signup.server"
+
+export const loader = async ({ request }: LoaderArgs) => {
+	const session = await getSession(request.headers.get("Cookie"))
+
+	const message = session.get("error") || null
+
+	return json(
+		{ message: message as string | null },
+		{
+			headers: {
+				"Set-Cookie": await commitSession(session),
+			},
+		},
+	)
+}
 
 export const action: ActionFunction = async ({ request }) => {
 	const formData = await request.formData()
@@ -47,21 +64,36 @@ export const action: ActionFunction = async ({ request }) => {
 		})
 	}
 
-	const user = await signup({
-		email: data.email,
-		password: data.password,
-	})
-
-	return json(user)
-}
-
-export const loader: LoaderFunction = async ({ request }) => {
 	const session = await getSession(request.headers.get("Cookie"))
 
-	session.set("user", "test")
-	console.log(session.data)
+	try {
+		const user = await signup({
+			email: data.email,
+			name: data.name,
+			password: data.password,
+		})
 
-	return null
+		session.flash("signup-success", `Welcome, ${user.name}. Please login.`)
+
+		return redirect("/welcome/login", {
+			headers: {
+				"Set-Cookie": await commitSession(session),
+			},
+		})
+	} catch (error: any) {
+		session.flash("error", error.message)
+
+		return json(
+			{
+				values: data,
+			},
+			{
+				headers: {
+					"Set-Cookie": await commitSession(session),
+				},
+			},
+		)
+	}
 }
 
 export default function Signup() {
@@ -74,6 +106,8 @@ export default function Signup() {
 	}>()
 
 	const transition = useTransition()
+
+	const { message } = useLoaderData<typeof loader>()
 
 	return (
 		<Box
@@ -98,6 +132,17 @@ export default function Signup() {
 
 			<Box mt="sm">
 				<Form method="post">
+					{message && <Text color="red">{message}</Text>}
+
+					<TextInput
+						name="name"
+						label="Name:"
+						type="text"
+						icon={<BiUser />}
+						error={actionData?.errors?.name?._errors.join("\n")}
+						defaultValue={actionData?.values?.name}
+						required
+					/>
 					<TextInput
 						name="email"
 						label="Email:"
@@ -106,6 +151,7 @@ export default function Signup() {
 						error={actionData?.errors?.email?._errors.join("\n")}
 						defaultValue={actionData?.values?.email}
 						required
+						mt="xs"
 					/>
 					<PasswordInput
 						name="password"

@@ -32,10 +32,14 @@ import { commitSession, getSession } from "~/models/auth/session.server"
 export const loader = async ({ request }: LoaderArgs) => {
 	const session = await getSession(request.headers.get("Cookie"))
 
-	const message = session.get("error") || null
+	const errorMessage = session.get("error") || null
+	const signupMessage = session.get("signup-success") || null
 
 	return json(
-		{ message: message as string | null },
+		{
+			errorMessage: errorMessage as string | null,
+			signupMessage: signupMessage as string | null,
+		},
 		{
 			headers: {
 				"Set-Cookie": await commitSession(session),
@@ -95,7 +99,7 @@ export default function Login() {
 		values: LoginType
 	}>()
 
-	const { message } = useLoaderData<typeof loader>()
+	const { signupMessage, errorMessage } = useLoaderData<typeof loader>()
 
 	return (
 		<Box
@@ -120,16 +124,16 @@ export default function Login() {
 
 			<Box mt="sm">
 				<Form method="post">
-					{message && <Text color="red">{message}</Text>}
+					{errorMessage && <Text color="red">{errorMessage}</Text>}
+					{signupMessage && <Text>{signupMessage}</Text>}
+
 					<TextInput
 						name="email"
 						label="Email:"
 						type="email"
 						icon={<MdAlternateEmail />}
 						error={actionData?.errors?.email?._errors.join("\n")}
-						defaultValue={
-							actionData?.values?.email || "vlad.gafarov02@gmail.com"
-						}
+						defaultValue={actionData?.values?.email}
 						required
 					/>
 					<PasswordInput
