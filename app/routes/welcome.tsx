@@ -26,7 +26,7 @@ export default function Welcome() {
 				sx={(theme) => ({
 					position: "relative",
 					borderRadius: theme.radius.lg,
-					backgroundColor: theme.fn.rgba("#fff", 0.3),
+					backgroundColor: theme.fn.rgba("#fff", 0.7),
 					backdropFilter: "blur(10px)",
 					width: "420px",
 				})}
