@@ -1,18 +1,26 @@
 import { Box } from "@mantine/core"
-import type { ActionFunction, LoaderFunction } from "@remix-run/node"
-import { redirect } from "@remix-run/node"
-import { Outlet } from "@remix-run/react"
+import type { ActionFunction, LoaderArgs } from "@remix-run/node"
+import { json, redirect } from "@remix-run/node"
+import { Outlet, useLoaderData } from "@remix-run/react"
 import { Navbar } from "~/components/Navbar"
 import {
 	destroySession,
 	getSession,
 	requireUser,
 } from "~/models/auth/session.server"
+import { getUser } from "~/models/user/user.server"
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader = async ({ request }: LoaderArgs) => {
 	await requireUser(request)
 
-	return null
+	//TODO try catch
+	const user = await getUser(request)
+
+	if (!user) {
+		return redirect("/")
+	}
+
+	return json({ user })
 }
 
 export const action: ActionFunction = async ({ request }) => {
@@ -39,9 +47,11 @@ export const action: ActionFunction = async ({ request }) => {
 }
 
 export default function Chat() {
+	const { user } = useLoaderData<typeof loader>()
+
 	return (
 		<>
-			<Navbar />
+			<Navbar user={user} />
 			<Box
 				sx={() => ({
 					width: "calc(100% - 300px)",

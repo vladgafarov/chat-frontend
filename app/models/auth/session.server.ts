@@ -32,7 +32,9 @@ const checkNoUser = async (request: Request) => {
 	return session
 }
 
-const getAccessTokenCookie = (session: Session): string => {
+const getAccessTokenCookie = async (request: Request): Promise<string> => {
+	const session = await getUserSession(request)
+
 	return `access_token=${session.get("access_token")}`
 }
 

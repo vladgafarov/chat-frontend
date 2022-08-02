@@ -8,10 +8,11 @@ import {
 import { useSubmit } from "@remix-run/react"
 import { BiExit } from "react-icons/bi"
 import { MdSettings } from "react-icons/md"
+import type { User } from "~/models/user/user.server"
 import { UserBubble } from "../widgets"
 import { UserButton } from "./UserButton"
 
-export function Navbar() {
+export function Navbar({ user }: { user: User }) {
 	const submit = useSubmit()
 
 	return (
@@ -38,12 +39,7 @@ export function Navbar() {
 			<NavbarUI.Section>
 				<Menu
 					position="right"
-					control={
-						<UserButton
-							name="Harriette Spoonlicker"
-							email="hspoonlicker@outlook.com"
-						/>
-					}
+					control={<UserButton name={user.name} email={user.email} />}
 				>
 					<Menu.Label>Account</Menu.Label>
 					<Menu.Item icon={<MdSettings />}>Settings</Menu.Item>
