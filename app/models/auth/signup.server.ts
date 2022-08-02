@@ -10,7 +10,7 @@ export const SignupSchema = z.object({
 export type SignupType = z.infer<typeof SignupSchema>
 
 export const signup = async (data: Omit<SignupType, "repeatPassword">) => {
-	const { email, password } = data
+	const { email, password, name } = data
 
 	try {
 		const response = await fetch(`${process.env.BACKEND_URL}/signup`, {
@@ -18,7 +18,7 @@ export const signup = async (data: Omit<SignupType, "repeatPassword">) => {
 			headers: {
 				"Content-Type": "application/json",
 			},
-			body: JSON.stringify({ email, password, name: "Test" }),
+			body: JSON.stringify({ email, password, name }),
 		})
 		const resData = await response.json()
 
