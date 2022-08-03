@@ -1,4 +1,4 @@
-import { Button, Group } from "@mantine/core"
+import { Button, Stack } from "@mantine/core"
 import { useLocation, useNavigate } from "@remix-run/react"
 import { motion } from "framer-motion"
 
@@ -30,10 +30,10 @@ const Welcome = () => {
 					delay: 0.1,
 				}}
 			>
-				<Group grow direction="column" align="center" mt="md">
+				<Stack align="center" mt="md">
 					<Button onClick={() => navigate("login")}>Log In</Button>
 					<Button onClick={() => navigate("signup")}>Sign Up</Button>
-				</Group>
+				</Stack>
 			</motion.div>
 		</motion.div>
 	)

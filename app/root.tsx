@@ -1,5 +1,5 @@
 import type { ColorScheme } from "@mantine/core"
-import { MantineProvider, ColorSchemeProvider } from "@mantine/core"
+import { ColorSchemeProvider, MantineProvider } from "@mantine/core"
 import { useLocalStorage } from "@mantine/hooks"
 import type { MetaFunction } from "@remix-run/node"
 import {
@@ -10,7 +10,6 @@ import {
 	Scripts,
 	ScrollRestoration,
 } from "@remix-run/react"
-import { useState } from "react"
 
 export const meta: MetaFunction = () => ({
 	charset: "utf-8",
@@ -54,9 +53,15 @@ function MantineTheme({ children }: { children: React.ReactNode }) {
 			toggleColorScheme={toggleColorScheme}
 		>
 			<MantineProvider
-				theme={{ colorScheme }}
-				defaultProps={{
-					Button: { radius: "lg" },
+				theme={{
+					colorScheme,
+					components: {
+						Button: {
+							defaultProps: {
+								radius: "lg",
+							},
+						},
+					},
 				}}
 				withNormalizeCSS
 				withGlobalStyles
