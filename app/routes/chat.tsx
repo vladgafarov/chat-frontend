@@ -2,7 +2,9 @@ import { Box } from "@mantine/core"
 import type { ActionFunction, LoaderArgs } from "@remix-run/node"
 import { json, redirect } from "@remix-run/node"
 import { Outlet, useLoaderData } from "@remix-run/react"
+import { useEffect } from "react"
 import { Navbar } from "~/components/Navbar"
+import { useSocket } from "~/hooks/useSocket"
 import {
 	destroySession,
 	getSession,
@@ -48,6 +50,14 @@ export const action: ActionFunction = async ({ request }) => {
 
 export default function Chat() {
 	const { user } = useLoaderData<typeof loader>()
+	const socket = useSocket()
+
+	useEffect(() => {
+		socket?.on("SERVER@ROOM:JOIN", (user) => {
+			console.log("SERVER@ROOM:JOIN ", user)
+		})
+		socket?.emit("CLIENT@ROOM:JOIN", { roomId: "chat123", user })
+	}, [])
 
 	return (
 		<>
