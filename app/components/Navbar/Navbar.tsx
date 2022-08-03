@@ -1,4 +1,5 @@
 import {
+	Button,
 	Divider,
 	Menu,
 	Navbar as NavbarUI,
@@ -6,7 +7,7 @@ import {
 	Title,
 } from "@mantine/core"
 import { useSubmit } from "@remix-run/react"
-import { BiExit } from "react-icons/bi"
+import { BiExit, BiPlus } from "react-icons/bi"
 import { MdSettings } from "react-icons/md"
 import type { User } from "~/models/user/user.server"
 import { UserBubble } from "../widgets"
@@ -26,7 +27,15 @@ export function Navbar({ user }: { user: User }) {
 				<Title order={3}>SuperChat</Title>
 			</NavbarUI.Section>
 			<NavbarUI.Section grow mt="md" component={ScrollArea}>
-				{Array.from({ length: 10 }).map((_, i) => (
+				<Button
+					variant="default"
+					color="gray"
+					leftIcon={<BiPlus />}
+					fullWidth
+				>
+					Add chat
+				</Button>
+				{/* {Array.from({ length: 10 }).map((_, i) => (
 					<UserBubble
 						key={i}
 						link={`/chat/${i}`}
@@ -34,27 +43,30 @@ export function Navbar({ user }: { user: User }) {
 							username: "Jhon Thomson",
 						}}
 					/>
-				))}
+				))} */}
 			</NavbarUI.Section>
 			<NavbarUI.Section>
-				<Menu
-					position="right"
-					control={<UserButton name={user.name} email={user.email} />}
-				>
-					<Menu.Label>Account</Menu.Label>
-					<Menu.Item icon={<MdSettings />}>Settings</Menu.Item>
+				<Menu position="right">
+					<Menu.Target>
+						<UserButton name={user.name} email={user.email} />
+					</Menu.Target>
 
-					<Divider />
+					<Menu.Dropdown>
+						<Menu.Label>Account</Menu.Label>
+						<Menu.Item icon={<MdSettings />}>Settings</Menu.Item>
 
-					<Menu.Item
-						color="red"
-						icon={<BiExit />}
-						onClick={() => {
-							submit({ action: "logout" }, { method: "post" })
-						}}
-					>
-						`` Exit
-					</Menu.Item>
+						<Divider />
+
+						<Menu.Item
+							color="red"
+							icon={<BiExit />}
+							onClick={() => {
+								submit({ action: "logout" }, { method: "post" })
+							}}
+						>
+							Exit
+						</Menu.Item>
+					</Menu.Dropdown>
 				</Menu>
 			</NavbarUI.Section>
 		</NavbarUI>
