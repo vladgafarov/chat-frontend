@@ -7,7 +7,7 @@ export const useSocket = () => {
 
 	if (!socketRef.current) {
 		socketRef.current =
-			typeof window !== "undefined" && io("http://localhost:3000")
+			typeof window !== "undefined" ? io("http://localhost:3000") : undefined
 	} else {
 		socketRef.current.connect()
 	}

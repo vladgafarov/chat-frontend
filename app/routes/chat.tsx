@@ -10,13 +10,18 @@ import {
 	getSession,
 	requireUser,
 } from "~/models/auth/session.server"
+import type { User } from "~/models/user/user.server"
 import { getUser } from "~/models/user/user.server"
 
 export const loader = async ({ request }: LoaderArgs) => {
 	await requireUser(request)
 
-	//TODO try catch
-	const user = await getUser(request)
+	let user: User
+	try {
+		user = await getUser(request)
+	} catch (err) {
+		return redirect("/")
+	}
 
 	if (!user) {
 		return redirect("/")

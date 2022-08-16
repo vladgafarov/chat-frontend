@@ -6,7 +6,7 @@ import {
 	ScrollArea,
 	Title,
 } from "@mantine/core"
-import { useSubmit } from "@remix-run/react"
+import { Link, useSubmit } from "@remix-run/react"
 import { BiExit, BiPlus } from "react-icons/bi"
 import { MdSettings } from "react-icons/md"
 import type { User } from "~/models/user/user.server"
@@ -28,6 +28,8 @@ export function Navbar({ user }: { user: User }) {
 			</NavbarUI.Section>
 			<NavbarUI.Section grow mt="md" component={ScrollArea}>
 				<Button
+					component={Link}
+					to="add"
 					variant="default"
 					color="gray"
 					leftIcon={<BiPlus />}
