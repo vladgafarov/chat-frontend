@@ -2,7 +2,9 @@ import { ActionIcon, Avatar, Group, Modal, Stack, Text } from "@mantine/core"
 import type { ActionArgs, LoaderArgs } from "@remix-run/node"
 import { json } from "@remix-run/node"
 import { useLoaderData, useNavigate } from "@remix-run/react"
+import { useEffect } from "react"
 import { BiPlus } from "react-icons/bi"
+import { useSocket } from "~/hooks/useSocket"
 
 export const loader = async ({ request }: LoaderArgs) => {
 	const users = [
@@ -28,11 +30,20 @@ export const action = async ({ request }: ActionArgs) => {}
 export default function Add() {
 	const loaderData = useLoaderData<typeof loader>()
 
+	const socket = useSocket()
+
 	const navigate = useNavigate()
 
 	const onClose = () => {
 		navigate("/chat")
 	}
+
+	useEffect(() => {
+		socket?.on("SERVER@USERS:GET", (users) => {
+			console.log("SERVER@USERS:GET ", users)
+		})
+		socket?.emit("CLIENT@USERS:GET")
+	}, [])
 
 	return (
 		<Modal opened={true} onClose={onClose} title="Add chat">
