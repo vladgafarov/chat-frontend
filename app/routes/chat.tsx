@@ -8,10 +8,12 @@ import { useSocket } from "~/hooks/useSocket"
 import {
 	destroySession,
 	getSession,
+	getUserSession,
 	requireUser,
 } from "~/models/auth/session.server"
 import type { User } from "~/models/user/user.server"
 import { getUser } from "~/models/user/user.server"
+import type { IChatContext } from "~/types/ChatContext"
 
 export const loader = async ({ request }: LoaderArgs) => {
 	await requireUser(request)
@@ -20,7 +22,13 @@ export const loader = async ({ request }: LoaderArgs) => {
 	try {
 		user = await getUser(request)
 	} catch (err) {
-		return redirect("/")
+		const session = await getUserSession(request)
+
+		return redirect("/", {
+			headers: {
+				"Set-Cookie": await destroySession(session),
+			},
+		})
 	}
 
 	if (!user) {
@@ -55,14 +63,19 @@ export const action: ActionFunction = async ({ request }) => {
 
 export default function Chat() {
 	const { user } = useLoaderData<typeof loader>()
-	const socket = useSocket()
 
-	useEffect(() => {
-		socket?.on("SERVER@ROOM:JOIN", (user) => {
-			console.log("SERVER@ROOM:JOIN ", user)
-		})
-		socket?.emit("CLIENT@ROOM:JOIN", { roomId: "chat123", user })
-	}, [])
+	// useEffect(() => {
+	// 	socket?.on("SERVER@ROOM:JOIN", (user) => {
+	// 		console.log("SERVER@ROOM:JOIN ", user)
+	// 	})
+	// 	socket?.emit("CLIENT@ROOM:JOIN", { roomId: "chat123", user })
+	// }, [])
+
+	const socket = useSocket(user.id)
+	const context: IChatContext = {
+		socket,
+	}
+	const outlet = <Outlet context={context} />
 
 	return (
 		<>
@@ -75,7 +88,7 @@ export default function Chat() {
 				})}
 				p="md"
 			>
-				<Outlet />
+				{outlet}
 			</Box>
 		</>
 	)

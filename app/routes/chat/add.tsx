@@ -1,36 +1,17 @@
 import { ActionIcon, Avatar, Group, Modal, Stack, Text } from "@mantine/core"
-import type { ActionArgs, LoaderArgs } from "@remix-run/node"
-import { json } from "@remix-run/node"
-import { useLoaderData, useNavigate } from "@remix-run/react"
-import { useEffect } from "react"
+import type { ActionArgs } from "@remix-run/node"
+import { useNavigate, useOutletContext } from "@remix-run/react"
+import { useEffect, useState } from "react"
 import { BiPlus } from "react-icons/bi"
-import { useSocket } from "~/hooks/useSocket"
-
-export const loader = async ({ request }: LoaderArgs) => {
-	const users = [
-		{
-			id: 1,
-			name: "Jhon Thomson",
-		},
-		{
-			id: 2,
-			name: "Thomas Doe",
-		},
-		{
-			id: 3,
-			name: "Nicola Merkel",
-		},
-	]
-
-	return json({ users })
-}
+import type { User } from "~/models/user/user.server"
+import type { IChatContext } from "~/types/ChatContext"
 
 export const action = async ({ request }: ActionArgs) => {}
 
 export default function Add() {
-	const loaderData = useLoaderData<typeof loader>()
+	const { socket } = useOutletContext<IChatContext>()
 
-	const socket = useSocket()
+	const [users, setUsers] = useState<User[]>([])
 
 	const navigate = useNavigate()
 
@@ -41,8 +22,13 @@ export default function Add() {
 	useEffect(() => {
 		socket?.on("SERVER@USERS:GET", (users) => {
 			console.log("SERVER@USERS:GET ", users)
+			setUsers(users)
 		})
 		socket?.emit("CLIENT@USERS:GET")
+
+		return () => {
+			socket?.off("SERVER@USERS:GET")
+		}
 	}, [])
 
 	return (
@@ -55,22 +41,23 @@ export default function Add() {
 					marginTop: theme.spacing.xs,
 				})}
 			>
-				{loaderData.users.map(({ id, name }) => (
-					<Group key={id}>
-						<Avatar radius={"xl"} color="orange">
-							{name[0]}
-						</Avatar>
-						<Text>{name}</Text>
-						<ActionIcon
-							sx={() => ({
-								marginLeft: "auto",
-							})}
-							title="Create chat"
-						>
-							<BiPlus />
-						</ActionIcon>
-					</Group>
-				))}
+				{users &&
+					users.map(({ id, name }) => (
+						<Group key={id}>
+							<Avatar radius={"xl"} color="orange">
+								{name[0]}
+							</Avatar>
+							<Text>{name}</Text>
+							<ActionIcon
+								sx={() => ({
+									marginLeft: "auto",
+								})}
+								title="Create chat"
+							>
+								<BiPlus />
+							</ActionIcon>
+						</Group>
+					))}
 			</Stack>
 		</Modal>
 	)
