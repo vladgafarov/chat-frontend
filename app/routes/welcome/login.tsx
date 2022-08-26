@@ -11,9 +11,8 @@ import {
 import type { ActionFunction, LoaderArgs } from "@remix-run/node"
 import { json, redirect } from "@remix-run/node"
 import {
-	Form,
 	Link,
-	useActionData,
+	useFetcher,
 	useLoaderData,
 	useLocation,
 	useNavigate,
@@ -94,12 +93,15 @@ export default function Login() {
 	const location = useLocation()
 	const transition = useTransition()
 
-	const actionData = useActionData<{
+	const { signupMessage, errorMessage } = useLoaderData<typeof loader>()
+
+	const fetcher = useFetcher<{
 		errors: ZodFormattedError<LoginType, string>
 		values: LoginType
 	}>()
 
-	const { signupMessage, errorMessage } = useLoaderData<typeof loader>()
+	const errors = fetcher.data?.errors
+	const values = fetcher.data?.values
 
 	return (
 		<Box
@@ -123,7 +125,7 @@ export default function Login() {
 			</Box>
 
 			<Box mt="sm">
-				<Form method="post">
+				<fetcher.Form method="post">
 					{errorMessage && <Text color="red">{errorMessage}</Text>}
 					{signupMessage && <Text>{signupMessage}</Text>}
 
@@ -132,8 +134,8 @@ export default function Login() {
 						label="Email:"
 						type="email"
 						icon={<MdAlternateEmail />}
-						error={actionData?.errors?.email?._errors.join("\n")}
-						defaultValue={actionData?.values?.email}
+						error={errors?.email?._errors.join("\n")}
+						defaultValue={values?.email}
 						required
 					/>
 					<PasswordInput
@@ -141,8 +143,8 @@ export default function Login() {
 						label="Password:"
 						mt="xs"
 						icon={<BiLockAlt />}
-						error={actionData?.errors?.password?._errors.join("\n")}
-						defaultValue={actionData?.values?.password}
+						error={errors?.password?._errors.join("\n")}
+						defaultValue={values?.password}
 						required
 					/>
 
@@ -175,7 +177,7 @@ export default function Login() {
 							Submit
 						</Button>
 					</Box>
-				</Form>
+				</fetcher.Form>
 			</Box>
 		</Box>
 	)
