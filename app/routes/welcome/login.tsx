@@ -16,7 +16,6 @@ import {
 	useLoaderData,
 	useLocation,
 	useNavigate,
-	useTransition,
 } from "@remix-run/react"
 import { motion } from "framer-motion"
 import { BiLockAlt } from "react-icons/bi"
@@ -57,7 +56,6 @@ export const action: ActionFunction = async ({ request }) => {
 		const errors = schema.error.format()
 		return json({
 			errors,
-			values: data,
 		})
 	}
 
@@ -91,17 +89,14 @@ export const action: ActionFunction = async ({ request }) => {
 export default function Login() {
 	const navigate = useNavigate()
 	const location = useLocation()
-	const transition = useTransition()
 
 	const { signupMessage, errorMessage } = useLoaderData<typeof loader>()
 
 	const fetcher = useFetcher<{
 		errors: ZodFormattedError<LoginType, string>
-		values: LoginType
 	}>()
 
 	const errors = fetcher.data?.errors
-	const values = fetcher.data?.values
 
 	return (
 		<Box
@@ -135,7 +130,6 @@ export default function Login() {
 						type="email"
 						icon={<MdAlternateEmail />}
 						error={errors?.email?._errors.join("\n")}
-						defaultValue={values?.email}
 						required
 					/>
 					<PasswordInput
@@ -144,7 +138,6 @@ export default function Login() {
 						mt="xs"
 						icon={<BiLockAlt />}
 						error={errors?.password?._errors.join("\n")}
-						defaultValue={values?.password}
 						required
 					/>
 
@@ -172,7 +165,7 @@ export default function Login() {
 						<Button
 							mt="sm"
 							type="submit"
-							loading={transition.state === "submitting"}
+							loading={fetcher.state === "submitting"}
 						>
 							Submit
 						</Button>

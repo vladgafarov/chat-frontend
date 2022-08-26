@@ -8,16 +8,13 @@ import {
 	Title,
 } from "@mantine/core"
 import type { ActionFunction, LoaderArgs } from "@remix-run/node"
-import { redirect } from "@remix-run/node"
-import { json } from "@remix-run/node"
+import { json, redirect } from "@remix-run/node"
 import {
-	Form,
 	Link,
-	useActionData,
+	useFetcher,
 	useLoaderData,
 	useLocation,
 	useNavigate,
-	useTransition,
 } from "@remix-run/react"
 import { motion } from "framer-motion"
 import { BiLockAlt, BiUser } from "react-icons/bi"
@@ -100,14 +97,13 @@ export default function Signup() {
 	const navigate = useNavigate()
 	const location = useLocation()
 
-	const actionData = useActionData<{
+	const { message } = useLoaderData<typeof loader>()
+
+	const fetcher = useFetcher<{
 		errors: ZodFormattedError<SignupType, string>
-		values: SignupType
 	}>()
 
-	const transition = useTransition()
-
-	const { message } = useLoaderData<typeof loader>()
+	const errors = fetcher.data?.errors
 
 	return (
 		<Box
@@ -131,7 +127,7 @@ export default function Signup() {
 			</Box>
 
 			<Box mt="sm">
-				<Form method="post">
+				<fetcher.Form method="post">
 					{message && <Text color="red">{message}</Text>}
 
 					<TextInput
@@ -139,8 +135,7 @@ export default function Signup() {
 						label="Name:"
 						type="text"
 						icon={<BiUser />}
-						error={actionData?.errors?.name?._errors.join("\n")}
-						defaultValue={actionData?.values?.name}
+						error={errors?.name?._errors.join("\n")}
 						required
 					/>
 					<TextInput
@@ -148,8 +143,7 @@ export default function Signup() {
 						label="Email:"
 						type="email"
 						icon={<MdAlternateEmail />}
-						error={actionData?.errors?.email?._errors.join("\n")}
-						defaultValue={actionData?.values?.email}
+						error={errors?.email?._errors.join("\n")}
 						required
 						mt="xs"
 					/>
@@ -158,8 +152,7 @@ export default function Signup() {
 						label="Password:"
 						mt="xs"
 						icon={<BiLockAlt />}
-						error={actionData?.errors?.password?._errors.join("\n")}
-						defaultValue={actionData?.values?.password}
+						error={errors?.password?._errors.join("\n")}
 						required
 					/>
 					<PasswordInput
@@ -167,10 +160,7 @@ export default function Signup() {
 						label="Repeat password:"
 						mt="xs"
 						icon={<BiLockAlt />}
-						error={actionData?.errors?.repeatPassword?._errors.join(
-							" - ",
-						)}
-						defaultValue={actionData?.values?.repeatPassword}
+						error={errors?.repeatPassword?._errors.join(" - ")}
 						required
 					/>
 
@@ -194,12 +184,12 @@ export default function Signup() {
 						<Button
 							mt="sm"
 							type="submit"
-							loading={transition.state === "submitting"}
+							loading={fetcher.state === "submitting"}
 						>
 							Submit
 						</Button>
 					</Box>
-				</Form>
+				</fetcher.Form>
 			</Box>
 		</Box>
 	)
