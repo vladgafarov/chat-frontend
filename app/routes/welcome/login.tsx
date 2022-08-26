@@ -18,6 +18,7 @@ import {
 	useNavigate,
 } from "@remix-run/react"
 import { motion } from "framer-motion"
+import { useEffect, useRef } from "react"
 import { BiLockAlt } from "react-icons/bi"
 import { BsArrowLeft } from "react-icons/bs"
 import { MdAlternateEmail } from "react-icons/md"
@@ -86,9 +87,18 @@ export const action: ActionFunction = async ({ request }) => {
 	}
 }
 
+interface LoginFormControlsCollection extends HTMLFormControlsCollection {
+	email?: HTMLInputElement
+	password?: HTMLInputElement
+}
+interface LoginFormElement extends HTMLFormElement {
+	readonly elements: LoginFormControlsCollection
+}
+
 export default function Login() {
 	const navigate = useNavigate()
 	const location = useLocation()
+	const formRef = useRef<LoginFormElement>(null)
 
 	const { signupMessage, errorMessage } = useLoaderData<typeof loader>()
 
@@ -97,6 +107,14 @@ export default function Login() {
 	}>()
 
 	const errors = fetcher.data?.errors
+
+	useEffect(() => {
+		if (errors?.email) {
+			formRef.current?.elements.email?.focus()
+		} else if (errors?.password) {
+			formRef.current?.elements.password?.focus()
+		}
+	}, [errors?.email, errors?.password])
 
 	return (
 		<Box
@@ -120,7 +138,7 @@ export default function Login() {
 			</Box>
 
 			<Box mt="sm">
-				<fetcher.Form method="post">
+				<fetcher.Form method="post" ref={formRef}>
 					{errorMessage && <Text color="red">{errorMessage}</Text>}
 					{signupMessage && <Text>{signupMessage}</Text>}
 

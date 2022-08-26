@@ -17,6 +17,7 @@ import {
 	useNavigate,
 } from "@remix-run/react"
 import { motion } from "framer-motion"
+import { useEffect, useRef } from "react"
 import { BiLockAlt, BiUser } from "react-icons/bi"
 import { BsArrowLeft } from "react-icons/bs"
 import { MdAlternateEmail } from "react-icons/md"
@@ -93,9 +94,20 @@ export const action: ActionFunction = async ({ request }) => {
 	}
 }
 
+interface SignupFormControlsCollection extends HTMLFormControlsCollection {
+	email?: HTMLInputElement
+	name?: HTMLInputElement
+	password?: HTMLInputElement
+	repeatPassword?: HTMLInputElement
+}
+interface SignupFormElement extends HTMLFormElement {
+	readonly elements: SignupFormControlsCollection
+}
+
 export default function Signup() {
 	const navigate = useNavigate()
 	const location = useLocation()
+	const formRef = useRef<SignupFormElement>(null)
 
 	const { message } = useLoaderData<typeof loader>()
 
@@ -104,6 +116,18 @@ export default function Signup() {
 	}>()
 
 	const errors = fetcher.data?.errors
+
+	useEffect(() => {
+		if (errors?.email) {
+			formRef.current?.elements.email?.focus()
+		} else if (errors?.password) {
+			formRef.current?.elements.password?.focus()
+		} else if (errors?.repeatPassword) {
+			formRef.current?.elements.repeatPassword?.focus()
+		} else if (errors?.name) {
+			formRef.current?.elements.name?.focus()
+		}
+	}, [errors?.email, errors?.name, errors?.password, errors?.repeatPassword])
 
 	return (
 		<Box
@@ -127,7 +151,7 @@ export default function Signup() {
 			</Box>
 
 			<Box mt="sm">
-				<fetcher.Form method="post">
+				<fetcher.Form method="post" ref={formRef}>
 					{message && <Text color="red">{message}</Text>}
 
 					<TextInput
