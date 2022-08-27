@@ -11,6 +11,7 @@ import {
 	getUserSession,
 	requireUser,
 } from "~/models/auth/session.server"
+import { getRooms } from "~/models/room/room.server"
 import type { User } from "~/models/user/user.server"
 import { getUser } from "~/models/user/user.server"
 import type { IChatContext } from "~/types/ChatContext"
@@ -35,7 +36,9 @@ export const loader = async ({ request }: LoaderArgs) => {
 		return redirect("/")
 	}
 
-	return json({ user })
+	const rooms = await getRooms(request)
+
+	return json({ user, rooms })
 }
 
 export const action: ActionFunction = async ({ request }) => {
@@ -62,7 +65,7 @@ export const action: ActionFunction = async ({ request }) => {
 }
 
 export default function Chat() {
-	const { user } = useLoaderData<typeof loader>()
+	const { user, rooms } = useLoaderData<typeof loader>()
 
 	// useEffect(() => {
 	// 	socket?.on("SERVER@ROOM:JOIN", (user) => {
@@ -74,12 +77,15 @@ export default function Chat() {
 	const socket = useSocket(user.id)
 	const context: IChatContext = {
 		socket,
+		user,
 	}
 	const outlet = <Outlet context={context} />
 
+	console.log(rooms)
+
 	return (
 		<>
-			<Navbar user={user} />
+			<Navbar user={user} rooms={rooms} />
 			<Box
 				sx={() => ({
 					width: "calc(100% - 300px)",

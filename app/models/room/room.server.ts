@@ -26,3 +26,23 @@ export const createRoom = async (
 		throw new Error(error.message)
 	}
 }
+
+export const getRooms = async (request: Request): Promise<IRoom[]> => {
+	try {
+		const res = await fetch(`${process.env.BACKEND_URL}/rooms`, {
+			method: "GET",
+			credentials: "include",
+			headers: {
+				Cookie: await getAccessTokenCookie(request),
+			},
+		})
+
+		const rooms = await res.json()
+
+		console.log(rooms)
+
+		return rooms
+	} catch (error: any) {
+		throw new Error(error.message)
+	}
+}

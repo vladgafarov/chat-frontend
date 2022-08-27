@@ -36,7 +36,7 @@ export const action = async ({ request }: ActionArgs) => {
 }
 
 export default function Add() {
-	const { socket } = useOutletContext<IChatContext>()
+	const { socket, user } = useOutletContext<IChatContext>()
 
 	const submit = useSubmit()
 	const transition = useTransition()
@@ -46,7 +46,7 @@ export default function Add() {
 	const navigate = useNavigate()
 
 	const onClose = () => {
-		navigate("/chat")
+		navigate(-1)
 	}
 
 	useEffect(() => {
@@ -54,7 +54,8 @@ export default function Add() {
 			console.log("SERVER@USERS:GET ", users)
 			setUsers(users)
 		})
-		socket?.emit("CLIENT@USERS:GET")
+
+		socket?.emit("CLIENT@USERS:GET", user)
 
 		return () => {
 			socket?.off("SERVER@USERS:GET")
@@ -65,7 +66,7 @@ export default function Add() {
 		<Modal opened={true} onClose={onClose} title="Add chat">
 			<Text>Online users</Text>
 
-			{users && (
+			{users && users.length > 0 ? (
 				<Form>
 					<Stack
 						spacing={"xs"}
@@ -73,12 +74,12 @@ export default function Add() {
 							marginTop: theme.spacing.xs,
 						})}
 					>
-						{users.map(({ id, name }) => (
+						{users.map(({ id, name, email }) => (
 							<Group key={id}>
 								<Avatar radius={"xl"} color="orange">
 									{name[0]}
 								</Avatar>
-								<Text>{name}</Text>
+								<Text>{email}</Text>
 								<ActionIcon
 									sx={() => ({
 										marginLeft: "auto",
@@ -99,6 +100,8 @@ export default function Add() {
 						))}
 					</Stack>
 				</Form>
+			) : (
+				<Text color="gray">No online users</Text>
 			)}
 		</Modal>
 	)

@@ -13,7 +13,7 @@ import type { User } from "~/models/user/user.server"
 import { UserBubble } from "../widgets"
 import { UserButton } from "./UserButton"
 
-export function Navbar({ user }: { user: User }) {
+export function Navbar({ user, rooms }: { user: User; rooms: any[] }) {
 	const submit = useSubmit()
 
 	return (
@@ -37,15 +37,15 @@ export function Navbar({ user }: { user: User }) {
 				>
 					Add chat
 				</Button>
-				{/* {Array.from({ length: 10 }).map((_, i) => (
+				{rooms.map((room) => (
 					<UserBubble
-						key={i}
-						link={`/chat/${i}`}
+						key={room.id}
+						link={`/chat/${room.id}`}
 						data={{
-							username: "Jhon Thomson",
+							username: room.users[0].email,
 						}}
 					/>
-				))} */}
+				))}
 			</NavbarUI.Section>
 			<NavbarUI.Section>
 				<Menu position="right">
