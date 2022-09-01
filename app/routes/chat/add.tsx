@@ -1,5 +1,6 @@
 import { ActionIcon, Avatar, Group, Modal, Stack, Text } from "@mantine/core"
 import type { ActionArgs } from "@remix-run/node"
+import { redirect } from "@remix-run/node"
 import { json } from "@remix-run/node"
 import {
 	Form,
@@ -27,12 +28,10 @@ export const action = async ({ request }: ActionArgs) => {
 	try {
 		const res = await createRoom([+userId], request)
 
-		console.log(res)
-	} catch (error) {
-		console.log(error)
+		return redirect(`/chat/${res.id}`)
+	} catch (error: any) {
+		throw new Error(error)
 	}
-
-	return null
 }
 
 export default function Add() {
