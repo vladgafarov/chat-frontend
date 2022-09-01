@@ -1,6 +1,7 @@
 import type { ColorScheme } from "@mantine/core"
 import { ColorSchemeProvider, MantineProvider } from "@mantine/core"
 import { useLocalStorage } from "@mantine/hooks"
+import { StylesPlaceholder } from "@mantine/remix"
 import type { MetaFunction } from "@remix-run/node"
 import {
 	Links,
@@ -23,6 +24,7 @@ export default function App() {
 			<head>
 				<Meta />
 				<Links />
+				<StylesPlaceholder />
 			</head>
 			<body>
 				<MantineTheme>
