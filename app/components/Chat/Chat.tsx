@@ -1,4 +1,4 @@
-import { Group, ScrollArea } from "@mantine/core"
+import { ScrollArea, Stack } from "@mantine/core"
 import { MessageBubble, SendMessageArea } from "../widgets"
 
 const Chat = () => {
@@ -12,11 +12,11 @@ const Chat = () => {
 			mt="md"
 			type="always"
 		>
-			<Group p="md" direction="column" align="stretch">
+			<Stack p="md" align="stretch">
 				{Array.from({ length: 20 }).map((_, i) => (
 					<MessageBubble key={i}>{Math.random()}</MessageBubble>
 				))}
-			</Group>
+			</Stack>
 			<SendMessageArea />
 		</ScrollArea>
 	)
