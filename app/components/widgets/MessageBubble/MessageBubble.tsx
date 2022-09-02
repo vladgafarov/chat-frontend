@@ -1,37 +1,33 @@
 import { Box, Text } from "@mantine/core"
+import type { FC } from "react"
 
 interface Props {
-	children: React.ReactNode
-	direction: "left" | "right"
-	data: {
-		message: string
-		time: string
-	}
+	message: string
+	time: string
 }
 
-export const MessageBubble = ({ children, direction, data }: Props) => {
-	direction = Math.floor(Math.random() * 2) === 0 ? "left" : "right"
+export const MessageBubble: FC<Props> = ({ message, time }) => {
+	const parsedTime = new Date(time).toLocaleTimeString("ru-RU", {
+		hour: "numeric",
+		minute: "numeric",
+	})
 
 	return (
 		<Box
-			sx={(theme) => ({
+			sx={() => ({
 				display: "flex",
-				// justifyContent: direction,
 			})}
 		>
 			<Box
 				sx={(theme) => ({
-					backgroundColor:
-						direction === "left"
-							? theme.colors.blue[1]
-							: theme.colors.blue[3],
+					backgroundColor: theme.colors.blue[1],
 					borderRadius: theme.radius.md,
 					padding: theme.spacing.md,
 				})}
 			>
-				{children}
-				<Text align={direction} size="xs" color={"gray"}>
-					12:38
+				{message}
+				<Text size="xs" color={"gray"}>
+					{parsedTime}
 				</Text>
 			</Box>
 		</Box>

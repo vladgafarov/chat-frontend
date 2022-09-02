@@ -19,6 +19,7 @@ export default function ChatItem() {
 			socket.emit("CLIENT@ROOM:LEAVE", { roomId: chatId, user })
 			socket.off("SERVER@ROOM:JOIN")
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [chatId])
 
 	return (
