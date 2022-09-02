@@ -81,8 +81,6 @@ export default function Chat() {
 	}
 	const outlet = <Outlet context={context} />
 
-	console.log(rooms)
-
 	return (
 		<>
 			<Navbar user={user} rooms={rooms} />

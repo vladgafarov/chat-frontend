@@ -1,5 +1,5 @@
 import { Avatar, Group, Title, UnstyledButton } from "@mantine/core"
-import { Link } from "@remix-run/react"
+import { Link, NavLink } from "@remix-run/react"
 
 interface Props {
 	data: {

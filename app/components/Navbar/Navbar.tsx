@@ -34,6 +34,7 @@ export function Navbar({ user, rooms }: { user: User; rooms: any[] }) {
 					color="gray"
 					leftIcon={<BiPlus />}
 					fullWidth
+					mb={"md"}
 				>
 					Add chat
 				</Button>
