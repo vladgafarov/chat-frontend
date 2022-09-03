@@ -4,9 +4,16 @@ import type { FC } from "react"
 interface Props {
 	message: string
 	time: string
+	userId: number
+	authorId: number
 }
 
-export const MessageBubble: FC<Props> = ({ message, time }) => {
+export const MessageBubble: FC<Props> = ({
+	message,
+	time,
+	userId,
+	authorId,
+}) => {
 	const parsedTime = new Date(time).toLocaleTimeString("ru-RU", {
 		hour: "numeric",
 		minute: "numeric",
@@ -20,7 +27,10 @@ export const MessageBubble: FC<Props> = ({ message, time }) => {
 		>
 			<Box
 				sx={(theme) => ({
-					backgroundColor: theme.colors.blue[1],
+					backgroundColor:
+						authorId === userId
+							? theme.colors.blue[1]
+							: theme.colors.gray[1],
 					borderRadius: theme.radius.md,
 					padding: theme.spacing.md,
 				})}

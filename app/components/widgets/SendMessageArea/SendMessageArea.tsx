@@ -36,7 +36,7 @@ export const SendMessageArea = () => {
 		<Box
 			sx={(theme) => ({
 				backgroundColor: theme.colors.blue[1],
-				position: "absolute",
+				position: "sticky",
 				bottom: "0",
 				width: "100%",
 				marginInlineStart: "50%",

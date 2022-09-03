@@ -1,13 +1,10 @@
+import type { Room } from "~/types/Room"
 import { getAccessTokenCookie } from "../auth/session.server"
-
-export interface IRoom {
-	id: number
-}
 
 export const createRoom = async (
 	users: number[],
 	request: Request,
-): Promise<IRoom> => {
+): Promise<Room> => {
 	try {
 		const res = await fetch(`${process.env.BACKEND_URL}/rooms`, {
 			method: "POST",
@@ -27,7 +24,7 @@ export const createRoom = async (
 	}
 }
 
-export const getRooms = async (request: Request): Promise<IRoom[]> => {
+export const getRooms = async (request: Request): Promise<Room[]> => {
 	try {
 		const res = await fetch(`${process.env.BACKEND_URL}/rooms`, {
 			method: "GET",
@@ -39,9 +36,29 @@ export const getRooms = async (request: Request): Promise<IRoom[]> => {
 
 		const rooms = await res.json()
 
-		console.log(rooms)
-
 		return rooms
+	} catch (error: any) {
+		throw new Error(error.message)
+	}
+}
+
+export const getRoom = async (id: string, request: Request): Promise<Room> => {
+	try {
+		const res = await fetch(`${process.env.BACKEND_URL}/rooms/${id}`, {
+			method: "GET",
+			credentials: "include",
+			headers: {
+				Cookie: await getAccessTokenCookie(request),
+			},
+		})
+
+		if (res.status === 404) {
+			throw new Error("404")
+		}
+
+		const room = await res.json()
+
+		return room
 	} catch (error: any) {
 		throw new Error(error.message)
 	}

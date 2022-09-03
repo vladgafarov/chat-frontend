@@ -1,14 +1,13 @@
 import { Avatar, Group, Title, UnstyledButton } from "@mantine/core"
-import { Link, NavLink } from "@remix-run/react"
+import { Link } from "@remix-run/react"
 
 interface Props {
-	data: {
-		username: string
-	}
+	title: string
 	link: string
+	imageUrl?: string
 }
 
-export const UserBubble = ({ link, data: { username } }: Props) => {
+export const UserBubble = ({ link, title, imageUrl }: Props) => {
 	return (
 		<UnstyledButton
 			mb="md"
@@ -22,8 +21,8 @@ export const UserBubble = ({ link, data: { username } }: Props) => {
 			})}
 		>
 			<Group>
-				<Avatar src={undefined} radius="xl" />
-				<Title order={6}>{username}</Title>
+				<Avatar src={imageUrl} radius="xl" />
+				<Title order={6}>{title}</Title>
 			</Group>
 		</UnstyledButton>
 	)

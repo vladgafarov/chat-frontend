@@ -10,10 +10,11 @@ import { Link, useSubmit } from "@remix-run/react"
 import { BiExit, BiPlus } from "react-icons/bi"
 import { MdSettings } from "react-icons/md"
 import type { User } from "~/models/user/user.server"
+import type { Room } from "~/types/Room"
 import { UserBubble } from "../widgets"
 import { UserButton } from "./UserButton"
 
-export function Navbar({ user, rooms }: { user: User; rooms: any[] }) {
+export function Navbar({ user, rooms }: { user: User; rooms: Room[] }) {
 	const submit = useSubmit()
 
 	return (
@@ -38,15 +39,28 @@ export function Navbar({ user, rooms }: { user: User; rooms: any[] }) {
 				>
 					Add chat
 				</Button>
-				{rooms.map((room) => (
-					<UserBubble
-						key={room.id}
-						link={`/chat/${room.id}`}
-						data={{
-							username: room.users[0].email,
-						}}
-					/>
-				))}
+				{rooms.map((room) => {
+					let roomTitle = "Group chat"
+
+					if (room?.title) {
+						roomTitle = room.title
+					}
+
+					if (room.invitedUsers.length === 1) {
+						roomTitle =
+							room.authorId === user.id
+								? room.invitedUsers[0].name
+								: room.author.name
+					}
+
+					return (
+						<UserBubble
+							key={room.id}
+							link={`/chat/${room.id}`}
+							title={roomTitle}
+						/>
+					)
+				})}
 			</NavbarUI.Section>
 			<NavbarUI.Section>
 				<Menu position="right">
