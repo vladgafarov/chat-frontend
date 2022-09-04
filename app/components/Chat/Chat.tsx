@@ -1,7 +1,8 @@
 import { ScrollArea, Stack, Text } from "@mantine/core"
+import { useScrollIntoView } from "@mantine/hooks"
 import { useOutletContext, useParams } from "@remix-run/react"
 import type { FC } from "react"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import type { IChatContext } from "~/types/ChatContext"
 import type { Message } from "~/types/Message"
 import { MessageBubble, SendMessageArea } from "../widgets"
@@ -15,15 +16,15 @@ const Chat: FC<Props> = ({ messages: defaultMessages }) => {
 	const { chatId } = useParams()
 
 	const [messages, setMessages] = useState<Message[]>(defaultMessages)
-	const messagesEndRef = useRef<HTMLDivElement>(null)
+
+	const { scrollIntoView, targetRef, scrollableRef } = useScrollIntoView()
 
 	useEffect(() => {
-		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
 		setMessages(defaultMessages)
+		scrollIntoView({ alignment: "end" })
 
 		socket.on("SERVER@MESSAGE:ADD", (message) => {
 			setMessages((messages) => [...messages, message])
-			messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
 		})
 
 		return () => {
@@ -41,6 +42,7 @@ const Chat: FC<Props> = ({ messages: defaultMessages }) => {
 				})}
 				my="md"
 				type="hover"
+				viewportRef={scrollableRef}
 			>
 				<Stack align="stretch">
 					{/* {Array.from({ length: 20 }).map((_, i) => (
@@ -66,7 +68,8 @@ const Chat: FC<Props> = ({ messages: defaultMessages }) => {
 
 				{messages.length === 0 && <Text>No messages yet</Text>}
 
-				<div ref={messagesEndRef} />
+				{/* @ts-ignore */}
+				<div ref={targetRef} />
 			</ScrollArea>
 			<SendMessageArea />
 		</>
