@@ -1,6 +1,7 @@
 import type { ColorScheme } from "@mantine/core"
 import { ColorSchemeProvider, MantineProvider } from "@mantine/core"
 import { useLocalStorage } from "@mantine/hooks"
+import { NotificationsProvider } from "@mantine/notifications"
 import { StylesPlaceholder } from "@mantine/remix"
 import type { MetaFunction } from "@remix-run/node"
 import {
@@ -68,7 +69,9 @@ function MantineTheme({ children }: { children: React.ReactNode }) {
 				withNormalizeCSS
 				withGlobalStyles
 			>
-				{children}
+				<NotificationsProvider position="top-right">
+					{children}
+				</NotificationsProvider>
 			</MantineProvider>
 		</ColorSchemeProvider>
 	)

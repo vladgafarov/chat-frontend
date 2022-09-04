@@ -18,6 +18,7 @@
 		"@mantine/core": "^5.2.4",
 		"@mantine/form": "^5.2.4",
 		"@mantine/hooks": "^5.2.4",
+		"@mantine/notifications": "^5.2.4",
 		"@mantine/remix": "^5.2.4",
 		"@mantine/ssr": "^5.2.4",
 		"@remix-run/node": "1.7.0",

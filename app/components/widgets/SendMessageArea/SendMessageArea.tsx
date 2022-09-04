@@ -1,25 +1,30 @@
 import { Box, Button, TextInput } from "@mantine/core"
-import { useOutletContext, useParams } from "@remix-run/react"
+import { showNotification } from "@mantine/notifications"
+import { useFetcher, useOutletContext, useParams } from "@remix-run/react"
 import { useState } from "react"
 import { BiSend } from "react-icons/bi"
 import type { IChatContext } from "~/types/ChatContext"
-
-const SendMessageButton = ({ onClick }: { onClick: () => void }) => {
-	return (
-		<Button onClick={onClick} variant="subtle" px="xs" radius={"xs"}>
-			<BiSend />
-		</Button>
-	)
-}
 
 export const SendMessageArea = () => {
 	const { socket, user } = useOutletContext<IChatContext>()
 	const { chatId } = useParams()
 
+	const sendMessageFetcher = useFetcher()
+
 	const [message, setMessage] = useState("")
 
 	const addMessage = () => {
 		if (!chatId) {
+			return
+		}
+
+		if (!message.trim()) {
+			showNotification({
+				title: "Message is empty",
+				message: "Please, enter your message",
+				color: "orange",
+			})
+
 			return
 		}
 
@@ -40,22 +45,24 @@ export const SendMessageArea = () => {
 			})}
 			p="sm"
 		>
-			<TextInput
-				placeholder="Enter a message"
-				value={message}
-				onChange={(e) => setMessage(e.currentTarget.value)}
-				rightSection={
-					<Button
-						onClick={addMessage}
-						variant="subtle"
-						px="xs"
-						radius={"xs"}
-						disabled={!message}
-					>
-						<BiSend />
-					</Button>
-				}
-			/>
+			<sendMessageFetcher.Form onSubmit={addMessage}>
+				<TextInput
+					placeholder="Enter a message"
+					value={message}
+					onChange={(e) => setMessage(e.currentTarget.value)}
+					rightSection={
+						<Button
+							variant="subtle"
+							px="xs"
+							radius={"xs"}
+							type="submit"
+							loading={sendMessageFetcher.state === "loading"}
+						>
+							<BiSend />
+						</Button>
+					}
+				/>
+			</sendMessageFetcher.Form>
 		</Box>
 	)
 }
