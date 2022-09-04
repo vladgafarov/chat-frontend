@@ -1,7 +1,7 @@
-import { ScrollArea, Stack } from "@mantine/core"
+import { ScrollArea, Stack, Text } from "@mantine/core"
 import { useOutletContext, useParams } from "@remix-run/react"
 import type { FC } from "react"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import type { IChatContext } from "~/types/ChatContext"
 import type { Message } from "~/types/Message"
 import { MessageBubble, SendMessageArea } from "../widgets"
@@ -15,10 +15,15 @@ const Chat: FC<Props> = ({ messages: defaultMessages }) => {
 	const { chatId } = useParams()
 
 	const [messages, setMessages] = useState<Message[]>(defaultMessages)
+	const messagesEndRef = useRef<HTMLDivElement>(null)
 
 	useEffect(() => {
+		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+		setMessages(defaultMessages)
+
 		socket.on("SERVER@MESSAGE:ADD", (message) => {
 			setMessages((messages) => [...messages, message])
+			messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
 		})
 
 		return () => {
@@ -28,16 +33,17 @@ const Chat: FC<Props> = ({ messages: defaultMessages }) => {
 	}, [chatId])
 
 	return (
-		<ScrollArea
-			sx={(theme) => ({
-				borderRadius: theme.radius.md,
-				flex: "1",
-			})}
-			mt="md"
-			type="always"
-		>
-			<Stack align="stretch">
-				{/* {Array.from({ length: 20 }).map((_, i) => (
+		<>
+			<ScrollArea
+				sx={(theme) => ({
+					borderRadius: theme.radius.md,
+					flex: "1",
+				})}
+				my="md"
+				type="hover"
+			>
+				<Stack align="stretch">
+					{/* {Array.from({ length: 20 }).map((_, i) => (
 					<MessageBubble
 						key={i}
 						message="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed"
@@ -47,18 +53,23 @@ const Chat: FC<Props> = ({ messages: defaultMessages }) => {
 					/>
 				))} */}
 
-				{messages.map((message, i) => (
-					<MessageBubble
-						key={i}
-						message={message.text}
-						time={message.createdAt}
-						authorId={message.authorId}
-						userId={user.id}
-					/>
-				))}
-			</Stack>
+					{messages.map((message, i) => (
+						<MessageBubble
+							key={i}
+							message={message.text}
+							time={message.createdAt}
+							authorId={message.authorId}
+							userId={user.id}
+						/>
+					))}
+				</Stack>
+
+				{messages.length === 0 && <Text>No messages yet</Text>}
+
+				<div ref={messagesEndRef} />
+			</ScrollArea>
 			<SendMessageArea />
-		</ScrollArea>
+		</>
 	)
 }
 

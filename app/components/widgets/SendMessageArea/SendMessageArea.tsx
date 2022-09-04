@@ -36,12 +36,7 @@ export const SendMessageArea = () => {
 		<Box
 			sx={(theme) => ({
 				backgroundColor: theme.colors.blue[1],
-				position: "sticky",
-				bottom: "0",
-				width: "100%",
-				marginInlineStart: "50%",
-				transform: "translateX(-50%)",
-				zIndex: 1,
+				borderRadius: theme.radius.md,
 			})}
 			p="sm"
 		>
@@ -49,7 +44,17 @@ export const SendMessageArea = () => {
 				placeholder="Enter a message"
 				value={message}
 				onChange={(e) => setMessage(e.currentTarget.value)}
-				rightSection={<SendMessageButton onClick={addMessage} />}
+				rightSection={
+					<Button
+						onClick={addMessage}
+						variant="subtle"
+						px="xs"
+						radius={"xs"}
+						disabled={!message}
+					>
+						<BiSend />
+					</Button>
+				}
 			/>
 		</Box>
 	)
