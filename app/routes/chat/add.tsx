@@ -1,13 +1,11 @@
 import { ActionIcon, Avatar, Group, Modal, Stack, Text } from "@mantine/core"
 import type { ActionArgs } from "@remix-run/node"
-import { redirect } from "@remix-run/node"
-import { json } from "@remix-run/node"
+import { json, redirect } from "@remix-run/node"
 import {
 	Form,
+	useFetcher,
 	useNavigate,
 	useOutletContext,
-	useSubmit,
-	useTransition,
 } from "@remix-run/react"
 import { useEffect, useState } from "react"
 import { BiPlus } from "react-icons/bi"
@@ -30,15 +28,16 @@ export const action = async ({ request }: ActionArgs) => {
 
 		return redirect(`/chat/${res.id}`)
 	} catch (error: any) {
-		throw new Error(error)
+		return json({
+			error: error.message,
+		})
 	}
 }
 
 export default function Add() {
 	const { socket, user } = useOutletContext<IChatContext>()
 
-	const submit = useSubmit()
-	const transition = useTransition()
+	const fetcher = useFetcher()
 
 	const [users, setUsers] = useState<User[]>([])
 
@@ -65,6 +64,8 @@ export default function Add() {
 		<Modal opened={true} onClose={onClose} title="Add chat">
 			<Text>Online users</Text>
 
+			{fetcher.data?.error && <Text color="red">{fetcher.data?.error}</Text>}
+
 			{users && users.length > 0 ? (
 				<Form>
 					<Stack
@@ -85,11 +86,14 @@ export default function Add() {
 									})}
 									title="Create chat"
 									onClick={() => {
-										submit({ userId: String(id) }, { method: "post" })
+										fetcher.submit(
+											{ userId: String(id) },
+											{ method: "post" },
+										)
 									}}
 									loading={
-										transition.state === "submitting" &&
-										transition.submission.formData.get("userId") ===
+										fetcher.state === "submitting" &&
+										fetcher.submission.formData.get("userId") ===
 											String(id)
 									}
 								>

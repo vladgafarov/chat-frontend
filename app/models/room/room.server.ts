@@ -13,9 +13,14 @@ export const createRoom = async (
 				Cookie: await getAccessTokenCookie(request),
 				"Content-Type": "application/json",
 			},
-			body: JSON.stringify({ users }),
+			body: JSON.stringify({ users, isGroupChat: false }),
 		})
 
+		if (res.status >= 400) {
+			const error = await res.json()
+
+			throw new Error(error.message)
+		}
 		const room = await res.json()
 
 		return room
