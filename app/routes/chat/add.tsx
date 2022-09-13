@@ -1,4 +1,14 @@
-import { ActionIcon, Avatar, Group, Modal, Stack, Text } from "@mantine/core"
+import {
+	ActionIcon,
+	Avatar,
+	Checkbox,
+	Group,
+	Modal,
+	Stack,
+	Text,
+	TextInput,
+} from "@mantine/core"
+import { showNotification } from "@mantine/notifications"
 import type { ActionArgs } from "@remix-run/node"
 import { json, redirect } from "@remix-run/node"
 import {
@@ -8,7 +18,7 @@ import {
 	useOutletContext,
 } from "@remix-run/react"
 import { useEffect, useState } from "react"
-import { BiPlus } from "react-icons/bi"
+import { BiPlus, BiSearch } from "react-icons/bi"
 import { createRoom } from "~/models/room/room.server"
 import type { User } from "~/models/user/user.server"
 import type { IChatContext } from "~/types/ChatContext"
@@ -36,35 +46,52 @@ export const action = async ({ request }: ActionArgs) => {
 
 export default function Add() {
 	const { socket, user } = useOutletContext<IChatContext>()
-
 	const fetcher = useFetcher()
+	const navigate = useNavigate()
 
 	const [users, setUsers] = useState<User[]>([])
-
-	const navigate = useNavigate()
+	const [isGroupChat, setIsGroupChat] = useState<boolean>(false)
 
 	const onClose = () => {
 		navigate(-1)
 	}
 
 	useEffect(() => {
-		socket?.on("SERVER@USERS:GET", (users) => {
-			console.log("SERVER@USERS:GET ", users)
+		// socket?.on("SERVER@USERS:GET", (users) => {
+		// 	console.log("SERVER@USERS:GET ", users)
+		// 	setUsers(users)
+		// })
+
+		socket?.emit("CLIENT@USERS:GET", user, (users: User[]) => {
 			setUsers(users)
 		})
 
-		socket?.emit("CLIENT@USERS:GET", user)
-
-		return () => {
-			socket?.off("SERVER@USERS:GET")
-		}
+		// return () => {
+		// 	socket?.off("SERVER@USERS:GET")
+		// }
 	}, [])
+
+	useEffect(() => {
+		if (fetcher.data?.error) {
+			showNotification({
+				title: "Error",
+				message: fetcher.data?.error,
+				color: "red",
+			})
+		}
+	}, [fetcher.data])
 
 	return (
 		<Modal opened={true} onClose={onClose} title="Add chat">
-			<Text>Online users</Text>
+			<TextInput placeholder="Search users" icon={<BiSearch />} />
+			<Checkbox
+				label="Group chat"
+				checked={isGroupChat}
+				onChange={(e) => setIsGroupChat(e.currentTarget.checked)}
+				mt={"xs"}
+			/>
 
-			{fetcher.data?.error && <Text color="red">{fetcher.data?.error}</Text>}
+			<Text>Online users</Text>
 
 			{users && users.length > 0 ? (
 				<Form>
