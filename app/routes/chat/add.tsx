@@ -28,7 +28,6 @@ export const action = async ({ request }: ActionArgs) => {
 	}
 
 	const userIdForm = formData.get("userId")
-	const isGroupChat = formData.get("isGroupChat") === "true"
 
 	if (!userIdForm) {
 		return json({
@@ -37,11 +36,13 @@ export const action = async ({ request }: ActionArgs) => {
 	}
 
 	try {
+		const isGroupChat = formData.get("isGroupChat") === "true"
+		const groupName = formData.get("groupName") as string
 		const userIds = (userIdForm as string)
 			.split(",")
 			.map((id) => parseInt(id))
 
-		const res = await createRoom(userIds, isGroupChat, request)
+		const res = await createRoom(userIds, isGroupChat, groupName, request)
 
 		return redirect(`/chat/${res.id}`)
 	} catch (error: any) {
@@ -60,6 +61,7 @@ export default function Add() {
 
 	const [selectedUsers, setSelectedUsers] = useState<User[]>([])
 	const [isGroupChat, setIsGroupChat] = useState<boolean>(false)
+	const [groupName, setGroupName] = useState<string>("")
 
 	const onClose = () => {
 		navigate(-1)
@@ -91,6 +93,7 @@ export default function Add() {
 			{
 				userId: selectedUsers.map((u) => u.id).join(","),
 				isGroupChat: "true",
+				groupName,
 			},
 			{
 				method: "post",
@@ -144,6 +147,18 @@ export default function Add() {
 				mt={"xs"}
 			/>
 
+			{isGroupChat && (
+				<TextInput
+					name="chatName"
+					value={groupName}
+					onChange={(e) => {
+						setGroupName(e.currentTarget.value)
+					}}
+					placeholder="Chat name"
+					mt="xs"
+				/>
+			)}
+
 			{selectedUsers.length > 0 && (
 				<Stack my="md" spacing={"md"} align="flex-start">
 					<Title order={6}>Selected users</Title>
@@ -164,7 +179,10 @@ export default function Add() {
 						))}
 					</Stack>
 
-					<Button onClick={onGroupChatCreate}>
+					<Button
+						onClick={onGroupChatCreate}
+						loading={fetcher.state === "loading"}
+					>
 						Create chat with {selectedUsers.length}{" "}
 						{selectedUsers.length > 1 ? "users" : "user"}
 					</Button>
@@ -184,7 +202,8 @@ export default function Add() {
 								onClick={() => onUserAdd(user)}
 								isLoading={
 									fetcher.state === "submitting" &&
-									fetcher.data?.id === user.id
+									fetcher.submission.formData.get("userId") ===
+										String(user.id)
 								}
 								isAdding={true}
 							/>
