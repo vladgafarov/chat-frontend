@@ -3,6 +3,7 @@ import { getAccessTokenCookie } from "../auth/session.server"
 
 export const createRoom = async (
 	users: number[],
+	isGroupChat: boolean,
 	request: Request,
 ): Promise<Room> => {
 	try {
@@ -13,7 +14,7 @@ export const createRoom = async (
 				Cookie: await getAccessTokenCookie(request),
 				"Content-Type": "application/json",
 			},
-			body: JSON.stringify({ users, isGroupChat: false }),
+			body: JSON.stringify({ users, isGroupChat }),
 		})
 
 		if (res.status >= 400) {

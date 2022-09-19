@@ -1,6 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import {
-	Box,
 	Button,
 	Checkbox,
 	Divider,
@@ -13,14 +12,13 @@ import { useDebouncedState } from "@mantine/hooks"
 import { showNotification } from "@mantine/notifications"
 import type { ActionArgs } from "@remix-run/node"
 import { json, redirect } from "@remix-run/node"
-import { useFetcher, useNavigate, useOutletContext } from "@remix-run/react"
+import { useFetcher, useNavigate } from "@remix-run/react"
 import { useEffect, useState } from "react"
 import { BiSearch } from "react-icons/bi"
 import { UserItem } from "~/components/widgets"
 import { createRoom } from "~/models/room/room.server"
 import type { User } from "~/models/user/user.server"
 import { searchUser } from "~/models/user/user.server"
-import type { IChatContext } from "~/types/ChatContext"
 
 export const action = async ({ request }: ActionArgs) => {
 	const formData = await request.formData()
@@ -37,16 +35,23 @@ export const action = async ({ request }: ActionArgs) => {
 		}
 	}
 
-	const userId = formData.get("userId")
+	const userIdForm = formData.get("userId")
+	const isGroupChat = formData.get("isGroupChat") === "true"
 
-	if (!userId) {
+	if (!userIdForm) {
 		return json({
 			error: "No userId provided",
 		})
 	}
 
 	try {
-		const res = await createRoom([+userId], request)
+		const userIds = (userIdForm as string)
+			.split(",")
+			.map((id) => parseInt(id))
+
+		const res = await createRoom(userIds, isGroupChat, request)
+
+		console.log({ room: res })
 
 		return redirect(`/chat/${res.id}`)
 	} catch (error: any) {
@@ -57,7 +62,6 @@ export const action = async ({ request }: ActionArgs) => {
 }
 
 export default function Add() {
-	const { socket, user } = useOutletContext<IChatContext>()
 	const fetcher = useFetcher()
 	const searchFetcher = useFetcher()
 	const navigate = useNavigate()
@@ -72,6 +76,37 @@ export default function Add() {
 	}
 
 	const foundUsers: User[] = searchFetcher.data?.users || []
+
+	const onUserAdd = (user: User) => {
+		if (isGroupChat) {
+			setSelectedUsers((prev) => [...prev, user])
+		} else {
+			fetcher.submit(
+				{
+					userId: String(user.id),
+				},
+				{
+					method: "post",
+				},
+			)
+		}
+	}
+
+	const onUserRemove = (user: User) => {
+		setSelectedUsers((prev) => prev.filter((u) => u.id !== user.id))
+	}
+
+	const onGroupChatCreate = () => {
+		fetcher.submit(
+			{
+				userId: selectedUsers.map((u) => u.id).join(","),
+				isGroupChat: "true",
+			},
+			{
+				method: "post",
+			},
+		)
+	}
 
 	useEffect(() => {
 		if (!searchEmail) return
@@ -112,7 +147,10 @@ export default function Add() {
 			<Checkbox
 				label="Group chat"
 				checked={isGroupChat}
-				onChange={(e) => setIsGroupChat(e.currentTarget.checked)}
+				onChange={(e) => {
+					setSelectedUsers([])
+					setIsGroupChat(e.currentTarget.checked)
+				}}
 				mt={"xs"}
 			/>
 
@@ -129,22 +167,14 @@ export default function Add() {
 							<UserItem
 								key={user.id}
 								{...user}
-								onClick={() => {
-									setSelectedUsers((prev) => {
-										const filteredUsers = prev.filter(
-											(item) => item.id !== user.id,
-										)
-
-										return [...filteredUsers]
-									})
-								}}
+								onClick={() => onUserRemove(user)}
 								isLoading={false}
 								isAdding={false}
 							/>
 						))}
 					</Stack>
 
-					<Button>
+					<Button onClick={onGroupChatCreate}>
 						Create chat with {selectedUsers.length}{" "}
 						{selectedUsers.length > 1 ? "users" : "user"}
 					</Button>
@@ -163,21 +193,11 @@ export default function Add() {
 							<UserItem
 								key={user.id}
 								{...user}
-								onClick={() => {
-									if (isGroupChat) {
-										setSelectedUsers((prev) => [...prev, user])
-									} else {
-										fetcher.submit(
-											{
-												userId: String(user.id),
-											},
-											{
-												method: "post",
-											},
-										)
-									}
-								}}
-								isLoading={false}
+								onClick={() => onUserAdd(user)}
+								isLoading={
+									fetcher.state === "submitting" &&
+									fetcher.data?.id === user.id
+								}
 								isAdding={true}
 							/>
 						)
