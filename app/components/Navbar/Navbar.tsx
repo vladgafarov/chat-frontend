@@ -40,13 +40,13 @@ export function Navbar({ user, rooms }: { user: User; rooms: Room[] }) {
 					Add chat
 				</Button>
 				{rooms.map((room) => {
-					let roomTitle = "Group chat"
+					let roomTitle: string = "room_title"
 
 					if (room?.title) {
 						roomTitle = room.title
 					}
 
-					if (room.invitedUsers.length === 1) {
+					if (room.invitedUsers.length === 1 && !room.isGroupChat) {
 						roomTitle =
 							room.authorId === user.id
 								? room.invitedUsers[0].name
@@ -58,6 +58,7 @@ export function Navbar({ user, rooms }: { user: User; rooms: Room[] }) {
 							key={room.id}
 							link={`/chat/${room.id}`}
 							title={roomTitle}
+							isGroupChat={room.isGroupChat}
 						/>
 					)
 				})}

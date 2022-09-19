@@ -1,13 +1,15 @@
 import { Avatar, Group, Title, UnstyledButton } from "@mantine/core"
 import { Link } from "@remix-run/react"
+import { RiGroupLine } from "react-icons/ri"
 
 interface Props {
 	title: string
 	link: string
+	isGroupChat: boolean
 	imageUrl?: string
 }
 
-export const UserBubble = ({ link, title, imageUrl }: Props) => {
+export const UserBubble = ({ link, title, isGroupChat, imageUrl }: Props) => {
 	return (
 		<UnstyledButton
 			mb="md"
@@ -20,8 +22,10 @@ export const UserBubble = ({ link, title, imageUrl }: Props) => {
 				display: "block",
 			})}
 		>
-			<Group>
-				<Avatar src={imageUrl} radius="xl" />
+			<Group p={5}>
+				<Avatar src={imageUrl} radius="xl">
+					{isGroupChat && <RiGroupLine />}
+				</Avatar>
 				<Title order={6}>{title}</Title>
 			</Group>
 		</UnstyledButton>

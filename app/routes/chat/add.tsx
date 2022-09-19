@@ -51,8 +51,6 @@ export const action = async ({ request }: ActionArgs) => {
 
 		const res = await createRoom(userIds, isGroupChat, request)
 
-		console.log({ room: res })
-
 		return redirect(`/chat/${res.id}`)
 	} catch (error: any) {
 		return json({
@@ -178,8 +176,6 @@ export default function Add() {
 						Create chat with {selectedUsers.length}{" "}
 						{selectedUsers.length > 1 ? "users" : "user"}
 					</Button>
-
-					<Divider />
 				</Stack>
 			)}
 

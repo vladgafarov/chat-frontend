@@ -8,6 +8,7 @@ export interface Room {
 	authorId: number
 	createdAt: string
 	invitedUsers: User[]
+	isGroupChat: boolean
 	author: {
 		email: string
 		name: string
