@@ -45,22 +45,12 @@ const Chat: FC<Props> = ({ messages: defaultMessages }) => {
 				viewportRef={scrollableRef}
 			>
 				<Stack align="stretch">
-					{/* {Array.from({ length: 20 }).map((_, i) => (
-					<MessageBubble
-						key={i}
-						message="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed"
-						time="2022-09-02T15:29:56.602Z"
-						authorId={2}
-						userId={Math.random() > 0.5 ? 1 : 2}
-					/>
-				))} */}
-
 					{messages.map((message, i) => (
 						<MessageBubble
 							key={i}
 							message={message.text}
 							time={message.createdAt}
-							authorId={message.authorId}
+							authorId={message.author.id}
 							userId={user.id}
 						/>
 					))}
