@@ -50,7 +50,7 @@ const Chat: FC<Props> = ({ messages: defaultMessages }) => {
 							key={i}
 							message={message.text}
 							time={message.createdAt}
-							authorId={message.author.id}
+							author={message.author}
 							userId={user.id}
 						/>
 					))}

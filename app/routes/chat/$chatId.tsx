@@ -86,9 +86,17 @@ export function CatchBoundary() {
 	throw new Error(`Unhandled error: ${caught.status}`)
 }
 
-export function ErrorBoundary() {
+export function ErrorBoundary({ error }: { error: Error }) {
 	const { chatId } = useParams()
+
 	return (
-		<div>{`There was an error loading chat by the id ${chatId}. Sorry.`}</div>
+		<div>
+			{`There was an error loading chat by the id ${chatId}. Sorry.`}
+			<div>
+				<h3>Error</h3>
+				<p>{error.message}</p>
+				<pre>{error.stack}</pre>
+			</div>
+		</div>
 	)
 }
