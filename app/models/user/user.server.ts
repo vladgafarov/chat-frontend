@@ -39,7 +39,6 @@ export const searchUser = async (
 			`${process.env.BACKEND_URL}/user?email=${email}`,
 			{
 				method: "GET",
-				// credentials: "include",
 				headers: {
 					Cookie: await getAccessTokenCookie(request),
 				},
