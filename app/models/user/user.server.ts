@@ -30,12 +30,19 @@ export const getUser = async (request: Request): Promise<User> => {
 	}
 }
 
-export const searchUser = async (email: string): Promise<User[]> => {
+export const searchUser = async (
+	email: string,
+	request: Request,
+): Promise<User[]> => {
 	try {
 		const response = await fetch(
 			`${process.env.BACKEND_URL}/user?email=${email}`,
 			{
 				method: "GET",
+				// credentials: "include",
+				headers: {
+					Cookie: await getAccessTokenCookie(request),
+				},
 			},
 		)
 		const resData = await response.json()

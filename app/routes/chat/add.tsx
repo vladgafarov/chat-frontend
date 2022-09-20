@@ -17,7 +17,10 @@ export const action = async ({ request }: ActionArgs) => {
 
 	if (formData.get("intent") === "search") {
 		try {
-			const res = await searchUser((formData.get("email") as string) || "")
+			const res = await searchUser(
+				(formData.get("email") as string) || "",
+				request,
+			)
 
 			return json({ users: res })
 		} catch (error: any) {

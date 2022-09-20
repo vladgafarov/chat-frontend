@@ -1,13 +1,8 @@
-import { Box, Title } from "@mantine/core"
+import { Avatar, Box, Group, Modal, Stack, Text, Title } from "@mantine/core"
 import type { LoaderArgs } from "@remix-run/node"
 import { json } from "@remix-run/node"
-import {
-	useCatch,
-	useLoaderData,
-	useOutletContext,
-	useParams,
-} from "@remix-run/react"
-import { useEffect, useMemo } from "react"
+import { useLoaderData, useOutletContext, useParams } from "@remix-run/react"
+import { useEffect, useMemo, useState } from "react"
 import invariant from "tiny-invariant"
 import { Chat } from "~/components/Chat"
 import { getRoom } from "~/models/room/room.server"
@@ -34,6 +29,8 @@ export default function ChatItem() {
 
 	const { socket, user } = useOutletContext<IChatContext>()
 	const { chatId } = useParams()
+
+	const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
 
 	const chatTitle = useMemo(() => {
 		if (room?.title) {
@@ -71,19 +68,64 @@ export default function ChatItem() {
 				flexDirection: "column",
 			})}
 		>
-			<Title order={3}>{chatTitle}</Title>
+			<Group>
+				<Title order={3}>{chatTitle}</Title>
+
+				{room?.isGroupChat && (
+					<Avatar.Group
+						sx={(theme) => ({
+							transition: "all 0.3s ease",
+							borderBottom: "1px solid transparent",
+							"&:hover": {
+								cursor: "pointer",
+								borderBottom: `1px solid ${theme.colors.gray[6]}`,
+							},
+						})}
+						onClick={() => setIsModalOpen(true)}
+					>
+						{room?.invitedUsers.map((user, i) => {
+							if (i > 4)
+								return (
+									<Avatar key={user.id} radius="xl" size="sm">
+										+{room.invitedUsers.length - 4}
+									</Avatar>
+								)
+
+							return (
+								<Avatar
+									key={user.id}
+									src={user.avatarUrl}
+									alt={user.name}
+									radius={"xl"}
+									size="sm"
+								>
+									{user.name[0]}
+								</Avatar>
+							)
+						})}
+					</Avatar.Group>
+				)}
+			</Group>
 			<Chat messages={room.messages} isGroupChat={room.isGroupChat} />
+
+			<Modal
+				opened={isModalOpen}
+				onClose={() => setIsModalOpen(false)}
+				title="Group members"
+			>
+				<Stack>
+					{room?.invitedUsers.map((user) => (
+						<Group key={user.id}>
+							<Avatar src={user.avatarUrl} alt={user.name} radius="xl">
+								{user.name[0]}
+							</Avatar>
+							<Text>{user.name}</Text>
+						</Group>
+					))}
+				</Stack>
+			</Modal>
 		</Box>
 	)
-}
-
-export function CatchBoundary() {
-	const caught = useCatch()
-	const params = useParams()
-	if (caught.status === 404) {
-		return <div>Chat does not exist (id "{params.chatId}")</div>
-	}
-	throw new Error(`Unhandled error: ${caught.status}`)
 }
 
 export function ErrorBoundary({ error }: { error: Error }) {
