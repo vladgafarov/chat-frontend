@@ -7,9 +7,16 @@ interface Props {
 	time: string
 	userId: number
 	author: Message["author"]
+	isGroupChat: boolean
 }
 
-export const MessageBubble: FC<Props> = ({ message, time, userId, author }) => {
+export const MessageBubble: FC<Props> = ({
+	message,
+	time,
+	userId,
+	author,
+	isGroupChat,
+}) => {
 	const parsedTime = new Date(time).toLocaleTimeString("ru-RU", {
 		hour: "numeric",
 		minute: "numeric",
@@ -22,9 +29,11 @@ export const MessageBubble: FC<Props> = ({ message, time, userId, author }) => {
 				gap: "10px",
 			})}
 		>
-			<Avatar src={author.avatarUrl} variant="light" radius={"md"}>
-				{author.name[0]}
-			</Avatar>
+			{isGroupChat && (
+				<Avatar src={author.avatarUrl} variant="light" radius={"md"}>
+					{author.name[0]}
+				</Avatar>
+			)}
 			<Box
 				sx={(theme) => ({
 					backgroundColor:
@@ -36,9 +45,11 @@ export const MessageBubble: FC<Props> = ({ message, time, userId, author }) => {
 					paddingInline: theme.spacing.md,
 				})}
 			>
-				<Title order={6} weight={500}>
-					{author.name}
-				</Title>
+				{isGroupChat && (
+					<Title order={6} weight={500}>
+						{author.name}
+					</Title>
+				)}
 
 				{message}
 				<Text size="xs" color={"gray"} align="right">

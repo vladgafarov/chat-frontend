@@ -72,7 +72,7 @@ export default function ChatItem() {
 			})}
 		>
 			<Title order={3}>{chatTitle}</Title>
-			<Chat messages={room.messages} />
+			<Chat messages={room.messages} isGroupChat={room.isGroupChat} />
 		</Box>
 	)
 }
