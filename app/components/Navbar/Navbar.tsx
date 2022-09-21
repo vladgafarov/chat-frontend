@@ -6,7 +6,7 @@ import {
 	ScrollArea,
 	Title,
 } from "@mantine/core"
-import { Link, useSubmit } from "@remix-run/react"
+import { Link, useParams, useSubmit } from "@remix-run/react"
 import { BiExit, BiPlus } from "react-icons/bi"
 import { MdSettings } from "react-icons/md"
 import type { User } from "~/models/user/user.server"
@@ -16,6 +16,7 @@ import { UserButton } from "./UserButton"
 
 export function Navbar({ user, rooms }: { user: User; rooms: Room[] }) {
 	const submit = useSubmit()
+	const { chatId } = useParams()
 
 	return (
 		<NavbarUI
@@ -27,18 +28,18 @@ export function Navbar({ user, rooms }: { user: User; rooms: Room[] }) {
 			<NavbarUI.Section>
 				<Title order={3}>SuperChat</Title>
 			</NavbarUI.Section>
+			<Button
+				component={Link}
+				to="add"
+				variant="default"
+				color="gray"
+				leftIcon={<BiPlus />}
+				fullWidth
+				my={"md"}
+			>
+				Add chat
+			</Button>
 			<NavbarUI.Section grow mt="md" component={ScrollArea}>
-				<Button
-					component={Link}
-					to="add"
-					variant="default"
-					color="gray"
-					leftIcon={<BiPlus />}
-					fullWidth
-					mb={"md"}
-				>
-					Add chat
-				</Button>
 				{rooms.map((room) => {
 					let roomTitle: string = "room_title"
 
@@ -59,6 +60,9 @@ export function Navbar({ user, rooms }: { user: User; rooms: Room[] }) {
 							link={`/chat/${room.id}`}
 							title={roomTitle}
 							isGroupChat={room.isGroupChat}
+							isActive={room.id === Number(chatId)}
+							lastMessage={room.messages[0]}
+							userId={user.id}
 						/>
 					)
 				})}
