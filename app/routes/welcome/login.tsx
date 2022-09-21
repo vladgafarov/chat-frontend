@@ -8,7 +8,7 @@ import {
 	TextInput,
 	Title,
 } from "@mantine/core"
-import type { ActionFunction, LoaderArgs } from "@remix-run/node"
+import type { ActionFunction, LoaderArgs, MetaFunction } from "@remix-run/node"
 import { json, redirect } from "@remix-run/node"
 import {
 	Link,
@@ -27,6 +27,10 @@ import { arrowStyles } from "~/components/welcome"
 import type { LoginType } from "~/models/auth/login.server"
 import { login, LoginSchema } from "~/models/auth/login.server"
 import { commitSession, getUserSession } from "~/models/auth/session.server"
+
+export const meta: MetaFunction = () => ({
+	title: "Login",
+})
 
 export const loader = async ({ request }: LoaderArgs) => {
 	const session = await getUserSession(request)

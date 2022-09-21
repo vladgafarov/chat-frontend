@@ -1,5 +1,5 @@
 import { Avatar, Box, Group, Modal, Stack, Text, Title } from "@mantine/core"
-import type { LoaderArgs } from "@remix-run/node"
+import type { LoaderArgs, MetaFunction } from "@remix-run/node"
 import { json } from "@remix-run/node"
 import { useLoaderData, useOutletContext, useParams } from "@remix-run/react"
 import { useEffect, useMemo, useState } from "react"
@@ -7,6 +7,20 @@ import invariant from "tiny-invariant"
 import { Chat } from "~/components/Chat"
 import { getRoom } from "~/models/room/room.server"
 import type { IChatContext } from "~/types/ChatContext"
+import type { Room } from "~/types/Room"
+
+export const meta: MetaFunction = ({ data }: { data: { room: Room } }) => {
+	if (!data) {
+		return {
+			title: "No chat found",
+		}
+	}
+
+	const { room } = data
+	return {
+		title: `${room.title} chat`,
+	}
+}
 
 export const loader = async ({ request, params }: LoaderArgs) => {
 	invariant(params.chatId, "chatId is required")

@@ -7,7 +7,7 @@ import {
 	TextInput,
 	Title,
 } from "@mantine/core"
-import type { ActionFunction, LoaderArgs } from "@remix-run/node"
+import type { ActionFunction, LoaderArgs, MetaFunction } from "@remix-run/node"
 import { json, redirect } from "@remix-run/node"
 import {
 	Link,
@@ -26,6 +26,10 @@ import { arrowStyles } from "~/components/welcome"
 import { commitSession, getUserSession } from "~/models/auth/session.server"
 import type { SignupType } from "~/models/auth/signup.server"
 import { signup, SignupSchema } from "~/models/auth/signup.server"
+
+export const meta: MetaFunction = () => ({
+	title: "Sign up",
+})
 
 export const loader = async ({ request }: LoaderArgs) => {
 	const session = await getUserSession(request)

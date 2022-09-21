@@ -2,7 +2,7 @@
 import { Button, Checkbox, Modal, Stack, TextInput, Title } from "@mantine/core"
 import { useDebouncedState } from "@mantine/hooks"
 import { showNotification } from "@mantine/notifications"
-import type { ActionArgs } from "@remix-run/node"
+import type { ActionArgs, MetaFunction } from "@remix-run/node"
 import { json, redirect } from "@remix-run/node"
 import { useFetcher, useNavigate } from "@remix-run/react"
 import { useEffect, useState } from "react"
@@ -11,6 +11,10 @@ import { UserItem } from "~/components/widgets"
 import { createRoom } from "~/models/room/room.server"
 import type { User } from "~/models/user/user.server"
 import { searchUser } from "~/models/user/user.server"
+
+export const meta: MetaFunction = () => ({
+	title: "Create chat",
+})
 
 export const action = async ({ request }: ActionArgs) => {
 	const formData = await request.formData()
