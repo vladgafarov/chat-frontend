@@ -63,6 +63,7 @@ export function Navbar({ user, rooms }: { user: User; rooms: Room[] }) {
 							isActive={room.id === Number(chatId)}
 							lastMessage={room.messages[0]}
 							userId={user.id}
+							countUnreadMessages={room.countUnreadMessages}
 						/>
 					)
 				})}

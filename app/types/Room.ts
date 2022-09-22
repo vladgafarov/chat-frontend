@@ -9,6 +9,7 @@ export interface Room {
 	createdAt: string
 	invitedUsers: User[]
 	isGroupChat: boolean
+	countUnreadMessages: number
 	author: {
 		email: string
 		name: string

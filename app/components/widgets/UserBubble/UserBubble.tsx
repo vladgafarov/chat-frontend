@@ -1,5 +1,6 @@
 import {
 	Avatar,
+	Box,
 	Group,
 	Stack,
 	Text,
@@ -17,6 +18,7 @@ interface Props {
 	isActive: boolean
 	lastMessage: Room["messages"][0]
 	userId: number
+	countUnreadMessages: number
 	imageUrl?: string
 }
 
@@ -28,7 +30,10 @@ export const UserBubble = ({
 	isActive,
 	lastMessage,
 	userId,
+	countUnreadMessages,
 }: Props) => {
+	console.log(countUnreadMessages)
+
 	return (
 		<UnstyledButton
 			mb="md"
@@ -46,14 +51,19 @@ export const UserBubble = ({
 				<Avatar src={imageUrl} radius="xl">
 					{isGroupChat && <RiGroupLine />}
 				</Avatar>
-				<Stack spacing={0}>
+				<Stack
+					spacing={0}
+					sx={() => ({
+						flexGrow: 1,
+					})}
+				>
 					<Title order={6}>{title}</Title>
 					{lastMessage?.text && (
 						<Text
 							size="sm"
 							color={"gray.6"}
 							sx={() => ({
-								width: "200px",
+								// width: "200px",
 								textOverflow: "ellipsis",
 								whiteSpace: "nowrap",
 								overflow: "hidden",
@@ -66,6 +76,24 @@ export const UserBubble = ({
 						</Text>
 					)}
 				</Stack>
+				{countUnreadMessages > 0 && (
+					<Box
+						sx={(theme) => ({
+							backgroundColor: theme.colors.blue[2],
+							padding: theme.spacing.xs,
+							width: "32px",
+							height: "32px",
+							borderRadius: theme.radius.xl,
+							display: "flex",
+							alignItems: "center",
+							justifyContent: "center",
+							fontWeight: 500,
+							color: "whitesmoke",
+						})}
+					>
+						<Text>{countUnreadMessages}</Text>
+					</Box>
+				)}
 			</Group>
 		</UnstyledButton>
 	)
