@@ -32,8 +32,6 @@ export const UserBubble = ({
 	userId,
 	countUnreadMessages,
 }: Props) => {
-	console.log(countUnreadMessages)
-
 	return (
 		<UnstyledButton
 			mb="md"
@@ -59,38 +57,35 @@ export const UserBubble = ({
 				>
 					<Title order={6}>{title}</Title>
 					{lastMessage?.text && (
-						<Text
-							size="sm"
-							color={"gray.6"}
-							sx={() => ({
-								// width: "200px",
-								textOverflow: "ellipsis",
-								whiteSpace: "nowrap",
-								overflow: "hidden",
-							})}
-						>
+						<Text size="sm" color={"gray.6"}>
 							{lastMessage.author.id !== userId && (
 								<Text weight={500} span>
 									{lastMessage.author.name}:{" "}
 								</Text>
 							)}
-							{lastMessage.text}
+							{lastMessage.text.length > 20 ? (
+								<>{lastMessage.text.slice(0, 20)}...</>
+							) : (
+								<>{lastMessage.text}</>
+							)}
 						</Text>
 					)}
 				</Stack>
 				{countUnreadMessages > 0 && (
 					<Box
 						sx={(theme) => ({
-							backgroundColor: theme.colors.blue[2],
+							backgroundColor: theme.colors.blue[3],
 							padding: theme.spacing.xs,
-							width: "32px",
-							height: "32px",
+							width: "24px",
+							height: "24px",
+							fontSize: theme.fontSizes.sm,
 							borderRadius: theme.radius.xl,
 							display: "flex",
 							alignItems: "center",
 							justifyContent: "center",
-							fontWeight: 500,
+							// fontWeight: 500,
 							color: "whitesmoke",
+							alignSelf: "flex-end",
 						})}
 					>
 						<Text>{countUnreadMessages}</Text>

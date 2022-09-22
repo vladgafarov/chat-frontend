@@ -19,6 +19,7 @@ export const MessageBubble: FC<Props & Message> = ({
 	createdAt,
 	text,
 	isRead,
+	isReadByCurrentUser: isReadByCurrentUserDefault,
 	id,
 }) => {
 	const { socket } = useOutletContext<IChatContext>()
@@ -31,6 +32,9 @@ export const MessageBubble: FC<Props & Message> = ({
 			return isRead && userId === author.id
 		},
 	)
+	const [isReadByCurrentUser, setIsReadByCurrentUser] = useState<boolean>(
+		isReadByCurrentUserDefault,
+	)
 
 	const parsedTime = new Date(createdAt).toLocaleTimeString("ru-RU", {
 		hour: "numeric",
@@ -39,7 +43,7 @@ export const MessageBubble: FC<Props & Message> = ({
 	const isVisible = !!entry?.isIntersecting
 
 	useEffect(() => {
-		if (isVisible && !isRead && userId !== author.id) {
+		if (isVisible && !isReadByCurrentUser && userId !== author.id) {
 			console.log("CLIENT@MESSAGE:READ", id)
 
 			socket.emit("CLIENT@MESSAGE:READ", {
@@ -56,6 +60,9 @@ export const MessageBubble: FC<Props & Message> = ({
 			if (message.id === id && message.authorId === userId && !isRead) {
 				setIsReadAuthorMessage(true)
 			}
+			if (message.id === id) {
+				setIsReadByCurrentUser(true)
+			}
 		})
 
 		return () => {
@@ -70,7 +77,7 @@ export const MessageBubble: FC<Props & Message> = ({
 				display: "flex",
 				gap: "10px",
 			})}
-			ref={isRead ? undefined : ref}
+			ref={isReadByCurrentUser ? undefined : ref}
 		>
 			{isGroupChat && (
 				<Avatar src={author.avatarUrl} variant="light" radius={"md"}>
