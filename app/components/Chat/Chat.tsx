@@ -2,8 +2,7 @@ import { ScrollArea, Stack, Text } from "@mantine/core"
 import { useScrollIntoView } from "@mantine/hooks"
 import { useOutletContext, useParams } from "@remix-run/react"
 import type { FC } from "react"
-import { useMemo } from "react"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import type { IChatContext } from "~/types/ChatContext"
 import type { Message } from "~/types/Message"
 import { MessageBubble, SendMessageArea } from "../widgets"
@@ -85,17 +84,6 @@ const Chat: FC<Props> = ({ messages: defaultMessages, isGroupChat }) => {
 							))}
 						</Stack>
 					))}
-
-					{/* {messages.map((message, i) => (
-						<MessageBubble
-							key={i}
-							message={message.text}
-							time={message.createdAt}
-							author={message.author}
-							userId={user.id}
-							isGroupChat={isGroupChat}
-						/>
-					))} */}
 				</Stack>
 
 				{messages.length === 0 && <Text>No messages yet</Text>}

@@ -70,7 +70,9 @@ export const UserBubble = ({
 							})}
 						>
 							{lastMessage.author.id !== userId && (
-								<span>{lastMessage.author.name}: </span>
+								<Text weight={500} span>
+									{lastMessage.author.name}:{" "}
+								</Text>
 							)}
 							{lastMessage.text}
 						</Text>
