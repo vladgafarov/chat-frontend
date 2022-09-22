@@ -1,6 +1,10 @@
 import { Avatar, Box, Text, Title, useMantineTheme } from "@mantine/core"
+import { useOutletContext, useParams } from "@remix-run/react"
 import type { FC } from "react"
+import { useEffect, useRef, useState } from "react"
 import { TbCheck, TbChecks } from "react-icons/tb"
+import useIntersectionObserver from "~/hooks/useIntersectionObserver"
+import type { IChatContext } from "~/types/ChatContext"
 import type { Message } from "~/types/Message"
 
 interface Props {
@@ -15,13 +19,50 @@ export const MessageBubble: FC<Props & Message> = ({
 	createdAt,
 	text,
 	isRead,
+	id,
 }) => {
+	const { socket } = useOutletContext<IChatContext>()
+	const { chatId } = useParams()
+	const theme = useMantineTheme()
+	const ref = useRef<HTMLDivElement>(null)
+	const entry = useIntersectionObserver(ref, {})
+	const [isReadAuthorMessage, setIsReadAuthorMessage] = useState<boolean>(
+		() => {
+			return isRead && userId === author.id
+		},
+	)
+
 	const parsedTime = new Date(createdAt).toLocaleTimeString("ru-RU", {
 		hour: "numeric",
 		minute: "numeric",
 	})
+	const isVisible = !!entry?.isIntersecting
 
-	const theme = useMantineTheme()
+	useEffect(() => {
+		if (isVisible && !isRead && userId !== author.id) {
+			console.log("CLIENT@MESSAGE:READ", id)
+
+			socket.emit("CLIENT@MESSAGE:READ", {
+				id: Number(id),
+				userWhoReadId: Number(userId),
+				roomId: Number(chatId),
+			})
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [isVisible])
+
+	useEffect(() => {
+		socket.on("SERVER@MESSAGE:READ", (message: Message) => {
+			if (message.id === id && message.authorId === userId) {
+				setIsReadAuthorMessage(true)
+			}
+		})
+
+		return () => {
+			socket.off("SERVER@MESSAGE:READ")
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [])
 
 	return (
 		<Box
@@ -29,6 +70,7 @@ export const MessageBubble: FC<Props & Message> = ({
 				display: "flex",
 				gap: "10px",
 			})}
+			ref={isRead ? undefined : ref}
 		>
 			{isGroupChat && (
 				<Avatar src={author.avatarUrl} variant="light" radius={"md"}>
@@ -63,7 +105,7 @@ export const MessageBubble: FC<Props & Message> = ({
 					})}
 				>
 					<Text size="xs">{parsedTime}</Text>
-					{isRead && userId === author.id ? (
+					{isReadAuthorMessage ? (
 						<TbChecks color={`${theme.colors["blue"][4]}`} />
 					) : userId === author.id ? (
 						<TbCheck />
