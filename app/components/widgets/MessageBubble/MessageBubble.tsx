@@ -1,26 +1,27 @@
-import { Avatar, Box, Text, Title } from "@mantine/core"
+import { Avatar, Box, Text, Title, useMantineTheme } from "@mantine/core"
 import type { FC } from "react"
+import { TbCheck, TbChecks } from "react-icons/tb"
 import type { Message } from "~/types/Message"
 
 interface Props {
-	message: string
-	time: string
 	userId: number
-	author: Message["author"]
 	isGroupChat: boolean
 }
 
-export const MessageBubble: FC<Props> = ({
-	message,
-	time,
+export const MessageBubble: FC<Props & Message> = ({
 	userId,
 	author,
 	isGroupChat,
+	createdAt,
+	text,
+	isRead,
 }) => {
-	const parsedTime = new Date(time).toLocaleTimeString("ru-RU", {
+	const parsedTime = new Date(createdAt).toLocaleTimeString("ru-RU", {
 		hour: "numeric",
 		minute: "numeric",
 	})
+
+	const theme = useMantineTheme()
 
 	return (
 		<Box
@@ -42,18 +43,31 @@ export const MessageBubble: FC<Props> = ({
 							: theme.colors.gray[1],
 					borderRadius: theme.radius.md,
 					paddingBlock: theme.spacing.xs,
-					paddingInline: theme.spacing.md,
+					paddingInline: theme.spacing.xs,
 				})}
 			>
-				{isGroupChat && (
+				{isGroupChat && userId !== author.id && (
 					<Title order={6} weight={500}>
 						{author.name}
 					</Title>
 				)}
 
-				{message}
-				<Text size="xs" color={"gray"} align="right">
-					{parsedTime}
+				{text}
+				<Text
+					color={"gray"}
+					sx={() => ({
+						display: "flex",
+						justifyContent: "flex-end",
+						alignItems: "center",
+						gap: "5px",
+					})}
+				>
+					<Text size="xs">{parsedTime}</Text>
+					{isRead && userId === author.id ? (
+						<TbChecks color={`${theme.colors["blue"][4]}`} />
+					) : userId === author.id ? (
+						<TbCheck />
+					) : null}
 				</Text>
 			</Box>
 		</Box>

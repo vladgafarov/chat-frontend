@@ -78,11 +78,9 @@ const Chat: FC<Props> = ({ messages: defaultMessages, isGroupChat }) => {
 							{messages.map((message) => (
 								<MessageBubble
 									key={message.id}
-									message={message.text}
-									time={message.createdAt}
-									author={message.author}
 									userId={user.id}
 									isGroupChat={isGroupChat}
+									{...message}
 								/>
 							))}
 						</Stack>
