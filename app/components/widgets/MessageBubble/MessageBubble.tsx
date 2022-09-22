@@ -53,7 +53,7 @@ export const MessageBubble: FC<Props & Message> = ({
 
 	useEffect(() => {
 		socket.on("SERVER@MESSAGE:READ", (message: Message) => {
-			if (message.id === id && message.authorId === userId) {
+			if (message.id === id && message.authorId === userId && !isRead) {
 				setIsReadAuthorMessage(true)
 			}
 		})
