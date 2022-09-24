@@ -7,18 +7,22 @@ import {
 	Title,
 	UnstyledButton,
 } from "@mantine/core"
-import { Link } from "@remix-run/react"
+import { Link, useParams } from "@remix-run/react"
+import { useEffect, useState } from "react"
 import { RiGroupLine } from "react-icons/ri"
-import type { Room } from "~/types/Room"
+import type { Socket } from "socket.io-client"
+import type { Message } from "~/types/Message"
 
 interface Props {
 	title: string
 	link: string
 	isGroupChat: boolean
 	isActive: boolean
-	lastMessage: Room["messages"][0]
+	lastMessage: Message
 	userId: number
 	countUnreadMessages: number
+	socket: Socket
+	roomId: number
 	imageUrl?: string
 }
 
@@ -28,10 +32,30 @@ export const UserBubble = ({
 	isGroupChat,
 	imageUrl,
 	isActive,
-	lastMessage,
+	lastMessage: lastMessageDefault,
 	userId,
 	countUnreadMessages,
+	roomId,
+	socket,
 }: Props) => {
+	const [lastMessage, setLastMessage] = useState(lastMessageDefault)
+	const { chatId } = useParams()
+
+	useEffect(() => {
+		socket.on("SERVER@MESSAGE:ADD-SIDEBAR", (data) => {
+			console.log("SERVER@MESSAGE:ADD-SIDEBAR", data)
+
+			if (data.roomId === roomId) {
+				setLastMessage(data.message)
+			}
+		})
+
+		return () => {
+			socket.off("SERVER@MESSAGE:ADD-SIDEBAR")
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [])
+
 	return (
 		<UnstyledButton
 			mb="md"
@@ -83,7 +107,6 @@ export const UserBubble = ({
 							display: "flex",
 							alignItems: "center",
 							justifyContent: "center",
-							// fontWeight: 500,
 							color: "whitesmoke",
 							alignSelf: "flex-end",
 						})}

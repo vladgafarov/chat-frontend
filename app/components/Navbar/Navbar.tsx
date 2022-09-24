@@ -9,12 +9,19 @@ import {
 import { Link, useParams, useSubmit } from "@remix-run/react"
 import { BiExit, BiPlus } from "react-icons/bi"
 import { MdSettings } from "react-icons/md"
+import type { Socket } from "socket.io-client"
 import type { User } from "~/models/user/user.server"
 import type { Room } from "~/types/Room"
 import { UserBubble } from "../widgets"
 import { UserButton } from "./UserButton"
 
-export function Navbar({ user, rooms }: { user: User; rooms: Room[] }) {
+interface Props {
+	user: User
+	rooms: Room[]
+	socket: Socket
+}
+
+export function Navbar({ user, rooms, socket }: Props) {
 	const submit = useSubmit()
 	const { chatId } = useParams()
 
@@ -64,6 +71,8 @@ export function Navbar({ user, rooms }: { user: User; rooms: Room[] }) {
 							lastMessage={room.messages[0]}
 							userId={user.id}
 							countUnreadMessages={room.countUnreadMessages}
+							socket={socket}
+							roomId={room.id}
 						/>
 					)
 				})}
