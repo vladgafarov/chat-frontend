@@ -7,7 +7,7 @@ import {
 	Title,
 	UnstyledButton,
 } from "@mantine/core"
-import { Link, useParams } from "@remix-run/react"
+import { Link } from "@remix-run/react"
 import { useEffect, useState } from "react"
 import { RiGroupLine } from "react-icons/ri"
 import type { Socket } from "socket.io-client"
@@ -34,24 +34,32 @@ export const UserBubble = ({
 	isActive,
 	lastMessage: lastMessageDefault,
 	userId,
-	countUnreadMessages,
+	countUnreadMessages: countUnreadMessagesDefault,
 	roomId,
 	socket,
 }: Props) => {
 	const [lastMessage, setLastMessage] = useState(lastMessageDefault)
-	const { chatId } = useParams()
+	const [countUnreadMessages, setCountUnreadMessages] = useState(
+		countUnreadMessagesDefault,
+	)
 
 	useEffect(() => {
 		socket.on("SERVER@MESSAGE:ADD-SIDEBAR", (data) => {
-			console.log("SERVER@MESSAGE:ADD-SIDEBAR", data)
-
 			if (data.roomId === roomId) {
 				setLastMessage(data.message)
+				setCountUnreadMessages(data.countUnreadMessages)
+			}
+		})
+
+		socket.on("SERVER@MESSAGE:READ-SIDEBAR", (data) => {
+			if (data.roomId === roomId) {
+				setCountUnreadMessages(data.countUnreadMessages)
 			}
 		})
 
 		return () => {
 			socket.off("SERVER@MESSAGE:ADD-SIDEBAR")
+			socket.off("SERVER@MESSAGE:READ-SIDEBAR")
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
