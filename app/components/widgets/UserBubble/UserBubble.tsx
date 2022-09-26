@@ -58,11 +58,15 @@ export const UserBubble = ({
 					<Title order={6}>{title}</Title>
 					{lastMessage?.text && (
 						<Text size="sm" color={"gray.6"}>
-							{lastMessage.author.id !== userId && (
+							{lastMessage.author.id === userId ? (
+								<Text weight={500} span>
+									You:{" "}
+								</Text>
+							) : isGroupChat ? (
 								<Text weight={500} span>
 									{lastMessage.author.name}:{" "}
 								</Text>
-							)}
+							) : null}
 							{lastMessage.text.length > 20 ? (
 								<>{lastMessage.text.slice(0, 20)}...</>
 							) : (
