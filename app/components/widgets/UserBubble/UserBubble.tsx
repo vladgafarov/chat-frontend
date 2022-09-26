@@ -8,9 +8,7 @@ import {
 	UnstyledButton,
 } from "@mantine/core"
 import { Link } from "@remix-run/react"
-import { useEffect, useState } from "react"
 import { RiGroupLine } from "react-icons/ri"
-import type { Socket } from "socket.io-client"
 import type { Message } from "~/types/Message"
 
 interface Props {
@@ -21,8 +19,6 @@ interface Props {
 	lastMessage: Message
 	userId: number
 	countUnreadMessages: number
-	socket: Socket
-	roomId: number
 	imageUrl?: string
 }
 
@@ -32,38 +28,10 @@ export const UserBubble = ({
 	isGroupChat,
 	imageUrl,
 	isActive,
-	lastMessage: lastMessageDefault,
+	lastMessage,
 	userId,
-	countUnreadMessages: countUnreadMessagesDefault,
-	roomId,
-	socket,
+	countUnreadMessages,
 }: Props) => {
-	const [lastMessage, setLastMessage] = useState(lastMessageDefault)
-	const [countUnreadMessages, setCountUnreadMessages] = useState(
-		countUnreadMessagesDefault,
-	)
-
-	useEffect(() => {
-		socket.on("SERVER@MESSAGE:ADD-SIDEBAR", (data) => {
-			if (data.roomId === roomId) {
-				setLastMessage(data.message)
-				setCountUnreadMessages(data.countUnreadMessages)
-			}
-		})
-
-		socket.on("SERVER@MESSAGE:READ-SIDEBAR", (data) => {
-			if (data.roomId === roomId) {
-				setCountUnreadMessages(data.countUnreadMessages)
-			}
-		})
-
-		return () => {
-			socket.off("SERVER@MESSAGE:ADD-SIDEBAR")
-			socket.off("SERVER@MESSAGE:READ-SIDEBAR")
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [])
-
 	return (
 		<UnstyledButton
 			mb="md"

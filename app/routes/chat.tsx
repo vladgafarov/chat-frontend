@@ -2,6 +2,7 @@ import { Box } from "@mantine/core"
 import type { ActionFunction, LoaderArgs } from "@remix-run/node"
 import { json, redirect } from "@remix-run/node"
 import { Outlet, useLoaderData } from "@remix-run/react"
+import { useEffect, useState } from "react"
 import { Navbar } from "~/components/Navbar"
 import { useSocket } from "~/hooks/useSocket"
 import {
@@ -14,6 +15,7 @@ import { getRooms } from "~/models/room/room.server"
 import type { User } from "~/models/user/user.server"
 import { getUser } from "~/models/user/user.server"
 import type { IChatContext } from "~/types/ChatContext"
+import type { Room } from "~/types/Room"
 
 export const loader = async ({ request }: LoaderArgs) => {
 	await requireUser(request)
@@ -64,7 +66,8 @@ export const action: ActionFunction = async ({ request }) => {
 }
 
 export default function Chat() {
-	const { user, rooms } = useLoaderData<typeof loader>()
+	const { user, rooms: loaderRooms } = useLoaderData<typeof loader>()
+	const [rooms, setRooms] = useState<Room[]>(loaderRooms)
 
 	const socket = useSocket(user.id)
 	const context: IChatContext = {
@@ -72,6 +75,24 @@ export default function Chat() {
 		user,
 	}
 	const outlet = <Outlet context={context} />
+
+	useEffect(() => {
+		socket.on("SERVER@UPDATE-SIDEBAR", (data) => {
+			console.log(data)
+			setRooms(data.userRooms)
+		})
+
+		return () => {
+			socket.off("SERVER@UPDATE-SIDEBAR")
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [])
+
+	useEffect(() => {
+		if (loaderRooms) {
+			setRooms(loaderRooms)
+		}
+	}, [loaderRooms])
 
 	return (
 		<>

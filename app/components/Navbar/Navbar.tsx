@@ -71,8 +71,6 @@ export function Navbar({ user, rooms, socket }: Props) {
 							lastMessage={room.messages[0]}
 							userId={user.id}
 							countUnreadMessages={room.countUnreadMessages}
-							socket={socket}
-							roomId={room.id}
 						/>
 					)
 				})}
