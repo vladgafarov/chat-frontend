@@ -52,13 +52,34 @@ export default function ChatItem() {
 		}
 
 		if (room.invitedUsers.length === 1) {
-			return room.authorId === user.id
-				? room.invitedUsers[0].name
-				: room.author.name
+			const invitedUser = room.invitedUsers[0]
+			const isUserAuthor = room.authorId === user.id
+			const isOnline = isUserAuthor ? invitedUser.online : room.author.online
+
+			return (
+				<>
+					{isUserAuthor ? invitedUser.name : room.author.name}
+					{isOnline && (
+						<>
+							,{" "}
+							<Text span color="gray">
+								online
+							</Text>
+						</>
+					)}
+				</>
+			)
 		}
 
 		return "Group chat"
-	}, [room.author.name, room.authorId, room.invitedUsers, room.title, user.id])
+	}, [
+		room.author.name,
+		room.author.online,
+		room.authorId,
+		room.invitedUsers,
+		room.title,
+		user.id,
+	])
 
 	useEffect(() => {
 		socket.emit("CLIENT@ROOM:JOIN", { roomId: chatId, user })

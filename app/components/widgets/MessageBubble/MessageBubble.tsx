@@ -93,6 +93,8 @@ export const MessageBubble: FC<Props & Message> = ({
 					borderRadius: theme.radius.md,
 					paddingBlock: theme.spacing.xs,
 					paddingInline: theme.spacing.xs,
+					maxWidth: "400px",
+					wordBreak: "break-word",
 				})}
 			>
 				{isGroupChat && userId !== author.id && (
