@@ -1,4 +1,13 @@
-import { Avatar, Box, Group, Modal, Stack, Text, Title } from "@mantine/core"
+import {
+	Avatar,
+	Badge,
+	Box,
+	Group,
+	Modal,
+	Stack,
+	Text,
+	Title,
+} from "@mantine/core"
 import type { LoaderArgs, MetaFunction } from "@remix-run/node"
 import { json } from "@remix-run/node"
 import { useLoaderData, useOutletContext, useParams } from "@remix-run/react"
@@ -46,40 +55,18 @@ export default function ChatItem() {
 
 	const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
 
-	const chatTitle = useMemo(() => {
-		if (room?.title) {
-			return room.title
-		}
-
-		if (room.invitedUsers.length === 1) {
-			const invitedUser = room.invitedUsers[0]
-			const isUserAuthor = room.authorId === user.id
-			const isOnline = isUserAuthor ? invitedUser.online : room.author.online
-
-			return (
-				<>
-					{isUserAuthor ? invitedUser.name : room.author.name}
-					{isOnline && (
-						<>
-							,{" "}
-							<Text span color="gray">
-								online
-							</Text>
-						</>
-					)}
-				</>
-			)
-		}
-
-		return "Group chat"
-	}, [
-		room.author.name,
-		room.author.online,
-		room.authorId,
-		room.invitedUsers,
-		room.title,
-		user.id,
-	])
+	const isOnline = useMemo(
+		() =>
+			(room.isCurrentUserAuthor
+				? room.invitedUsers[0].online
+				: room.author.online) && !room.isGroupChat,
+		[
+			room.author.online,
+			room.invitedUsers,
+			room.isCurrentUserAuthor,
+			room.isGroupChat,
+		],
+	)
 
 	useEffect(() => {
 		socket.emit("CLIENT@ROOM:JOIN", { roomId: chatId, user })
@@ -104,7 +91,14 @@ export default function ChatItem() {
 			})}
 		>
 			<Group>
-				<Title order={3}>{chatTitle}</Title>
+				<Title order={3}>
+					{room.title}
+					{isOnline && (
+						<Text span color="gray" size="sm" pl="xs">
+							online
+						</Text>
+					)}
+				</Title>
 
 				{room?.isGroupChat && (
 					<Avatar.Group
@@ -154,7 +148,14 @@ export default function ChatItem() {
 							<Avatar src={user.avatarUrl} alt={user.name} radius="xl">
 								{user.name[0]}
 							</Avatar>
-							<Text>{user.name}</Text>
+							<Group>
+								<Text>{user.name}</Text>
+								{user.online && (
+									<Badge pl="xs" variant="dot" size="sm">
+										Online
+									</Badge>
+								)}
+							</Group>
 						</Group>
 					))}
 				</Stack>

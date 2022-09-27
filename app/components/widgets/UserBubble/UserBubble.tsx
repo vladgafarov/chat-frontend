@@ -1,6 +1,7 @@
 import {
 	Avatar,
 	Box,
+	createStyles,
 	Group,
 	Stack,
 	Text,
@@ -19,8 +20,25 @@ interface Props {
 	lastMessage: Message
 	userId: number
 	countUnreadMessages: number
+	isOnline: boolean
 	imageUrl?: string
 }
+
+const useStyles = createStyles((theme) => ({
+	wrapper: {
+		position: "relative",
+	},
+	circle: {
+		position: "absolute",
+		top: 0,
+		right: 0,
+		width: "8px",
+		height: "8px",
+		backgroundColor: theme.colors.green[6],
+		transform: "translateX(50%)",
+		borderRadius: "50%",
+	},
+}))
 
 export const UserBubble = ({
 	link,
@@ -31,7 +49,10 @@ export const UserBubble = ({
 	lastMessage,
 	userId,
 	countUnreadMessages,
+	isOnline,
 }: Props) => {
+	const { classes } = useStyles()
+
 	return (
 		<UnstyledButton
 			mb="md"
@@ -46,9 +67,12 @@ export const UserBubble = ({
 			})}
 		>
 			<Group p={5} noWrap>
-				<Avatar src={imageUrl} radius="xl">
-					{isGroupChat && <RiGroupLine />}
-				</Avatar>
+				<div className={classes.wrapper}>
+					<Avatar src={imageUrl} radius="xl">
+						{isGroupChat && <RiGroupLine />}
+					</Avatar>
+					{isOnline && <div className={classes.circle} />}
+				</div>
 				<Stack
 					spacing={0}
 					sx={() => ({

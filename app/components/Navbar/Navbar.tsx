@@ -48,29 +48,22 @@ export function Navbar({ user, rooms, socket }: Props) {
 			</Button>
 			<NavbarUI.Section grow mt="md" component={ScrollArea}>
 				{rooms.map((room) => {
-					let roomTitle: string = "room_title"
-
-					if (room?.title) {
-						roomTitle = room.title
-					}
-
-					if (room.invitedUsers.length === 1 && !room.isGroupChat) {
-						roomTitle =
-							room.authorId === user.id
-								? room.invitedUsers[0].name
-								: room.author.name
-					}
+					const isOnline =
+						(room.isCurrentUserAuthor
+							? room.invitedUsers[0].online
+							: room.author.online) && !room.isGroupChat
 
 					return (
 						<UserBubble
 							key={room.id}
 							link={`/chat/${room.id}`}
-							title={roomTitle}
+							title={room.title}
 							isGroupChat={room.isGroupChat}
 							isActive={room.id === Number(chatId)}
 							lastMessage={room.messages[0]}
 							userId={user.id}
 							countUnreadMessages={room.countUnreadMessages}
+							isOnline={isOnline}
 						/>
 					)
 				})}
