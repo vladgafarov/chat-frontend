@@ -17,6 +17,7 @@ const Chat: FC<Props> = ({ messages: defaultMessages, isGroupChat }) => {
 	const { chatId } = useParams()
 
 	const [messages, setMessages] = useState<Message[]>(defaultMessages)
+	const [typingUser, setTypingUser] = useState<string>()
 
 	const { scrollIntoView, targetRef, scrollableRef } = useScrollIntoView()
 
@@ -45,11 +46,28 @@ const Chat: FC<Props> = ({ messages: defaultMessages, isGroupChat }) => {
 			setMessages((messages) => [...messages, message])
 		})
 
+		socket.on("SERVER@MESSAGE:IS-TYPING", (data) => {
+			if (data.userId !== user.id) {
+				setTypingUser(data.name)
+			}
+		})
+
 		return () => {
 			socket.off("SERVER@MESSAGE:ADD")
+			socket.off("SERVER@MESSAGE:IS-TYPING")
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [chatId])
+
+	useEffect(() => {
+		const timeout = setTimeout(() => {
+			setTypingUser(undefined)
+		}, 3000)
+
+		return () => {
+			clearTimeout(timeout)
+		}
+	}, [typingUser])
 
 	return (
 		<>
@@ -91,6 +109,9 @@ const Chat: FC<Props> = ({ messages: defaultMessages, isGroupChat }) => {
 				{/* @ts-ignore */}
 				<div ref={targetRef} />
 			</ScrollArea>
+			{typingUser && (
+				<Text sx={{ color: "gray.6" }}>{typingUser} is typing...</Text>
+			)}
 			<SendMessageArea />
 		</>
 	)
