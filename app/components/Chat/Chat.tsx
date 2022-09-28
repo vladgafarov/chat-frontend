@@ -17,7 +17,7 @@ const Chat: FC<Props> = ({ messages: defaultMessages, isGroupChat }) => {
 	const { chatId } = useParams()
 
 	const [messages, setMessages] = useState<Message[]>(defaultMessages)
-	const [typingUser, setTypingUser] = useState<string>()
+	const [typingUser, setTypingUser] = useState<string[]>([])
 
 	const { scrollIntoView, targetRef, scrollableRef } = useScrollIntoView()
 
@@ -48,7 +48,7 @@ const Chat: FC<Props> = ({ messages: defaultMessages, isGroupChat }) => {
 
 		socket.on("SERVER@MESSAGE:IS-TYPING", (data) => {
 			if (data.userId !== user.id) {
-				setTypingUser(data.name)
+				setTypingUser((prev) => [...prev, data.name])
 			}
 		})
 
@@ -61,7 +61,7 @@ const Chat: FC<Props> = ({ messages: defaultMessages, isGroupChat }) => {
 
 	useEffect(() => {
 		const timeout = setTimeout(() => {
-			setTypingUser(undefined)
+			setTypingUser((prev) => prev.filter((name) => name !== prev[0]))
 		}, 3000)
 
 		return () => {
@@ -109,8 +109,11 @@ const Chat: FC<Props> = ({ messages: defaultMessages, isGroupChat }) => {
 				{/* @ts-ignore */}
 				<div ref={targetRef} />
 			</ScrollArea>
-			{typingUser && (
-				<Text sx={{ color: "gray.6" }}>{typingUser} is typing...</Text>
+			{typingUser.length > 0 && (
+				<Text sx={{ color: "gray.6" }}>
+					{typingUser.join(", ")} {typingUser.length === 1 ? "is" : "are"}{" "}
+					typing...
+				</Text>
 			)}
 			<SendMessageArea />
 		</>
