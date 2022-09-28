@@ -48,7 +48,10 @@ const Chat: FC<Props> = ({ messages: defaultMessages, isGroupChat }) => {
 
 		socket.on("SERVER@MESSAGE:IS-TYPING", (data) => {
 			if (data.userId !== user.id) {
-				setTypingUser((prev) => [...prev, data.name])
+				setTypingUser((prev) => {
+					if (prev.includes(data.name)) return prev
+					return [...prev, data.name]
+				})
 			}
 		})
 
