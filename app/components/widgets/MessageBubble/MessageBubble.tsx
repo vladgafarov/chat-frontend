@@ -1,11 +1,39 @@
-import { Avatar, Box, Text, Title, useMantineTheme } from "@mantine/core"
+import { Avatar, createStyles, Group, Text } from "@mantine/core"
 import { useOutletContext, useParams } from "@remix-run/react"
 import type { FC } from "react"
 import { useEffect, useRef, useState } from "react"
-import { TbCheck, TbChecks } from "react-icons/tb"
 import useIntersectionObserver from "~/hooks/useIntersectionObserver"
 import type { IChatContext } from "~/types/ChatContext"
 import type { Message } from "~/types/Message"
+import { MessageInfoBottom, MessageMenu, MessageTitle } from "./components"
+
+const useStyles = createStyles(
+	(theme, { isAuthorsMessage }: { isAuthorsMessage: boolean }, getRef) => ({
+		message: {
+			backgroundColor: isAuthorsMessage
+				? theme.colors.blue[1]
+				: theme.colors.gray[1],
+			borderRadius: theme.radius.md,
+			paddingBlock: theme.spacing.xs,
+			paddingInline: theme.spacing.xs,
+			maxWidth: "400px",
+			wordBreak: "break-word",
+			position: "relative",
+
+			[`&:hover .${getRef("menuTarget")}`]: {
+				opacity: 1,
+			},
+		},
+		menuTarget: {
+			ref: getRef("menuTarget"),
+			position: "absolute",
+			top: 0,
+			right: "3px",
+			opacity: 0,
+			transition: "opacity 0.2s ease-in-out",
+		},
+	}),
+)
 
 interface Props {
 	userId: number
@@ -22,9 +50,10 @@ export const MessageBubble: FC<Props & Message> = ({
 	isReadByCurrentUser: isReadByCurrentUserDefault,
 	id,
 }) => {
+	const { classes } = useStyles({ isAuthorsMessage: userId === author.id })
+
 	const { socket } = useOutletContext<IChatContext>()
 	const { chatId } = useParams()
-	const theme = useMantineTheme()
 	const ref = useRef<HTMLDivElement>(null)
 	const entry = useIntersectionObserver(ref, {})
 	const [isReadAuthorMessage, setIsReadAuthorMessage] = useState<boolean>(
@@ -72,55 +101,31 @@ export const MessageBubble: FC<Props & Message> = ({
 	}, [])
 
 	return (
-		<Box
-			sx={() => ({
-				display: "flex",
-				gap: "10px",
-			})}
+		<Group
 			ref={isReadByCurrentUser ? undefined : ref}
+			align="flex-start"
+			spacing="sm"
 		>
 			{isGroupChat && (
 				<Avatar src={author.avatarUrl} variant="light" radius={"md"}>
 					{author.name[0]}
 				</Avatar>
 			)}
-			<Box
-				sx={(theme) => ({
-					backgroundColor:
-						author.id === userId
-							? theme.colors.blue[1]
-							: theme.colors.gray[1],
-					borderRadius: theme.radius.md,
-					paddingBlock: theme.spacing.xs,
-					paddingInline: theme.spacing.xs,
-					maxWidth: "400px",
-					wordBreak: "break-word",
-				})}
-			>
+			<div className={classes.message}>
 				{isGroupChat && userId !== author.id && (
-					<Title order={6} weight={500}>
-						{author.name}
-					</Title>
+					<MessageTitle>{author.name}</MessageTitle>
 				)}
 
-				{text}
-				<Text
-					color={"gray"}
-					sx={() => ({
-						display: "flex",
-						justifyContent: "flex-end",
-						alignItems: "center",
-						gap: "5px",
-					})}
-				>
-					<Text size="xs">{parsedTime}</Text>
-					{isReadAuthorMessage ? (
-						<TbChecks color={`${theme.colors["blue"][4]}`} />
-					) : userId === author.id ? (
-						<TbCheck />
-					) : null}
-				</Text>
-			</Box>
-		</Box>
+				<Text>{text}</Text>
+
+				<MessageInfoBottom
+					isAuthorsMessage={author.id === userId}
+					isRead={isReadAuthorMessage}
+					parsedTime={parsedTime}
+				/>
+
+				<MessageMenu className={classes.menuTarget} />
+			</div>
+		</Group>
 	)
 }
