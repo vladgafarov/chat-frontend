@@ -7,6 +7,7 @@ import { useEffect } from "react"
 import { BiSend } from "react-icons/bi"
 import { useChatContext } from "~/components/Chat/ChatContext"
 import type { IChatContext } from "~/types/ChatContext"
+import EditMessage from "../EditMessage"
 
 export const SendMessageArea = () => {
 	const { socket, user } = useOutletContext<IChatContext>()
@@ -16,6 +17,9 @@ export const SendMessageArea = () => {
 	const message = useSelector(
 		chatContext.chatService,
 		(state) => state.context.message,
+	)
+	const isEditState = useSelector(chatContext.chatService, (state) =>
+		state.matches("editing"),
 	)
 	const { send } = chatContext.chatService
 
@@ -47,6 +51,10 @@ export const SendMessageArea = () => {
 		send({ type: "MESSAGE.CLEAR" })
 	}
 
+	const updateMessage = () => {
+		send({ type: "EDIT.DONE" })
+	}
+
 	useEffect(() => {
 		if (debouncedMessage) {
 			socket.emit("CLIENT@MESSAGE:IS-TYPING", {
@@ -66,7 +74,10 @@ export const SendMessageArea = () => {
 			})}
 			p="sm"
 		>
-			<sendMessageFetcher.Form onSubmit={addMessage}>
+			{isEditState && <EditMessage />}
+			<sendMessageFetcher.Form
+				onSubmit={isEditState ? updateMessage : addMessage}
+			>
 				<TextInput
 					placeholder="Enter a message"
 					value={message}

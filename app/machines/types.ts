@@ -6,7 +6,10 @@ export interface ChatContext {
 export type ChatEvent =
 	| { type: "MESSAGE.TYPING"; message: string }
 	| { type: "MESSAGE.CLEAR" }
-	| { type: "EDIT"; messageForEdit: string }
+	| {
+			type: "EDIT"
+			text: string
+	  }
 	| {
 			type: "EDIT.DONE"
 	  }

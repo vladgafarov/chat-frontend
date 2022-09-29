@@ -124,7 +124,12 @@ export const MessageBubble: FC<Props & Message> = ({
 					parsedTime={parsedTime}
 				/>
 
-				<MessageMenu className={classes.menuTarget} />
+				<MessageMenu
+					className={classes.menuTarget}
+					text={text}
+					messageId={id}
+					isAuthorsMessage={userId === author.id}
+				/>
 			</div>
 		</Group>
 	)

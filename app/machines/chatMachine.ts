@@ -57,12 +57,13 @@ const chatMachine =
 					message: "",
 					messageForEdit: "",
 				})),
-				setMessageForEdit: assign({
-					messageForEdit: (context, event) => {
-						if (event.type !== "EDIT") return context.messageForEdit
+				setMessageForEdit: assign((context, event) => {
+					if (event.type !== "EDIT") return context
 
-						return event.messageForEdit
-					},
+					return {
+						messageForEdit: event.text,
+						message: event.text,
+					}
 				}),
 			},
 		},

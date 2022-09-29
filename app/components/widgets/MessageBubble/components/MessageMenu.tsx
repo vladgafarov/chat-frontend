@@ -1,24 +1,25 @@
-import { ActionIcon, createStyles, Menu } from "@mantine/core"
+import { ActionIcon, Menu } from "@mantine/core"
 import type { FC } from "react"
 import { BsChevronCompactDown } from "react-icons/bs"
 import { IoReturnUpForwardOutline } from "react-icons/io5"
-import { MdModeEditOutline, MdDelete } from "react-icons/md"
-
-const useStyles = createStyles((theme) => ({
-	menuTarget: {
-		position: "absolute",
-		top: 0,
-		right: "3px",
-		// opacity: 0,
-	},
-}))
+import { MdDelete, MdModeEditOutline } from "react-icons/md"
+import { useChatContext } from "~/components/Chat/ChatContext"
 
 interface Props {
 	className: string
+	messageId: number
+	text: string
+	isAuthorsMessage: boolean
 }
 
-const MessageMenu: FC<Props> = ({ className }) => {
-	const { classes } = useStyles()
+const MessageMenu: FC<Props> = ({
+	className,
+	messageId,
+	text,
+	isAuthorsMessage,
+}) => {
+	const chatContext = useChatContext()
+	const { send } = chatContext.chatService
 
 	return (
 		<Menu width={200}>
@@ -29,13 +30,24 @@ const MessageMenu: FC<Props> = ({ className }) => {
 			</Menu.Target>
 
 			<Menu.Dropdown>
-				<Menu.Item icon={<MdModeEditOutline />}>Edit</Menu.Item>
+				{isAuthorsMessage && (
+					<Menu.Item
+						icon={<MdModeEditOutline />}
+						onClick={() => {
+							send({ type: "EDIT", text })
+						}}
+					>
+						Edit
+					</Menu.Item>
+				)}
 				<Menu.Item icon={<IoReturnUpForwardOutline />} disabled>
 					Forward
 				</Menu.Item>
-				<Menu.Item icon={<MdDelete />} disabled>
-					Delete
-				</Menu.Item>
+				{isAuthorsMessage && (
+					<Menu.Item icon={<MdDelete />} disabled>
+						Delete
+					</Menu.Item>
+				)}
 			</Menu.Dropdown>
 		</Menu>
 	)
