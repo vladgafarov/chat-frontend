@@ -1,11 +1,14 @@
 import { ScrollArea, Stack, Text } from "@mantine/core"
 import { useScrollIntoView } from "@mantine/hooks"
 import { useOutletContext, useParams } from "@remix-run/react"
+import { useInterpret } from "@xstate/react"
 import type { FC } from "react"
 import { useEffect, useMemo, useState } from "react"
+import chatMachine from "~/machines/chatMachine"
 import type { IChatContext } from "~/types/ChatContext"
 import type { Message } from "~/types/Message"
 import { MessageBubble, SendMessageArea } from "../widgets"
+import { ChatContext } from "./ChatContext"
 
 interface Props {
 	messages: Message[]
@@ -15,6 +18,8 @@ interface Props {
 const Chat: FC<Props> = ({ messages: defaultMessages, isGroupChat }) => {
 	const { socket, user } = useOutletContext<IChatContext>()
 	const { chatId } = useParams()
+
+	const chatService = useInterpret(chatMachine)
 
 	const [messages, setMessages] = useState<Message[]>(defaultMessages)
 	const [typingUser, setTypingUser] = useState<string[]>([])
@@ -73,7 +78,7 @@ const Chat: FC<Props> = ({ messages: defaultMessages, isGroupChat }) => {
 	}, [typingUser])
 
 	return (
-		<>
+		<ChatContext.Provider value={{ chatService }}>
 			<ScrollArea
 				sx={(theme) => ({
 					borderRadius: theme.radius.md,
@@ -119,7 +124,7 @@ const Chat: FC<Props> = ({ messages: defaultMessages, isGroupChat }) => {
 				</Text>
 			)}
 			<SendMessageArea />
-		</>
+		</ChatContext.Provider>
 	)
 }
 

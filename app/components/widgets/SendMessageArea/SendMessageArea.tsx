@@ -2,17 +2,25 @@ import { Box, Button, TextInput } from "@mantine/core"
 import { useDebouncedValue } from "@mantine/hooks"
 import { showNotification } from "@mantine/notifications"
 import { useFetcher, useOutletContext, useParams } from "@remix-run/react"
-import { useEffect, useState } from "react"
+import { useSelector } from "@xstate/react"
+import { useEffect } from "react"
 import { BiSend } from "react-icons/bi"
+import { useChatContext } from "~/components/Chat/ChatContext"
 import type { IChatContext } from "~/types/ChatContext"
 
 export const SendMessageArea = () => {
 	const { socket, user } = useOutletContext<IChatContext>()
 	const { chatId } = useParams()
 
+	const chatContext = useChatContext()
+	const message = useSelector(
+		chatContext.chatService,
+		(state) => state.context.message,
+	)
+	const { send } = chatContext.chatService
+
 	const sendMessageFetcher = useFetcher()
 
-	const [message, setMessage] = useState("")
 	const [debouncedMessage] = useDebouncedValue(message, 200)
 
 	const addMessage = () => {
@@ -36,7 +44,7 @@ export const SendMessageArea = () => {
 			roomId: +chatId,
 		})
 
-		setMessage("")
+		send({ type: "MESSAGE.CLEAR" })
 	}
 
 	useEffect(() => {
@@ -63,7 +71,10 @@ export const SendMessageArea = () => {
 					placeholder="Enter a message"
 					value={message}
 					onChange={(e) => {
-						setMessage(e.currentTarget.value)
+						send({
+							type: "MESSAGE.TYPING",
+							message: e.currentTarget.value,
+						})
 					}}
 					rightSection={
 						<Button
