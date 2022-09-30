@@ -68,6 +68,8 @@ const Chat: FC<Props> = ({ messages: defaultMessages, isGroupChat }) => {
 	}, [chatId])
 
 	useEffect(() => {
+		if (typingUser.length === 0) return
+
 		const timeout = setTimeout(() => {
 			setTypingUser((prev) => prev.filter((name) => name !== prev[0]))
 		}, 3000)
@@ -75,7 +77,7 @@ const Chat: FC<Props> = ({ messages: defaultMessages, isGroupChat }) => {
 		return () => {
 			clearTimeout(timeout)
 		}
-	}, [typingUser])
+	}, [typingUser.length])
 
 	return (
 		<ChatContext.Provider value={{ chatService }}>

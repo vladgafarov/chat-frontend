@@ -34,7 +34,15 @@ const MessageMenu: FC<Props> = ({
 					<Menu.Item
 						icon={<MdModeEditOutline />}
 						onClick={() => {
-							send({ type: "EDIT", text })
+							console.log(messageId, text)
+
+							send({
+								type: "EDIT",
+								payload: {
+									id: messageId,
+									text,
+								},
+							})
 						}}
 					>
 						Edit
