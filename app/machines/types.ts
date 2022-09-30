@@ -1,6 +1,9 @@
 export interface ChatContext {
 	message: string
-	messageForEdit: string
+	messageForEdit?: {
+		id: number
+		text: string
+	}
 }
 
 export type ChatEvent =
@@ -8,7 +11,10 @@ export type ChatEvent =
 	| { type: "MESSAGE.CLEAR" }
 	| {
 			type: "EDIT"
-			text: string
+			payload: {
+				id: number
+				text: string
+			}
 	  }
 	| {
 			type: "EDIT.DONE"

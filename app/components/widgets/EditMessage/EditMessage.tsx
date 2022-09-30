@@ -1,5 +1,5 @@
 import { Title, Text, Group, ActionIcon } from "@mantine/core"
-import { useSelector } from "@xstate/react"
+import { shallowEqual, useSelector } from "@xstate/react"
 import type { FC } from "react"
 import { IoClose } from "react-icons/io5"
 import { useChatContext } from "~/components/Chat/ChatContext"
@@ -9,6 +9,7 @@ const EditMessage: FC = () => {
 	const messageForEdit = useSelector(
 		chatContext.chatService,
 		(state) => state.context.messageForEdit,
+		shallowEqual,
 	)
 	const { send } = chatContext.chatService
 
@@ -17,7 +18,13 @@ const EditMessage: FC = () => {
 			<div>
 				<Title order={6}>Edit message</Title>
 
-				<Text>{messageForEdit}</Text>
+				<Text
+					style={{
+						wordBreak: "break-word",
+					}}
+				>
+					{messageForEdit?.text}
+				</Text>
 			</div>
 
 			<ActionIcon
