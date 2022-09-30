@@ -19,6 +19,9 @@ const chatMachine = createMachine<ChatContext, ChatEvent, ChatTypestate>(
 			},
 			editing: {
 				on: {
+					EDIT: {
+						actions: "setMessageForEdit",
+					},
 					"EDIT.DONE": {
 						actions: "clearMessages",
 						target: "initial",
