@@ -4,6 +4,7 @@ import { useState } from "react"
 import { BsChevronCompactDown } from "react-icons/bs"
 import { IoReturnUpForwardOutline } from "react-icons/io5"
 import { MdDelete, MdModeEditOutline } from "react-icons/md"
+import type { Socket } from "socket.io-client"
 import { useChatContext } from "~/components/Chat/ChatContext"
 
 interface Props {
@@ -11,6 +12,8 @@ interface Props {
 	messageId: number
 	text: string
 	isAuthorsMessage: boolean
+	socket: Socket
+	roomId: number
 }
 
 const MessageMenu: FC<Props> = ({
@@ -18,11 +21,21 @@ const MessageMenu: FC<Props> = ({
 	messageId,
 	text,
 	isAuthorsMessage,
+	socket,
+	roomId,
 }) => {
 	const chatContext = useChatContext()
 	const { send } = chatContext.chatService
 
 	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+
+	const onDelete = () => {
+		socket.emit("CLIENT@MESSAGE:DELETE", {
+			messageId,
+			roomId,
+		})
+		setIsDeleteModalOpen(false)
+	}
 
 	return (
 		<>
@@ -70,7 +83,9 @@ const MessageMenu: FC<Props> = ({
 			>
 				Do you want to delete this message?
 				<Group mt="lg" spacing="xs">
-					<Button color="red">Delete</Button>
+					<Button color="red" onClick={onDelete}>
+						Delete
+					</Button>
 					<Button
 						variant="outline"
 						onClick={() => setIsDeleteModalOpen(false)}

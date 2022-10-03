@@ -60,9 +60,16 @@ const Chat: FC<Props> = ({ messages: defaultMessages, isGroupChat }) => {
 			}
 		})
 
+		socket.on("SERVER@MESSAGE:DELETE", (messageId) => {
+			setMessages((prev) =>
+				prev.filter((message) => message.id !== messageId),
+			)
+		})
+
 		return () => {
 			socket.off("SERVER@MESSAGE:ADD")
 			socket.off("SERVER@MESSAGE:IS-TYPING")
+			socket.off("SERVER@MESSAGE:DELETE")
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [chatId])
