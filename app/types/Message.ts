@@ -5,6 +5,7 @@ export interface Message {
 	isRead: boolean
 	isReadByCurrentUser: boolean
 	authorId: number
+	isEdited: boolean
 	author: {
 		id: number
 		name: string

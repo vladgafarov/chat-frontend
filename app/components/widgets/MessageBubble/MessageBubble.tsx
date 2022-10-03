@@ -45,10 +45,11 @@ export const MessageBubble: FC<Props & Message> = ({
 	author,
 	isGroupChat,
 	createdAt,
-	text,
+	text: textDefault,
 	isRead,
 	isReadByCurrentUser: isReadByCurrentUserDefault,
 	id,
+	isEdited: isEditedDefault,
 }) => {
 	const { classes } = useStyles({ isAuthorsMessage: userId === author.id })
 
@@ -64,6 +65,8 @@ export const MessageBubble: FC<Props & Message> = ({
 	const [isReadByCurrentUser, setIsReadByCurrentUser] = useState<boolean>(
 		isReadByCurrentUserDefault,
 	)
+	const [text, setText] = useState<string>(textDefault)
+	const [isEdited, setIsEdited] = useState<boolean>(isEditedDefault)
 
 	const parsedTime = new Date(createdAt).toLocaleTimeString("ru-RU", {
 		hour: "numeric",
@@ -94,8 +97,16 @@ export const MessageBubble: FC<Props & Message> = ({
 			}
 		})
 
+		socket.on("SERVER@MESSAGE:UPDATE", (message: Message) => {
+			if (message.id === id) {
+				setText(message.text)
+				setIsEdited(true)
+			}
+		})
+
 		return () => {
 			socket.off("SERVER@MESSAGE:READ")
+			socket.off("SERVER@MESSAGE:UPDATE")
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
@@ -122,6 +133,7 @@ export const MessageBubble: FC<Props & Message> = ({
 					isAuthorsMessage={author.id === userId}
 					isRead={isReadAuthorMessage}
 					parsedTime={parsedTime}
+					isEdited={isEdited}
 				/>
 
 				<MessageMenu

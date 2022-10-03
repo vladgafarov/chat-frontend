@@ -59,6 +59,17 @@ export const SendMessageArea = () => {
 	}
 
 	const updateMessage = () => {
+		if (!chatId) {
+			return
+		}
+		if (!isEditState) return
+
+		socket.emit("CLIENT@MESSAGE:UPDATE", {
+			roomId: +chatId,
+			messageId: messageForEdit!.id,
+			text: message,
+		})
+
 		send({ type: "EDIT.DONE" })
 	}
 
