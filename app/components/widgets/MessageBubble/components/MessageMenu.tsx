@@ -2,11 +2,11 @@ import { ActionIcon, Button, Group, Menu, Modal } from "@mantine/core"
 import type { FC } from "react"
 import { useState } from "react"
 import { BsChevronCompactDown } from "react-icons/bs"
+import { CgMailReply } from "react-icons/cg"
 import { IoReturnUpForwardOutline } from "react-icons/io5"
 import { MdDelete, MdModeEditOutline } from "react-icons/md"
 import type { Socket } from "socket.io-client"
 import { useChatContext } from "~/components/Chat/ChatContext"
-
 interface Props {
 	className: string
 	messageId: number
@@ -14,6 +14,7 @@ interface Props {
 	isAuthorsMessage: boolean
 	socket: Socket
 	roomId: number
+	authorName: string
 }
 
 const MessageMenu: FC<Props> = ({
@@ -23,6 +24,7 @@ const MessageMenu: FC<Props> = ({
 	isAuthorsMessage,
 	socket,
 	roomId,
+	authorName,
 }) => {
 	const chatContext = useChatContext()
 	const { send } = chatContext.chatService
@@ -37,6 +39,26 @@ const MessageMenu: FC<Props> = ({
 		setIsDeleteModalOpen(false)
 	}
 
+	const sendEdit = () => {
+		send({
+			type: "EDIT",
+			payload: {
+				messageId,
+				text,
+			},
+		})
+	}
+	const sendReply = () => {
+		send({
+			type: "REPLY",
+			payload: {
+				messageId,
+				authorName,
+				text,
+			},
+		})
+	}
+
 	return (
 		<>
 			<Menu width={200}>
@@ -48,22 +70,14 @@ const MessageMenu: FC<Props> = ({
 
 				<Menu.Dropdown>
 					{isAuthorsMessage && (
-						<Menu.Item
-							icon={<MdModeEditOutline />}
-							onClick={() => {
-								send({
-									type: "EDIT",
-									payload: {
-										id: messageId,
-										text,
-									},
-								})
-							}}
-						>
+						<Menu.Item icon={<MdModeEditOutline />} onClick={sendEdit}>
 							Edit
 						</Menu.Item>
 					)}
-					<Menu.Item icon={<IoReturnUpForwardOutline />} disabled>
+					<Menu.Item icon={<CgMailReply />} onClick={sendReply}>
+						Reply
+					</Menu.Item>
+					<Menu.Item icon={<IoReturnUpForwardOutline />}>
 						Forward
 					</Menu.Item>
 					{isAuthorsMessage && (

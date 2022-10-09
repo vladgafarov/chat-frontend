@@ -15,6 +15,10 @@ const chatMachine = createMachine<ChatContext, ChatEvent, ChatTypestate>(
 						actions: "setMessageForEdit",
 						target: "editing",
 					},
+					REPLY: {
+						actions: "setMessageForReply",
+						target: "reply",
+					},
 				},
 			},
 			editing: {
@@ -27,6 +31,21 @@ const chatMachine = createMachine<ChatContext, ChatEvent, ChatTypestate>(
 						target: "initial",
 					},
 					"EDIT.CANCEL": {
+						actions: "clearMessages",
+						target: "initial",
+					},
+				},
+			},
+			reply: {
+				on: {
+					REPLY: {
+						actions: "setMessageForReply",
+					},
+					"REPLY.DONE": {
+						actions: "clearMessages",
+						target: "initial",
+					},
+					"REPLY.CANCEL": {
 						actions: "clearMessages",
 						target: "initial",
 					},
@@ -57,6 +76,7 @@ const chatMachine = createMachine<ChatContext, ChatEvent, ChatTypestate>(
 			clearMessages: assign((context) => ({
 				message: "",
 				messageForEdit: undefined,
+				messageForReply: undefined,
 			})),
 			setMessageForEdit: assign((context, event) => {
 				if (event.type !== "EDIT") return context
@@ -64,7 +84,19 @@ const chatMachine = createMachine<ChatContext, ChatEvent, ChatTypestate>(
 				return {
 					message: event.payload.text,
 					messageForEdit: {
-						id: event.payload.id,
+						messageId: event.payload.messageId,
+						text: event.payload.text,
+					},
+				}
+			}),
+			setMessageForReply: assign((context, event) => {
+				if (event.type !== "REPLY") return context
+
+				return {
+					message: "",
+					messageForReply: {
+						messageId: event.payload.messageId,
+						authorName: event.payload.authorName,
 						text: event.payload.text,
 					},
 				}

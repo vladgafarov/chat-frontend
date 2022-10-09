@@ -1,9 +1,18 @@
+interface MessageForEdit {
+	messageId: number
+	text: string
+}
+
+interface MessageForReply {
+	messageId: number
+	authorName: string
+	text: string
+}
+
 export interface ChatContext {
 	message: string
-	messageForEdit?: {
-		id: number
-		text: string
-	}
+	messageForEdit?: MessageForEdit
+	messageForReply?: MessageForReply
 }
 
 export type ChatEvent =
@@ -11,16 +20,23 @@ export type ChatEvent =
 	| { type: "MESSAGE.CLEAR" }
 	| {
 			type: "EDIT"
-			payload: {
-				id: number
-				text: string
-			}
+			payload: MessageForEdit
 	  }
 	| {
 			type: "EDIT.DONE"
 	  }
 	| {
 			type: "EDIT.CANCEL"
+	  }
+	| {
+			type: "REPLY"
+			payload: MessageForReply
+	  }
+	| {
+			type: "REPLY.DONE"
+	  }
+	| {
+			type: "REPLY.CANCEL"
 	  }
 
 export type ChatTypestate =
@@ -30,5 +46,9 @@ export type ChatTypestate =
 	  }
 	| {
 			value: "editing"
+			context: ChatContext
+	  }
+	| {
+			value: "reply"
 			context: ChatContext
 	  }

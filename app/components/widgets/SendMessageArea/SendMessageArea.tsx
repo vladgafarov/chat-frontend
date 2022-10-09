@@ -10,6 +10,7 @@ import { MdOutlineDone } from "react-icons/md"
 import { useChatContext } from "~/components/Chat/ChatContext"
 import type { IChatContext } from "~/types/ChatContext"
 import EditMessage from "../EditMessage"
+import ReplyMessage from "../ReplyMessage"
 
 export const SendMessageArea = () => {
 	const { socket, user } = useOutletContext<IChatContext>()
@@ -25,8 +26,16 @@ export const SendMessageArea = () => {
 		(state) => state.context.messageForEdit,
 		shallowEqual,
 	)
+	const messageForReply = useSelector(
+		chatContext.chatService,
+		(state) => state.context.messageForReply,
+		shallowEqual,
+	)
 	const isEditState = useSelector(chatContext.chatService, (state) =>
 		state.matches("editing"),
+	)
+	const isReplyState = useSelector(chatContext.chatService, (state) =>
+		state.matches("reply"),
 	)
 	const { send } = chatContext.chatService
 
@@ -53,9 +62,14 @@ export const SendMessageArea = () => {
 			authorId: user.id,
 			text: message,
 			roomId: +chatId,
+			repliedMessageId: messageForReply?.messageId,
 		})
 
-		send({ type: "MESSAGE.CLEAR" })
+		if (messageForReply?.messageId) {
+			send({ type: "REPLY.DONE" })
+		} else {
+			send({ type: "MESSAGE.CLEAR" })
+		}
 	}
 
 	const updateMessage = () => {
@@ -66,7 +80,7 @@ export const SendMessageArea = () => {
 
 		socket.emit("CLIENT@MESSAGE:UPDATE", {
 			roomId: +chatId,
-			messageId: messageForEdit!.id,
+			messageId: messageForEdit!.messageId,
 			text: message,
 		})
 
@@ -103,6 +117,15 @@ export const SendMessageArea = () => {
 						exit={{ opacity: 0, y: 5 }}
 					>
 						<EditMessage />
+					</motion.div>
+				)}
+				{isReplyState && (
+					<motion.div
+						initial={{ opacity: 0, y: 5 }}
+						animate={{ opacity: 1, y: 0, transition: { delay: 0.2 } }}
+						exit={{ opacity: 0, y: 5 }}
+					>
+						<ReplyMessage />
 					</motion.div>
 				)}
 				<motion.div layout>

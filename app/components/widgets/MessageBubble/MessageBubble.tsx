@@ -98,8 +98,6 @@ export const MessageBubble: FC<Props & Message> = ({
 		})
 
 		socket.on("SERVER@MESSAGE:UPDATE", (message: Message) => {
-			console.log("SERVER@MESSAGE:UPDATE", message)
-
 			if (message.id === id) {
 				setText(message.text)
 				setIsEdited(true)
@@ -145,6 +143,7 @@ export const MessageBubble: FC<Props & Message> = ({
 					isAuthorsMessage={userId === author.id}
 					socket={socket}
 					roomId={+(chatId as string)}
+					authorName={author.name}
 				/>
 			</div>
 		</Group>
