@@ -6,6 +6,14 @@ export interface Message {
 	isReadByCurrentUser: boolean
 	authorId: number
 	isEdited: boolean
+	replyTo: {
+		id: number
+		text: string
+		author: {
+			id: number
+			name: string
+		}
+	}
 	author: {
 		id: number
 		name: string

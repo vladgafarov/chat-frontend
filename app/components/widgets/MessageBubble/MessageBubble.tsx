@@ -32,6 +32,10 @@ const useStyles = createStyles(
 			opacity: 0,
 			transition: "opacity 0.2s ease-in-out",
 		},
+		reply: {
+			borderLeft: `2px solid ${theme.colors.blue[3]}`,
+			paddingInline: "7px",
+		},
 	}),
 )
 
@@ -50,6 +54,7 @@ export const MessageBubble: FC<Props & Message> = ({
 	isReadByCurrentUser: isReadByCurrentUserDefault,
 	id,
 	isEdited: isEditedDefault,
+	replyTo,
 }) => {
 	const { classes } = useStyles({ isAuthorsMessage: userId === author.id })
 
@@ -123,6 +128,15 @@ export const MessageBubble: FC<Props & Message> = ({
 				</Avatar>
 			)}
 			<div className={classes.message}>
+				{replyTo && (
+					<div className={classes.reply}>
+						<Text size="sm" color="blue" weight={500}>
+							{replyTo.author.name}
+						</Text>
+						<Text size="sm">{replyTo.text}</Text>
+					</div>
+				)}
+
 				{isGroupChat && userId !== author.id && (
 					<MessageTitle>{author.name}</MessageTitle>
 				)}
