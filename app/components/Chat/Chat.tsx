@@ -25,8 +25,10 @@ const Chat: FC<Props> = ({ messages: defaultMessages, isGroupChat }) => {
 	const [typingUser, setTypingUser] = useState<string[]>([])
 	const [activeMessageId, setActiveMessageId] = useState<number | null>(null)
 
-	const { scrollIntoView, targetRef, scrollableRef } = useScrollIntoView()
-	const [scrollPosition, setScrollPosition] = useDebouncedState(0, 200)
+	const { scrollIntoView, targetRef, scrollableRef } = useScrollIntoView({
+		duration: 0,
+	})
+	const [scrollPosition, setScrollPosition] = useDebouncedState(0, 400)
 
 	const isGoToBottomVisible = useMemo(() => {
 		const scrollable = scrollableRef.current as any
@@ -60,6 +62,10 @@ const Chat: FC<Props> = ({ messages: defaultMessages, isGroupChat }) => {
 
 		socket.on("SERVER@MESSAGE:ADD", (message) => {
 			setMessages((messages) => [...messages, message])
+
+			if (message.author.id === user.id) {
+				scrollIntoView()
+			}
 		})
 
 		socket.on("SERVER@MESSAGE:IS-TYPING", (data) => {
