@@ -1,5 +1,5 @@
 import { ScrollArea, Stack, Text } from "@mantine/core"
-import { useScrollIntoView } from "@mantine/hooks"
+import { useDebouncedState, useScrollIntoView } from "@mantine/hooks"
 import { useOutletContext, useParams } from "@remix-run/react"
 import { useInterpret } from "@xstate/react"
 import type { FC } from "react"
@@ -7,7 +7,7 @@ import { useEffect, useMemo, useState } from "react"
 import chatMachine from "~/machines/chatMachine"
 import type { IChatContext } from "~/types/ChatContext"
 import type { Message } from "~/types/Message"
-import { MessageBubble, SendMessageArea } from "../widgets"
+import { GoToChatBottom, MessageBubble, SendMessageArea } from "../widgets"
 import { ChatContext } from "./ChatContext"
 
 interface Props {
@@ -26,6 +26,16 @@ const Chat: FC<Props> = ({ messages: defaultMessages, isGroupChat }) => {
 	const [activeMessageId, setActiveMessageId] = useState<number | null>(null)
 
 	const { scrollIntoView, targetRef, scrollableRef } = useScrollIntoView()
+	const [scrollPosition, setScrollPosition] = useDebouncedState(0, 200)
+
+	const isGoToBottomVisible = useMemo(() => {
+		const scrollable = scrollableRef.current as any
+
+		const scrollHeight = scrollable?.scrollHeight
+		const offsetHeight = scrollable?.offsetHeight
+
+		return scrollHeight - scrollPosition > offsetHeight * 1.33
+	}, [scrollPosition, scrollableRef])
 
 	//group messages by date
 	const messagesByDate = useMemo(() => {
@@ -105,12 +115,14 @@ const Chat: FC<Props> = ({ messages: defaultMessages, isGroupChat }) => {
 				sx={(theme) => ({
 					borderRadius: theme.radius.md,
 					flex: "1",
+					position: "relative",
 				})}
 				my="md"
 				type="hover"
 				viewportRef={scrollableRef}
+				onScrollPositionChange={({ y }) => setScrollPosition(y)}
 			>
-				<Stack align="stretch">
+				<Stack align="stretch" sx={() => ({})}>
 					{[...messagesByDate.entries()].map(([date, messages]) => (
 						<Stack align="stretch" key={date}>
 							<Text
@@ -118,6 +130,10 @@ const Chat: FC<Props> = ({ messages: defaultMessages, isGroupChat }) => {
 									fontSize: theme.fontSizes.sm,
 									color: theme.colors.gray[6],
 									paddingBlock: theme.spacing.xs,
+									position: "sticky",
+									top: 0,
+									zIndex: 1,
+									alignSelf: "center",
 								})}
 							>
 								{date}
@@ -134,6 +150,11 @@ const Chat: FC<Props> = ({ messages: defaultMessages, isGroupChat }) => {
 							))}
 						</Stack>
 					))}
+
+					<GoToChatBottom
+						onClick={() => scrollIntoView({ alignment: "end" })}
+						isVisible={isGoToBottomVisible}
+					/>
 				</Stack>
 
 				{messages.length === 0 && <Text>No messages yet</Text>}
@@ -142,7 +163,7 @@ const Chat: FC<Props> = ({ messages: defaultMessages, isGroupChat }) => {
 				<div ref={targetRef} />
 			</ScrollArea>
 			{typingUser.length > 0 && (
-				<Text sx={{ color: "gray.6" }}>
+				<Text color="gray.6">
 					{typingUser.join(", ")} {typingUser.length === 1 ? "is" : "are"}{" "}
 					typing...
 				</Text>

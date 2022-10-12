@@ -1,4 +1,5 @@
-export * from "./UserItem"
+export * from "./GoToChatBottom"
 export * from "./MessageBubble"
 export * from "./SendMessageArea"
 export * from "./UserBubble"
+export * from "./UserItem"
