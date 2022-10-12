@@ -4,7 +4,7 @@ import { showNotification } from "@mantine/notifications"
 import { useFetcher, useOutletContext, useParams } from "@remix-run/react"
 import { useSelector } from "@xstate/react"
 import { AnimatePresence, motion } from "framer-motion"
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import { BiSend } from "react-icons/bi"
 import { MdOutlineDone } from "react-icons/md"
 import { useChatContext } from "~/components/Chat/ChatContext"
@@ -15,6 +15,8 @@ import ReplyMessage from "../ReplyMessage"
 export const SendMessageArea = () => {
 	const { socket, user } = useOutletContext<IChatContext>()
 	const { chatId } = useParams()
+
+	const inputRef = useRef<HTMLInputElement>()
 
 	const chatContext = useChatContext()
 	const message = useSelector(
@@ -98,6 +100,14 @@ export const SendMessageArea = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [debouncedMessage])
 
+	useEffect(() => {
+		if (inputRef.current && (isEditState || isReplyState)) {
+			const end = inputRef.current.value.length
+			inputRef.current.setSelectionRange(end, end)
+			inputRef.current.focus()
+		}
+	}, [isEditState, isReplyState, messageForEdit, messageForReply])
+
 	return (
 		<AnimatePresence>
 			<Box
@@ -133,6 +143,8 @@ export const SendMessageArea = () => {
 						onSubmit={isEditState ? updateMessage : addMessage}
 					>
 						<TextInput
+							// @ts-ignore
+							ref={inputRef}
 							placeholder="Enter a message"
 							value={message}
 							onChange={(e) => {
@@ -148,6 +160,9 @@ export const SendMessageArea = () => {
 									radius={"xs"}
 									type="submit"
 									loading={sendMessageFetcher.state === "loading"}
+									disabled={
+										!message || message === messageForEdit?.text
+									}
 								>
 									{isEditState ? <MdOutlineDone /> : <BiSend />}
 								</Button>

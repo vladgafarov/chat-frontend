@@ -6,26 +6,15 @@ const chatMachine = createMachine<ChatContext, ChatEvent, ChatTypestate>(
 		context: {
 			message: "",
 			messageForEdit: undefined,
+			messageForReply: undefined,
 		},
 		initial: "initial",
 		states: {
 			initial: {
-				on: {
-					EDIT: {
-						actions: "setMessageForEdit",
-						target: "editing",
-					},
-					REPLY: {
-						actions: "setMessageForReply",
-						target: "reply",
-					},
-				},
+				on: {},
 			},
 			editing: {
 				on: {
-					EDIT: {
-						actions: "setMessageForEdit",
-					},
 					"EDIT.DONE": {
 						actions: "clearMessages",
 						target: "initial",
@@ -38,9 +27,6 @@ const chatMachine = createMachine<ChatContext, ChatEvent, ChatTypestate>(
 			},
 			reply: {
 				on: {
-					REPLY: {
-						actions: "setMessageForReply",
-					},
 					"REPLY.DONE": {
 						actions: "clearMessages",
 						target: "initial",
@@ -58,6 +44,14 @@ const chatMachine = createMachine<ChatContext, ChatEvent, ChatTypestate>(
 			},
 			"MESSAGE.CLEAR": {
 				actions: "clearMessage",
+			},
+			EDIT: {
+				actions: "setMessageForEdit",
+				target: "editing",
+			},
+			REPLY: {
+				actions: "setMessageForReply",
+				target: "reply",
 			},
 		},
 	},
