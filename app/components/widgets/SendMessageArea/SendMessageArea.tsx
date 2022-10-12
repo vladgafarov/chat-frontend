@@ -153,6 +153,7 @@ export const SendMessageArea = () => {
 									message: e.currentTarget.value,
 								})
 							}}
+							autoComplete="off"
 							rightSection={
 								<Button
 									variant="subtle"
