@@ -158,7 +158,6 @@ export const MessageBubble: FC<Props & Message> = ({
 					<a
 						href={`#${replyTo.id}`}
 						onClick={(e) => {
-							// e.preventDefault()
 							setIsActiveMessageId(replyTo.id)
 						}}
 					>
