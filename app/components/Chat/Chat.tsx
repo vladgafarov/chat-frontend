@@ -23,6 +23,7 @@ const Chat: FC<Props> = ({ messages: defaultMessages, isGroupChat }) => {
 
 	const [messages, setMessages] = useState<Message[]>(defaultMessages)
 	const [typingUser, setTypingUser] = useState<string[]>([])
+	const [activeMessageId, setActiveMessageId] = useState<number | null>(null)
 
 	const { scrollIntoView, targetRef, scrollableRef } = useScrollIntoView()
 
@@ -86,6 +87,18 @@ const Chat: FC<Props> = ({ messages: defaultMessages, isGroupChat }) => {
 		}
 	}, [typingUser.length])
 
+	useEffect(() => {
+		if (activeMessageId === null) return
+
+		const timeout = setTimeout(() => {
+			setActiveMessageId(null)
+		}, 1500)
+
+		return () => {
+			clearTimeout(timeout)
+		}
+	}, [activeMessageId])
+
 	return (
 		<ChatContext.Provider value={{ chatService }}>
 			<ScrollArea
@@ -114,6 +127,8 @@ const Chat: FC<Props> = ({ messages: defaultMessages, isGroupChat }) => {
 									key={message.id}
 									userId={user.id}
 									isGroupChat={isGroupChat}
+									isActive={message.id === activeMessageId}
+									setIsActiveMessageId={setActiveMessageId}
 									{...message}
 								/>
 							))}

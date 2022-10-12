@@ -1,4 +1,4 @@
-import { Avatar, createStyles, Group, Text } from "@mantine/core"
+import { Avatar, createStyles, Group, keyframes, Text } from "@mantine/core"
 import { useOutletContext, useParams } from "@remix-run/react"
 import type { FC } from "react"
 import { useEffect, useRef, useState } from "react"
@@ -6,6 +6,15 @@ import useIntersectionObserver from "~/hooks/useIntersectionObserver"
 import type { IChatContext } from "~/types/ChatContext"
 import type { Message } from "~/types/Message"
 import { MessageInfoBottom, MessageMenu, MessageTitle } from "./components"
+
+const highlight = keyframes({
+	from: {
+		backgroundColor: "rgba(0, 0, 0, 0.1)",
+	},
+	to: {
+		backgroundColor: "rgba(0, 0, 0, 0)",
+	},
+})
 
 const useStyles = createStyles(
 	(theme, { isAuthorsMessage }: { isAuthorsMessage: boolean }, getRef) => ({
@@ -23,6 +32,11 @@ const useStyles = createStyles(
 			[`&:hover .${getRef("menuTarget")}`]: {
 				opacity: 1,
 			},
+
+			a: {
+				textDecoration: "none",
+				color: "inherit",
+			},
 		},
 		menuTarget: {
 			ref: getRef("menuTarget"),
@@ -36,12 +50,18 @@ const useStyles = createStyles(
 			borderLeft: `2px solid ${theme.colors.blue[3]}`,
 			paddingInline: "7px",
 		},
+		active: {
+			animation: `${highlight} 1.5s ease-in-out`,
+			borderRadius: theme.radius.md,
+		},
 	}),
 )
 
 interface Props {
 	userId: number
 	isGroupChat: boolean
+	isActive: boolean
+	setIsActiveMessageId: any
 }
 
 export const MessageBubble: FC<Props & Message> = ({
@@ -55,8 +75,10 @@ export const MessageBubble: FC<Props & Message> = ({
 	id,
 	isEdited: isEditedDefault,
 	replyTo,
+	isActive,
+	setIsActiveMessageId,
 }) => {
-	const { classes } = useStyles({ isAuthorsMessage: userId === author.id })
+	const { classes, cx } = useStyles({ isAuthorsMessage: userId === author.id })
 
 	const { socket } = useOutletContext<IChatContext>()
 	const { chatId } = useParams()
@@ -121,6 +143,10 @@ export const MessageBubble: FC<Props & Message> = ({
 			ref={isReadByCurrentUser ? undefined : ref}
 			align="flex-start"
 			spacing="sm"
+			id={String(id)}
+			className={cx({
+				[classes.active]: isActive,
+			})}
 		>
 			{isGroupChat && (
 				<Avatar src={author.avatarUrl} variant="light" radius={"md"}>
@@ -129,12 +155,20 @@ export const MessageBubble: FC<Props & Message> = ({
 			)}
 			<div className={classes.message}>
 				{replyTo && (
-					<div className={classes.reply}>
-						<Text size="sm" color="blue" weight={500}>
-							{replyTo.author.name}
-						</Text>
-						<Text size="sm">{replyTo.text}</Text>
-					</div>
+					<a
+						href={`#${replyTo.id}`}
+						onClick={(e) => {
+							// e.preventDefault()
+							setIsActiveMessageId(replyTo.id)
+						}}
+					>
+						<div className={classes.reply}>
+							<Text size="sm" color="blue" weight={500}>
+								{replyTo.author.name}
+							</Text>
+							<Text size="sm">{replyTo.text}</Text>
+						</div>
+					</a>
 				)}
 
 				{isGroupChat && userId !== author.id && (
