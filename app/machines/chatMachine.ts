@@ -124,20 +124,12 @@ const chatMachine = createMachine<ChatContext, ChatEvent, ChatTypestate>(
 
 				if (!context.selectedMessages) {
 					return {
-						selectedMessages: [event.messageId],
-					}
-				}
-
-				if (context.selectedMessages.includes(event.messageId)) {
-					return {
-						selectedMessages: context.selectedMessages.filter(
-							(id) => id !== event.messageId,
-						),
+						selectedMessages: [event.payload],
 					}
 				}
 
 				return {
-					selectedMessages: [...context.selectedMessages, event.messageId],
+					selectedMessages: [...context.selectedMessages, event.payload],
 				}
 			}),
 			unselectMessage: assign((context, event) => {
@@ -145,7 +137,7 @@ const chatMachine = createMachine<ChatContext, ChatEvent, ChatTypestate>(
 
 				return {
 					selectedMessages: context.selectedMessages?.filter(
-						(id) => id !== event.messageId,
+						(message) => message.messageId !== event.messageId,
 					),
 				}
 			}),

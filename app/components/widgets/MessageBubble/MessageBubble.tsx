@@ -143,10 +143,24 @@ export const MessageBubble: FC<Props & Message> = ({
 
 	const onSelect = () => {
 		if (isSelectingState) {
-			send({
-				type: selectedMessages?.includes(id) ? "UNSELECT" : "SELECT",
-				messageId: id,
-			})
+			const isMessageSelected = !!selectedMessages?.some(
+				(message) => message.messageId === id,
+			)
+
+			if (isMessageSelected) {
+				send({
+					type: "UNSELECT",
+					messageId: id,
+				})
+			} else {
+				send({
+					type: "SELECT",
+					payload: {
+						messageId: id,
+						isUserAuthor: userId === author.id,
+					},
+				})
+			}
 		}
 	}
 
@@ -195,7 +209,9 @@ export const MessageBubble: FC<Props & Message> = ({
 			id={String(id)}
 			className={cx(classes.root, {
 				[classes.active]: isActive,
-				[classes.selected]: selectedMessages?.includes(id),
+				[classes.selected]: !!selectedMessages?.some(
+					(message) => message.messageId === id,
+				),
 			})}
 			onClick={onSelect}
 		>

@@ -1,7 +1,15 @@
-import { ActionIcon, Button, createStyles, Group, Text } from "@mantine/core"
+import {
+	ActionIcon,
+	Button,
+	createStyles,
+	Group,
+	Modal,
+	Text,
+} from "@mantine/core"
 import { shallowEqual, useSelector } from "@xstate/react"
 import { AnimatePresence, motion } from "framer-motion"
 import type { FC } from "react"
+import { useState } from "react"
 import { IoReturnUpForwardOutline } from "react-icons/io5"
 import { MdClose, MdDelete } from "react-icons/md"
 import { useChatContext } from "~/components/Chat/ChatContext"
@@ -27,6 +35,8 @@ interface Props {}
 export const SelectedMesssagesHeader: FC<Props> = () => {
 	const { classes } = useStyles()
 
+	const [isModalOpen, setIsModalOpen] = useState(false)
+
 	const chatContext = useChatContext()
 	const { send } = chatContext.chatService
 
@@ -43,43 +53,69 @@ export const SelectedMesssagesHeader: FC<Props> = () => {
 		send("SELECT.CANCEL")
 	}
 
-	return (
-		<AnimatePresence>
-			{isSelectingState && (
-				<motion.div
-					className={classes.base}
-					initial={{ opacity: 0, y: -20 }}
-					animate={{ opacity: 1, y: 0 }}
-					exit={{ opacity: 0, y: 0 }}
-				>
-					<Group
-						position="apart"
-						sx={() => ({
-							width: "100%",
-						})}
-					>
-						<Text>
-							Selected {selectedMessages?.length} message
-							{selectedMessages!.length > 1 && "s"}
-						</Text>
+	const onDelete = () => {
+		const userMessages = selectedMessages?.filter(
+			(message) => message.isUserAuthor,
+		)
+	}
 
-						<Group>
-							<Button
-								variant="outline"
-								leftIcon={<IoReturnUpForwardOutline />}
-							>
-								Forward
-							</Button>
-							<Button variant="outline" leftIcon={<MdDelete />}>
-								Delete
-							</Button>
-							<ActionIcon onClick={cancelSelection}>
-								<MdClose />
-							</ActionIcon>
+	return (
+		<>
+			<AnimatePresence>
+				{isSelectingState && (
+					<motion.div
+						className={classes.base}
+						initial={{ opacity: 0, y: -20 }}
+						animate={{ opacity: 1, y: 0 }}
+						exit={{ opacity: 0, y: 0 }}
+					>
+						<Group
+							position="apart"
+							sx={() => ({
+								width: "100%",
+							})}
+						>
+							<Text>
+								Selected {selectedMessages?.length} message
+								{selectedMessages!.length > 1 && "s"}
+							</Text>
+
+							<Group>
+								<Button
+									variant="outline"
+									leftIcon={<IoReturnUpForwardOutline />}
+								>
+									Forward
+								</Button>
+								<Button
+									variant="outline"
+									leftIcon={<MdDelete />}
+									onClick={() => setIsModalOpen(true)}
+								>
+									Delete
+								</Button>
+								<ActionIcon onClick={cancelSelection}>
+									<MdClose />
+								</ActionIcon>
+							</Group>
 						</Group>
-					</Group>
-				</motion.div>
-			)}
-		</AnimatePresence>
+					</motion.div>
+				)}
+			</AnimatePresence>
+			<Modal
+				opened={isModalOpen}
+				onClose={() => setIsModalOpen(false)}
+				title="Delete your messages?"
+			>
+				<Group>
+					<Button color="red" onClick={onDelete}>
+						Delete
+					</Button>
+					<Button onClick={() => setIsModalOpen(false)} variant="outline">
+						Cancel
+					</Button>
+				</Group>
+			</Modal>
+		</>
 	)
 }

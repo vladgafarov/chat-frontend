@@ -62,7 +62,10 @@ const MessageMenu: FC<Props> = ({
 	const sendSelect = () => {
 		send({
 			type: "SELECT",
-			messageId,
+			payload: {
+				messageId,
+				isUserAuthor: isAuthorsMessage,
+			},
 		})
 	}
 

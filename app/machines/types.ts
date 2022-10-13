@@ -9,7 +9,10 @@ interface MessageForReply {
 	text: string
 }
 
-type MessageForSelect = number
+type MessageForSelect = {
+	messageId: number
+	isUserAuthor: boolean
+}
 
 export interface ChatContext {
 	message: string
@@ -43,7 +46,10 @@ export type ChatEvent =
 	  }
 	| {
 			type: "SELECT"
-			messageId: number
+			payload: {
+				messageId: number
+				isUserAuthor: boolean
+			}
 	  }
 	| {
 			type: "SELECT.CANCEL"
