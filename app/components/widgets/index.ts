@@ -1,5 +1,6 @@
 export * from "./GoToChatBottom"
 export * from "./MessageBubble"
+export * from "./SelectedMesssagesHeader"
 export * from "./SendMessageArea"
 export * from "./UserBubble"
 export * from "./UserItem"

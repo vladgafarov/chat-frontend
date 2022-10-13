@@ -7,6 +7,7 @@ const chatMachine = createMachine<ChatContext, ChatEvent, ChatTypestate>(
 			message: "",
 			messageForEdit: undefined,
 			messageForReply: undefined,
+			selectedMessages: [],
 		},
 		initial: "initial",
 		states: {
@@ -37,6 +38,24 @@ const chatMachine = createMachine<ChatContext, ChatEvent, ChatTypestate>(
 					},
 				},
 			},
+			selecting: {
+				on: {
+					"SELECT.CANCEL": {
+						actions: "clearMessages",
+						target: "initial",
+					},
+					UNSELECT: [
+						{
+							cond: "isLastSelectedMessage",
+							actions: "unselectMessage",
+							target: "initial",
+						},
+						{
+							actions: "unselectMessage",
+						},
+					],
+				},
+			},
 		},
 		on: {
 			"MESSAGE.TYPING": {
@@ -52,6 +71,10 @@ const chatMachine = createMachine<ChatContext, ChatEvent, ChatTypestate>(
 			REPLY: {
 				actions: "setMessageForReply",
 				target: "reply",
+			},
+			SELECT: {
+				actions: "addMessageForSelect",
+				target: "selecting",
 			},
 		},
 	},
@@ -71,6 +94,7 @@ const chatMachine = createMachine<ChatContext, ChatEvent, ChatTypestate>(
 				message: "",
 				messageForEdit: undefined,
 				messageForReply: undefined,
+				selectedMessages: [],
 			})),
 			setMessageForEdit: assign((context, event) => {
 				if (event.type !== "EDIT") return context
@@ -95,6 +119,43 @@ const chatMachine = createMachine<ChatContext, ChatEvent, ChatTypestate>(
 					},
 				}
 			}),
+			addMessageForSelect: assign((context, event) => {
+				if (event.type !== "SELECT") return context
+
+				if (!context.selectedMessages) {
+					return {
+						selectedMessages: [event.messageId],
+					}
+				}
+
+				if (context.selectedMessages.includes(event.messageId)) {
+					return {
+						selectedMessages: context.selectedMessages.filter(
+							(id) => id !== event.messageId,
+						),
+					}
+				}
+
+				return {
+					selectedMessages: [...context.selectedMessages, event.messageId],
+				}
+			}),
+			unselectMessage: assign((context, event) => {
+				if (event.type !== "UNSELECT") return context
+
+				return {
+					selectedMessages: context.selectedMessages?.filter(
+						(id) => id !== event.messageId,
+					),
+				}
+			}),
+		},
+		guards: {
+			isLastSelectedMessage: (context, event) => {
+				if (event.type !== "UNSELECT") return false
+
+				return context.selectedMessages?.length === 1
+			},
 		},
 	},
 )

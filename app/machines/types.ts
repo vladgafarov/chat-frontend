@@ -9,10 +9,13 @@ interface MessageForReply {
 	text: string
 }
 
+type MessageForSelect = number
+
 export interface ChatContext {
 	message: string
 	messageForEdit?: MessageForEdit
 	messageForReply?: MessageForReply
+	selectedMessages?: MessageForSelect[]
 }
 
 export type ChatEvent =
@@ -38,6 +41,17 @@ export type ChatEvent =
 	| {
 			type: "REPLY.CANCEL"
 	  }
+	| {
+			type: "SELECT"
+			messageId: number
+	  }
+	| {
+			type: "SELECT.CANCEL"
+	  }
+	| {
+			type: "UNSELECT"
+			messageId: number
+	  }
 
 export type ChatTypestate =
 	| {
@@ -46,9 +60,19 @@ export type ChatTypestate =
 	  }
 	| {
 			value: "editing"
-			context: ChatContext
+			context: ChatContext & {
+				messageForEdit: MessageForEdit
+			}
 	  }
 	| {
 			value: "reply"
-			context: ChatContext
+			context: ChatContext & {
+				messageForReply: MessageForReply
+			}
+	  }
+	| {
+			value: "selecting"
+			context: ChatContext & {
+				selectedMessages: MessageForSelect[]
+			}
 	  }

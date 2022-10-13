@@ -7,7 +7,12 @@ import { useEffect, useMemo, useState } from "react"
 import chatMachine from "~/machines/chatMachine"
 import type { IChatContext } from "~/types/ChatContext"
 import type { Message } from "~/types/Message"
-import { GoToChatBottom, MessageBubble, SendMessageArea } from "../widgets"
+import {
+	GoToChatBottom,
+	MessageBubble,
+	SelectedMesssagesHeader,
+	SendMessageArea,
+} from "../widgets"
 import { ChatContext } from "./ChatContext"
 
 interface Props {
@@ -128,7 +133,8 @@ const Chat: FC<Props> = ({ messages: defaultMessages, isGroupChat }) => {
 				viewportRef={scrollableRef}
 				onScrollPositionChange={({ y }) => setScrollPosition(y)}
 			>
-				<Stack align="stretch" sx={() => ({})}>
+				<SelectedMesssagesHeader />
+				<Stack align="stretch">
 					{[...messagesByDate.entries()].map(([date, messages]) => (
 						<Stack align="stretch" key={date}>
 							<Text

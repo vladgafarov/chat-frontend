@@ -4,7 +4,7 @@ import { useState } from "react"
 import { BsChevronCompactDown } from "react-icons/bs"
 import { CgMailReply } from "react-icons/cg"
 import { IoReturnUpForwardOutline } from "react-icons/io5"
-import { MdDelete, MdModeEditOutline } from "react-icons/md"
+import { MdDelete, MdDone, MdModeEditOutline } from "react-icons/md"
 import type { Socket } from "socket.io-client"
 import { useChatContext } from "~/components/Chat/ChatContext"
 interface Props {
@@ -59,6 +59,13 @@ const MessageMenu: FC<Props> = ({
 		})
 	}
 
+	const sendSelect = () => {
+		send({
+			type: "SELECT",
+			messageId,
+		})
+	}
+
 	return (
 		<>
 			<Menu width={200}>
@@ -79,6 +86,9 @@ const MessageMenu: FC<Props> = ({
 					</Menu.Item>
 					<Menu.Item icon={<IoReturnUpForwardOutline />}>
 						Forward
+					</Menu.Item>
+					<Menu.Item icon={<MdDone />} onClick={sendSelect}>
+						Select
 					</Menu.Item>
 					{isAuthorsMessage && (
 						<Menu.Item

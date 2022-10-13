@@ -1,14 +1,9 @@
-import {
-	Avatar,
-	Badge,
-	createStyles,
-	Group,
-	keyframes,
-	Text,
-} from "@mantine/core"
+import { Avatar, createStyles, Group, keyframes, Text } from "@mantine/core"
 import { useOutletContext, useParams } from "@remix-run/react"
+import { shallowEqual, useSelector } from "@xstate/react"
 import type { FC } from "react"
 import { useEffect, useRef, useState } from "react"
+import { useChatContext } from "~/components/Chat/ChatContext"
 import useIntersectionObserver from "~/hooks/useIntersectionObserver"
 import type { IChatContext } from "~/types/ChatContext"
 import type { Message } from "~/types/Message"
@@ -24,8 +19,20 @@ const highlight = keyframes({
 })
 
 const useStyles = createStyles(
-	(theme, { isAuthorsMessage }: { isAuthorsMessage: boolean }, getRef) => ({
+	(
+		theme,
+		{
+			isAuthorsMessage,
+			isSelectingState,
+		}: { isAuthorsMessage: boolean; isSelectingState: boolean },
+		getRef,
+	) => ({
+		root: {
+			cursor: isSelectingState ? "pointer" : "default",
+		},
 		message: {
+			ref: getRef("message"),
+
 			backgroundColor: isAuthorsMessage
 				? theme.colors.blue[1]
 				: theme.colors.gray[1],
@@ -54,12 +61,17 @@ const useStyles = createStyles(
 			transition: "opacity 0.2s ease-in-out",
 		},
 		reply: {
-			borderLeft: `2px solid ${theme.colors.blue[3]}`,
+			borderLeft: `2px solid ${theme.colors.blue[4]}`,
 			paddingInline: "7px",
 		},
 		active: {
 			animation: `${highlight} 1.5s ease-in-out`,
 			borderRadius: theme.radius.md,
+		},
+		selected: {
+			[`.${getRef("message")}`]: {
+				backgroundColor: theme.colors.blue[3],
+			},
 		},
 	}),
 )
@@ -89,10 +101,25 @@ export const MessageBubble: FC<Props & Message> = ({
 	isNextMessageFromSameUser,
 	isPrevMessageFromSameUser,
 }) => {
-	const { classes, cx } = useStyles({ isAuthorsMessage: userId === author.id })
-
 	const { socket } = useOutletContext<IChatContext>()
 	const { chatId } = useParams()
+
+	const chatContext = useChatContext()
+	const { send } = chatContext.chatService
+	const selectedMessages = useSelector(
+		chatContext.chatService,
+		(state) => state.context.selectedMessages,
+		shallowEqual,
+	)
+	const isSelectingState = useSelector(chatContext.chatService, (state) =>
+		state.matches("selecting"),
+	)
+
+	const { classes, cx } = useStyles({
+		isAuthorsMessage: userId === author.id,
+		isSelectingState,
+	})
+
 	const ref = useRef<HTMLDivElement>(null)
 	const entry = useIntersectionObserver(ref, {})
 	const [isReadAuthorMessage, setIsReadAuthorMessage] = useState<boolean>(
@@ -111,6 +138,15 @@ export const MessageBubble: FC<Props & Message> = ({
 		minute: "numeric",
 	})
 	const isVisible = !!entry?.isIntersecting
+
+	const onSelect = () => {
+		if (isSelectingState) {
+			send({
+				type: "SELECT",
+				messageId: id,
+			})
+		}
+	}
 
 	useEffect(() => {
 		if (isVisible && !isReadByCurrentUser && userId !== author.id) {
@@ -155,9 +191,11 @@ export const MessageBubble: FC<Props & Message> = ({
 			align="flex-end"
 			spacing="sm"
 			id={String(id)}
-			className={cx({
+			className={cx(classes.root, {
 				[classes.active]: isActive,
+				[classes.selected]: selectedMessages?.includes(id),
 			})}
+			onClick={onSelect}
 		>
 			{isGroupChat && (
 				<Avatar
@@ -203,15 +241,17 @@ export const MessageBubble: FC<Props & Message> = ({
 					isEdited={isEdited}
 				/>
 
-				<MessageMenu
-					className={classes.menuTarget}
-					text={text}
-					messageId={id}
-					isAuthorsMessage={userId === author.id}
-					socket={socket}
-					roomId={+(chatId as string)}
-					authorName={author.name}
-				/>
+				{!isSelectingState && (
+					<MessageMenu
+						className={classes.menuTarget}
+						text={text}
+						messageId={id}
+						isAuthorsMessage={userId === author.id}
+						socket={socket}
+						roomId={+(chatId as string)}
+						authorName={author.name}
+					/>
+				)}
 			</div>
 		</Group>
 	)
