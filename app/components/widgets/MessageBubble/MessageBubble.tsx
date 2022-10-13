@@ -70,7 +70,9 @@ const useStyles = createStyles(
 		},
 		selected: {
 			[`.${getRef("message")}`]: {
-				backgroundColor: theme.colors.blue[3],
+				backgroundColor: isAuthorsMessage
+					? theme.colors.blue[3]
+					: theme.colors.gray[3],
 			},
 		},
 	}),
