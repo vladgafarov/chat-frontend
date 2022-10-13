@@ -144,7 +144,7 @@ export const MessageBubble: FC<Props & Message> = ({
 	const onSelect = () => {
 		if (isSelectingState) {
 			send({
-				type: "SELECT",
+				type: selectedMessages?.includes(id) ? "UNSELECT" : "SELECT",
 				messageId: id,
 			})
 		}
