@@ -1,4 +1,11 @@
-import { Avatar, createStyles, Group, keyframes, Text } from "@mantine/core"
+import {
+	Avatar,
+	Badge,
+	createStyles,
+	Group,
+	keyframes,
+	Text,
+} from "@mantine/core"
 import { useOutletContext, useParams } from "@remix-run/react"
 import type { FC } from "react"
 import { useEffect, useRef, useState } from "react"
@@ -62,6 +69,8 @@ interface Props {
 	isGroupChat: boolean
 	isActive: boolean
 	setIsActiveMessageId: any
+	isNextMessageFromSameUser: boolean
+	isPrevMessageFromSameUser: boolean
 }
 
 export const MessageBubble: FC<Props & Message> = ({
@@ -77,6 +86,8 @@ export const MessageBubble: FC<Props & Message> = ({
 	replyTo,
 	isActive,
 	setIsActiveMessageId,
+	isNextMessageFromSameUser,
+	isPrevMessageFromSameUser,
 }) => {
 	const { classes, cx } = useStyles({ isAuthorsMessage: userId === author.id })
 
@@ -141,7 +152,7 @@ export const MessageBubble: FC<Props & Message> = ({
 	return (
 		<Group
 			ref={isReadByCurrentUser ? undefined : ref}
-			align="flex-start"
+			align="flex-end"
 			spacing="sm"
 			id={String(id)}
 			className={cx({
@@ -149,7 +160,14 @@ export const MessageBubble: FC<Props & Message> = ({
 			})}
 		>
 			{isGroupChat && (
-				<Avatar src={author.avatarUrl} variant="light" radius={"md"}>
+				<Avatar
+					src={author.avatarUrl}
+					variant="light"
+					radius={"md"}
+					sx={() => ({
+						opacity: isNextMessageFromSameUser ? 0 : 1,
+					})}
+				>
 					{author.name[0]}
 				</Avatar>
 			)}
@@ -170,9 +188,11 @@ export const MessageBubble: FC<Props & Message> = ({
 					</a>
 				)}
 
-				{isGroupChat && userId !== author.id && (
-					<MessageTitle>{author.name}</MessageTitle>
-				)}
+				{isGroupChat &&
+					userId !== author.id &&
+					!isPrevMessageFromSameUser && (
+						<MessageTitle>{author.name}</MessageTitle>
+					)}
 
 				<Text>{text}</Text>
 

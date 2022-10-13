@@ -144,16 +144,29 @@ const Chat: FC<Props> = ({ messages: defaultMessages, isGroupChat }) => {
 							>
 								{date}
 							</Text>
-							{messages.map((message) => (
-								<MessageBubble
-									key={message.id}
-									userId={user.id}
-									isGroupChat={isGroupChat}
-									isActive={message.id === activeMessageId}
-									setIsActiveMessageId={setActiveMessageId}
-									{...message}
-								/>
-							))}
+							{messages.map((message, i) => {
+								const isNextMessageFromSameUser =
+									messages[i + 1]?.author.id === message.author?.id
+								const isPrevMessageFromSameUser =
+									messages[i - 1]?.author.id === message.author?.id
+
+								return (
+									<MessageBubble
+										key={message.id}
+										userId={user.id}
+										isGroupChat={isGroupChat}
+										isActive={message.id === activeMessageId}
+										setIsActiveMessageId={setActiveMessageId}
+										isNextMessageFromSameUser={
+											isNextMessageFromSameUser
+										}
+										isPrevMessageFromSameUser={
+											isPrevMessageFromSameUser
+										}
+										{...message}
+									/>
+								)
+							})}
 						</Stack>
 					))}
 
