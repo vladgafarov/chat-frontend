@@ -6,6 +6,7 @@ export interface Message {
 	isReadByCurrentUser: boolean
 	authorId: number
 	isEdited: boolean
+	isForwarded: boolean
 	replyTo: {
 		id: number
 		text: string
@@ -21,4 +22,13 @@ export interface Message {
 		avatarUrl: string
 		online: boolean
 	}
+	forwardedMessages: {
+		id: number
+		text: string
+		createdAt: string
+		author: {
+			id: number
+			name: string
+		}
+	}[]
 }

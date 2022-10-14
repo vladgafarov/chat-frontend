@@ -75,6 +75,11 @@ const useStyles = createStyles(
 					: theme.colors.gray[3],
 			},
 		},
+		forwarded: {
+			borderLeft: `2px solid ${theme.colors.blue[4]}`,
+			paddingInline: "7px",
+			marginBottom: theme.spacing.xs,
+		},
 	}),
 )
 
@@ -102,6 +107,8 @@ export const MessageBubble: FC<Props & Message> = ({
 	setIsActiveMessageId,
 	isNextMessageFromSameUser,
 	isPrevMessageFromSameUser,
+	isForwarded,
+	forwardedMessages,
 }) => {
 	const { socket } = useOutletContext<IChatContext>()
 	const { chatId } = useParams()
@@ -251,6 +258,22 @@ export const MessageBubble: FC<Props & Message> = ({
 					)}
 
 				<Text>{text}</Text>
+
+				{isForwarded && (
+					<>
+						<Text size="sm" color="gray">
+							Forwarded message
+						</Text>
+						{forwardedMessages.map((message) => (
+							<div key={message.id} className={classes.forwarded}>
+								<Text size="sm" color="blue" weight={500}>
+									{message.author.name}
+								</Text>
+								<Text size="sm">{message.text}</Text>
+							</div>
+						))}
+					</>
+				)}
 
 				<MessageInfoBottom
 					isAuthorsMessage={author.id === userId}
