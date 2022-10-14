@@ -1,3 +1,4 @@
+export * from "./ForwardMessageModal"
 export * from "./GoToChatBottom"
 export * from "./MessageBubble"
 export * from "./SelectedMesssagesHeader"

@@ -69,6 +69,17 @@ const MessageMenu: FC<Props> = ({
 		})
 	}
 
+	const sendForward = () => {
+		send({
+			type: "FORWARD",
+			payload: [
+				{
+					messageId,
+				},
+			],
+		})
+	}
+
 	return (
 		<>
 			<Menu width={200}>
@@ -87,7 +98,10 @@ const MessageMenu: FC<Props> = ({
 					<Menu.Item icon={<CgMailReply />} onClick={sendReply}>
 						Reply
 					</Menu.Item>
-					<Menu.Item icon={<IoReturnUpForwardOutline />}>
+					<Menu.Item
+						icon={<IoReturnUpForwardOutline />}
+						onClick={sendForward}
+					>
 						Forward
 					</Menu.Item>
 					<Menu.Item icon={<MdDone />} onClick={sendSelect}>

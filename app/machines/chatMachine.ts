@@ -8,6 +8,7 @@ const chatMachine = createMachine<ChatContext, ChatEvent, ChatTypestate>(
 			messageForEdit: undefined,
 			messageForReply: undefined,
 			selectedMessages: [],
+			forwardMessages: [],
 		},
 		initial: "initial",
 		states: {
@@ -60,6 +61,18 @@ const chatMachine = createMachine<ChatContext, ChatEvent, ChatTypestate>(
 					],
 				},
 			},
+			forwarding: {
+				on: {
+					"FORWARD.DONE": {
+						actions: "clearMessages",
+						target: "initial",
+					},
+					"FORWARD.CANCEL": {
+						actions: "clearMessages",
+						target: "initial",
+					},
+				},
+			},
 		},
 		on: {
 			"MESSAGE.TYPING": {
@@ -79,6 +92,10 @@ const chatMachine = createMachine<ChatContext, ChatEvent, ChatTypestate>(
 			SELECT: {
 				actions: "addMessageForSelect",
 				target: "selecting",
+			},
+			FORWARD: {
+				actions: "addMessagesForForward",
+				target: "forwarding",
 			},
 		},
 	},
@@ -143,6 +160,13 @@ const chatMachine = createMachine<ChatContext, ChatEvent, ChatTypestate>(
 					selectedMessages: context.selectedMessages?.filter(
 						(message) => message.messageId !== event.messageId,
 					),
+				}
+			}),
+			addMessagesForForward: assign((context, event) => {
+				if (event.type !== "FORWARD") return context
+
+				return {
+					forwardMessages: event.payload,
 				}
 			}),
 		},

@@ -13,6 +13,7 @@ import {
 	SelectedMesssagesHeader,
 	SendMessageArea,
 } from "../widgets"
+import { ForwardMessageModal } from "../widgets/ForwardMessageModal"
 import { ChatContext } from "./ChatContext"
 
 interface Props {
@@ -194,6 +195,8 @@ const Chat: FC<Props> = ({ messages: defaultMessages, isGroupChat }) => {
 				</Text>
 			)}
 			<SendMessageArea />
+
+			<ForwardMessageModal />
 		</ChatContext.Provider>
 	)
 }

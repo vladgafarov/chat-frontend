@@ -14,11 +14,16 @@ type MessageForSelect = {
 	isUserAuthor: boolean
 }
 
+interface ForwardMessage {
+	messageId: number
+}
+
 export interface ChatContext {
 	message: string
 	messageForEdit?: MessageForEdit
 	messageForReply?: MessageForReply
 	selectedMessages?: MessageForSelect[]
+	forwardMessages?: ForwardMessage[]
 }
 
 export type ChatEvent =
@@ -61,6 +66,16 @@ export type ChatEvent =
 			type: "UNSELECT"
 			messageId: number
 	  }
+	| {
+			type: "FORWARD"
+			payload: ForwardMessage[]
+	  }
+	| {
+			type: "FORWARD.DONE"
+	  }
+	| {
+			type: "FORWARD.CANCEL"
+	  }
 
 export type ChatTypestate =
 	| {
@@ -83,5 +98,11 @@ export type ChatTypestate =
 			value: "selecting"
 			context: ChatContext & {
 				selectedMessages: MessageForSelect[]
+			}
+	  }
+	| {
+			value: "forwarding"
+			context: ChatContext & {
+				forwardMessages: ForwardMessage[]
 			}
 	  }
