@@ -1,10 +1,14 @@
 import { Avatar, Button, Checkbox, Group, Modal, Title } from "@mantine/core"
+import { useOutletContext } from "@remix-run/react"
 import { useSelector } from "@xstate/react"
 import type { FC } from "react"
 import { useState } from "react"
 import { useChatContext } from "~/components/Chat/ChatContext"
+import type { IChatContext } from "~/types/ChatContext"
 
 export const ForwardMessageModal: FC = () => {
+	const { rooms } = useOutletContext<IChatContext>()
+
 	const chatContext = useChatContext()
 	const { send } = chatContext.chatService
 
@@ -16,7 +20,9 @@ export const ForwardMessageModal: FC = () => {
 		send("FORWARD.CANCEL")
 	}
 
-	const [value, setValue] = useState<string[]>([])
+	const [selected, setSelected] = useState<string[]>([])
+
+	function submit() {}
 
 	const Label = ({ src, title }: { src?: string; title: string }) => (
 		<Group spacing="sm">
@@ -33,23 +39,26 @@ export const ForwardMessageModal: FC = () => {
 			onClose={onClose}
 		>
 			<Checkbox.Group
-				value={value}
-				onChange={setValue}
+				value={selected}
+				onChange={setSelected}
 				orientation="vertical"
 			>
-				<Checkbox
-					value="react"
-					label={<Label title="Jhon" />}
-					sx={() => ({
-						label: {
-							flex: "1",
-						},
-					})}
-				/>
+				{rooms.map((room) => (
+					<Checkbox
+						key={room.id}
+						value={String(room.id)}
+						label={<Label title={room.title} />}
+						sx={() => ({
+							label: {
+								flex: "1",
+							},
+						})}
+					/>
+				))}
 			</Checkbox.Group>
 
-			<Button mt="lg" disabled={value.length === 0}>
-				Forward to {value.length} chat{value.length !== 1 && "s"}
+			<Button mt="lg" disabled={selected.length === 0} onClick={submit}>
+				Forward to {selected.length} chat{selected.length !== 1 && "s"}
 			</Button>
 		</Modal>
 	)

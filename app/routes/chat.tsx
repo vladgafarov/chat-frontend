@@ -73,6 +73,7 @@ export default function Chat() {
 	const context: IChatContext = {
 		socket,
 		user,
+		rooms,
 	}
 	const outlet = <Outlet context={context} />
 

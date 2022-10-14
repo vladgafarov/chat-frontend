@@ -54,11 +54,11 @@ export const SelectedMesssagesHeader: FC<Props> = () => {
 		state.matches("selecting"),
 	)
 
-	const cancelSelection = () => {
+	function cancelSelection() {
 		send("SELECT.CANCEL")
 	}
 
-	const onDelete = () => {
+	function onDelete() {
 		const userMessages = selectedMessages?.filter(
 			(message) => message.isUserAuthor,
 		)
@@ -72,6 +72,17 @@ export const SelectedMesssagesHeader: FC<Props> = () => {
 
 		send("SELECT.DONE")
 		setIsModalOpen(false)
+	}
+
+	function onForward() {
+		if (!selectedMessages?.length) return
+
+		send({
+			type: "FORWARD",
+			payload: selectedMessages.map((message) => ({
+				messageId: message.messageId,
+			})),
+		})
 	}
 
 	return (
@@ -99,6 +110,7 @@ export const SelectedMesssagesHeader: FC<Props> = () => {
 								<Button
 									variant="outline"
 									leftIcon={<IoReturnUpForwardOutline />}
+									onClick={onForward}
 								>
 									Forward
 								</Button>
