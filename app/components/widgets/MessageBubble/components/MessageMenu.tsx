@@ -33,7 +33,7 @@ const MessageMenu: FC<Props> = ({
 
 	const onDelete = () => {
 		socket.emit("CLIENT@MESSAGE:DELETE", {
-			messageId,
+			messageIds: [messageId],
 			roomId,
 		})
 		setIsDeleteModalOpen(false)

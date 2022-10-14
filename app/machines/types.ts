@@ -52,6 +52,9 @@ export type ChatEvent =
 			}
 	  }
 	| {
+			type: "SELECT.DONE"
+	  }
+	| {
 			type: "SELECT.CANCEL"
 	  }
 	| {

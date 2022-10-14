@@ -40,6 +40,10 @@ const chatMachine = createMachine<ChatContext, ChatEvent, ChatTypestate>(
 			},
 			selecting: {
 				on: {
+					"SELECT.DONE": {
+						actions: "clearMessages",
+						target: "initial",
+					},
 					"SELECT.CANCEL": {
 						actions: "clearMessages",
 						target: "initial",

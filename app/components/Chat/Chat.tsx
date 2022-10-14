@@ -82,9 +82,9 @@ const Chat: FC<Props> = ({ messages: defaultMessages, isGroupChat }) => {
 			}
 		})
 
-		socket.on("SERVER@MESSAGE:DELETE", (messageId) => {
-			setMessages((prev) =>
-				prev.filter((message) => message.id !== messageId),
+		socket.on("SERVER@MESSAGE:DELETE", (messageIds: number[]) => {
+			setMessages((messages) =>
+				messages.filter((message) => !messageIds.includes(message.id)),
 			)
 		})
 

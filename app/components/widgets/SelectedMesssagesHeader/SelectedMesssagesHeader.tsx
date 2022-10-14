@@ -6,6 +6,7 @@ import {
 	Modal,
 	Text,
 } from "@mantine/core"
+import { useOutletContext, useParams } from "@remix-run/react"
 import { shallowEqual, useSelector } from "@xstate/react"
 import { AnimatePresence, motion } from "framer-motion"
 import type { FC } from "react"
@@ -13,6 +14,7 @@ import { useState } from "react"
 import { IoReturnUpForwardOutline } from "react-icons/io5"
 import { MdClose, MdDelete } from "react-icons/md"
 import { useChatContext } from "~/components/Chat/ChatContext"
+import type { IChatContext } from "~/types/ChatContext"
 
 const useStyles = createStyles((theme) => ({
 	base: {
@@ -34,6 +36,9 @@ interface Props {}
 
 export const SelectedMesssagesHeader: FC<Props> = () => {
 	const { classes } = useStyles()
+
+	const { socket } = useOutletContext<IChatContext>()
+	const { chatId } = useParams()
 
 	const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -57,6 +62,16 @@ export const SelectedMesssagesHeader: FC<Props> = () => {
 		const userMessages = selectedMessages?.filter(
 			(message) => message.isUserAuthor,
 		)
+
+		if (userMessages) {
+			socket.emit("CLIENT@MESSAGE:DELETE", {
+				messageIds: userMessages.map((message) => message.messageId),
+				roomId: +(chatId as string),
+			})
+		}
+
+		send("SELECT.DONE")
+		setIsModalOpen(false)
 	}
 
 	return (
