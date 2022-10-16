@@ -269,6 +269,16 @@ export const MessageBubble: FC<Props & Message> = ({
 								<Text size="sm" color="blue" weight={500}>
 									{message.author.name}
 								</Text>
+
+								{message.replyTo && (
+									<div className={classes.reply}>
+										<Text size="sm" color="blue" weight={500}>
+											{message.replyTo.author.name}
+										</Text>
+										<Text size="sm">{message.replyTo.text}</Text>
+									</div>
+								)}
+
 								<Text size="sm">{message.text}</Text>
 							</div>
 						))}

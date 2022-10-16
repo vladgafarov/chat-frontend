@@ -30,5 +30,14 @@ export interface Message {
 			id: number
 			name: string
 		}
+		replyTo: {
+			id: number
+			text: string
+			createdAt: string
+			author: {
+				id: number
+				name: string
+			}
+		}
 	}[]
 }
