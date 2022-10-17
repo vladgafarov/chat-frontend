@@ -7,11 +7,13 @@ import {
 	Title,
 } from "@mantine/core"
 import { Link, useParams, useSubmit } from "@remix-run/react"
+import { useState } from "react"
 import { BiExit, BiPlus } from "react-icons/bi"
 import { MdSettings } from "react-icons/md"
 import type { Socket } from "socket.io-client"
 import type { User } from "~/models/user/user.server"
 import type { Room } from "~/types/Room"
+import SettingsModal from "../SettingsModal"
 import { UserBubble } from "../widgets"
 import { UserButton } from "./UserButton"
 
@@ -24,6 +26,8 @@ interface Props {
 export function Navbar({ user, rooms, socket }: Props) {
 	const submit = useSubmit()
 	const { chatId } = useParams()
+
+	const [isSettingsOpen, setIsSettingsOpen] = useState(true)
 
 	return (
 		<NavbarUI
@@ -76,7 +80,12 @@ export function Navbar({ user, rooms, socket }: Props) {
 
 					<Menu.Dropdown>
 						<Menu.Label>Account</Menu.Label>
-						<Menu.Item icon={<MdSettings />}>Settings</Menu.Item>
+						<Menu.Item
+							icon={<MdSettings />}
+							onClick={() => setIsSettingsOpen(true)}
+						>
+							Settings
+						</Menu.Item>
 
 						<Divider />
 
@@ -92,6 +101,11 @@ export function Navbar({ user, rooms, socket }: Props) {
 					</Menu.Dropdown>
 				</Menu>
 			</NavbarUI.Section>
+
+			<SettingsModal
+				open={isSettingsOpen}
+				onClose={() => setIsSettingsOpen(false)}
+			/>
 		</NavbarUI>
 	)
 }
