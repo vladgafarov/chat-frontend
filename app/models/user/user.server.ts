@@ -11,7 +11,7 @@ export interface User {
 
 export const getUser = async (request: Request): Promise<User> => {
 	try {
-		const response = await fetch(`${process.env.BACKEND_URL}/profile`, {
+		const response = await fetch(`${process.env.BACKEND_URL}/user/profile`, {
 			method: "GET",
 			credentials: "include",
 			headers: {
