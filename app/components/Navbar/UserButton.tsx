@@ -5,7 +5,7 @@ import { BiChevronRight } from "react-icons/bi"
 interface UserButtonProps extends React.ComponentPropsWithoutRef<"button"> {
 	name: string
 	email: string
-	image?: string
+	image: string | null
 	icon?: React.ReactNode
 }
 

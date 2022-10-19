@@ -75,7 +75,11 @@ export function Navbar({ user, rooms, socket }: Props) {
 			<NavbarUI.Section>
 				<Menu position="right">
 					<Menu.Target>
-						<UserButton name={user.name} email={user.email} />
+						<UserButton
+							name={user.name}
+							email={user.email}
+							image={user.avatarUrl}
+						/>
 					</Menu.Target>
 
 					<Menu.Dropdown>

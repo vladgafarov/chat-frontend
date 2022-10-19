@@ -60,10 +60,10 @@ export const updateProfile = async (
 	formData: FormData,
 	request: Request,
 ): Promise<User> => {
-	const avatar = formData.get("avatar") as File
+	const avatarFile = formData.get("avatar") as File
 
-	if (!avatar) {
-		throw new Error("Please select an image.")
+	if (avatarFile.name) {
+		formData.delete("avatarUrl")
 	}
 
 	try {

@@ -10,6 +10,7 @@ import {
 } from "@mantine/core"
 import { useFetcher } from "@remix-run/react"
 import type { FC } from "react"
+import { useMemo } from "react"
 import { useEffect, useRef, useState } from "react"
 import { MdClose, MdEdit } from "react-icons/md"
 import type { User } from "~/models/user/user.server"
@@ -71,7 +72,6 @@ const SettingsModal: FC<Props> = ({ onClose, open, user }) => {
 	const fetcher = useFetcher()
 
 	const [name, setName] = useState(user.name)
-	const [avatar, setAvatar] = useState(user.avatarUrl)
 	const [email, setEmail] = useState(user.email)
 
 	const [file, setFile] = useState<File | null>(null)
@@ -85,6 +85,15 @@ const SettingsModal: FC<Props> = ({ onClose, open, user }) => {
 		setFileUrl(null)
 		resetRef.current?.()
 	}
+
+	const isDirty = useMemo(
+		() =>
+			name !== user.name ||
+			email !== user.email ||
+			!!file ||
+			!!fileUrl !== !!user.avatarUrl,
+		[name, email, file, fileUrl, user],
+	)
 
 	useEffect(() => {
 		if (!file) {
@@ -100,7 +109,6 @@ const SettingsModal: FC<Props> = ({ onClose, open, user }) => {
 	useEffect(() => {
 		if (!open) {
 			setName(user.name)
-			setAvatar(user.avatarUrl)
 			setEmail(user.email)
 			setFile(null)
 			setFileUrl(user.avatarUrl)
@@ -159,12 +167,19 @@ const SettingsModal: FC<Props> = ({ onClose, open, user }) => {
 					onChange={(e) => setEmail(e.currentTarget.value)}
 				/>
 
+				<input
+					type="hidden"
+					name="avatarUrl"
+					defaultValue={fileUrl ?? ""}
+				/>
+
 				{/* <a href="#">Change password</a> */}
 
 				<Button
 					mt="md"
 					type="submit"
 					loading={fetcher.state === "submitting"}
+					disabled={!isDirty}
 				>
 					Save
 				</Button>
