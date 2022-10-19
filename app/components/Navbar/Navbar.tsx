@@ -103,6 +103,7 @@ export function Navbar({ user, rooms, socket }: Props) {
 			</NavbarUI.Section>
 
 			<SettingsModal
+				user={user}
 				open={isSettingsOpen}
 				onClose={() => setIsSettingsOpen(false)}
 			/>

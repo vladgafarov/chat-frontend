@@ -55,3 +55,34 @@ export const searchUser = async (
 		throw new Error(error.message)
 	}
 }
+
+export const updateProfile = async (
+	formData: FormData,
+	request: Request,
+): Promise<User> => {
+	const avatar = formData.get("avatar") as File
+
+	if (!avatar) {
+		throw new Error("Please select an image.")
+	}
+
+	try {
+		const response = await fetch(`${process.env.BACKEND_URL}/user/update`, {
+			method: "POST",
+			credentials: "include",
+			headers: {
+				Cookie: await getAccessTokenCookie(request),
+			},
+			body: formData,
+		})
+		const resData = await response.json()
+
+		if (response.status !== 200) {
+			throw new Error(resData.message)
+		}
+
+		return resData
+	} catch (error: any) {
+		throw new Error(error.message)
+	}
+}
