@@ -24,16 +24,21 @@ const AvatarEdit: FC<Props> = ({ onClose, open }) => {
 	const updateAvatarThumbnailUrl = useAvatarStore(
 		(state) => state.updateAvatarThumbnailUrl,
 	)
+	const updateAvatarThumbnail = useAvatarStore(
+		(state) => state.updateAvatarThumbnail,
+	)
 
 	const [crop, setCrop] = useState({ x: 0, y: 0 })
 	const [zoom, setZoom] = useState(1)
 	const [croppedAreaPixels, setCroppedAreaPixels] = useState(null)
-	const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
+	const onCropComplete = useCallback((_croppedArea, croppedAreaPixels) => {
 		setCroppedAreaPixels(croppedAreaPixels)
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
 
 	async function onComplete() {
 		const croppedImage = await getCroppedImg(avatarUrl, croppedAreaPixels, 0)
+		updateAvatarThumbnail(JSON.stringify(croppedAreaPixels))
 		updateAvatarThumbnailUrl(croppedImage)
 		onClose()
 	}

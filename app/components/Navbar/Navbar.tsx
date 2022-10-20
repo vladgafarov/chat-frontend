@@ -80,7 +80,7 @@ export function Navbar({ user, rooms, socket }: Props) {
 						<UserButton
 							name={user.name}
 							email={user.email}
-							image={user.avatarUrl}
+							image={user.avatarThumbnailUrl}
 						/>
 					</Menu.Target>
 

@@ -7,6 +7,8 @@ export interface User {
 	name: string
 	online: boolean
 	avatarUrl: string | null
+	avatarThumbnailUrl: string | null
+	avatarThumbnail: string | null
 }
 
 export const getUser = async (request: Request): Promise<User> => {
@@ -64,6 +66,8 @@ export const updateProfile = async (
 
 	if (avatarFile.name) {
 		formData.delete("avatarUrl")
+	} else {
+		formData.delete("avatarThumbnail")
 	}
 
 	try {

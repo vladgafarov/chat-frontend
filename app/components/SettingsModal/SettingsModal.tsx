@@ -74,6 +74,7 @@ const SettingsModal: FC<Props> = ({ onClose, open, user, openAvatarEdit }) => {
 	const avatarThumbnailUrl = useAvatarStore(
 		(state) => state.avatarThumbnailUrl,
 	)
+	const avatarThumbnail = useAvatarStore((state) => state.avatarThumbnail)
 	const updateAvatarUrl = useAvatarStore((state) => state.updateAvatarUrl)
 	const updateAvatarThumbnailUrl = useAvatarStore(
 		(state) => state.updateAvatarThumbnailUrl,
@@ -191,7 +192,12 @@ const SettingsModal: FC<Props> = ({ onClose, open, user, openAvatarEdit }) => {
 					name="avatarUrl"
 					defaultValue={fileUrl ?? ""}
 				/>
-				{/* <input /> */}
+
+				<input
+					type="hidden"
+					name="avatarThumbnail"
+					defaultValue={avatarThumbnail}
+				/>
 
 				<Button
 					mt="md"
