@@ -10,10 +10,10 @@ import {
 } from "@mantine/core"
 import { useFetcher } from "@remix-run/react"
 import type { FC } from "react"
-import { useMemo } from "react"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { MdClose, MdEdit } from "react-icons/md"
 import type { User } from "~/models/user/user.server"
+import { useAvatarStore } from "~/stores"
 
 const useStyles = createStyles(
 	(theme, params: { isAvatar: boolean }, getRef) => ({
@@ -24,11 +24,12 @@ const useStyles = createStyles(
 
 			[`&:hover .${getRef("edit")}`]: {
 				transform: "translateY(0)",
-				opacity: 1,
+				opacity: params.isAvatar ? "1" : "0",
 			},
 		},
 		avatar: {
 			border: `2px solid ${theme.colors.blue[1]}`,
+			borderRadius: "50%",
 		},
 		clearFile: {
 			position: "absolute",
@@ -66,9 +67,18 @@ interface Props {
 	open: boolean
 	onClose: () => void
 	user: User
+	openAvatarEdit: () => void
 }
 
-const SettingsModal: FC<Props> = ({ onClose, open, user }) => {
+const SettingsModal: FC<Props> = ({ onClose, open, user, openAvatarEdit }) => {
+	const avatarThumbnailUrl = useAvatarStore(
+		(state) => state.avatarThumbnailUrl,
+	)
+	const updateAvatarUrl = useAvatarStore((state) => state.updateAvatarUrl)
+	const updateAvatarThumbnailUrl = useAvatarStore(
+		(state) => state.updateAvatarThumbnailUrl,
+	)
+
 	const fetcher = useFetcher()
 
 	const [name, setName] = useState(user.name)
@@ -78,11 +88,14 @@ const SettingsModal: FC<Props> = ({ onClose, open, user }) => {
 	const [fileUrl, setFileUrl] = useState<string | null>(user.avatarUrl)
 	const resetRef = useRef<() => void>(null)
 
-	const { classes } = useStyles({ isAvatar: !!file || !!fileUrl })
+	const { classes } = useStyles({ isAvatar: !!file || !!avatarThumbnailUrl })
 
 	function clearFile() {
 		setFile(null)
 		setFileUrl(null)
+		updateAvatarUrl("")
+		updateAvatarThumbnailUrl("")
+
 		resetRef.current?.()
 	}
 
@@ -101,9 +114,11 @@ const SettingsModal: FC<Props> = ({ onClose, open, user }) => {
 		}
 
 		const objectUrl = URL.createObjectURL(file)
-		setFileUrl(objectUrl)
 
-		return () => URL.revokeObjectURL(objectUrl)
+		setFileUrl(objectUrl)
+		updateAvatarUrl(objectUrl)
+		openAvatarEdit()
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [file])
 
 	useEffect(() => {
@@ -114,6 +129,10 @@ const SettingsModal: FC<Props> = ({ onClose, open, user }) => {
 			setFileUrl(user.avatarUrl)
 		}
 	}, [open, user.avatarUrl, user.email, user.name])
+
+	// useEffect(() => {
+
+	// }, [])
 
 	return (
 		<Modal title="Settings" opened={open} onClose={onClose}>
@@ -132,7 +151,7 @@ const SettingsModal: FC<Props> = ({ onClose, open, user }) => {
 						{(props) => (
 							<UnstyledButton {...props}>
 								<Avatar
-									src={fileUrl}
+									src={avatarThumbnailUrl ?? fileUrl}
 									size="xl"
 									radius={"xl"}
 									className={classes.avatar}
@@ -148,7 +167,7 @@ const SettingsModal: FC<Props> = ({ onClose, open, user }) => {
 					>
 						<MdClose />
 					</ActionIcon>
-					<div className={classes.edit}>
+					<div className={classes.edit} onClick={openAvatarEdit}>
 						<MdEdit />
 					</div>
 				</div>
@@ -172,8 +191,7 @@ const SettingsModal: FC<Props> = ({ onClose, open, user }) => {
 					name="avatarUrl"
 					defaultValue={fileUrl ?? ""}
 				/>
-
-				{/* <a href="#">Change password</a> */}
+				{/* <input /> */}
 
 				<Button
 					mt="md"

@@ -13,6 +13,7 @@ import { MdSettings } from "react-icons/md"
 import type { Socket } from "socket.io-client"
 import type { User } from "~/models/user/user.server"
 import type { Room } from "~/types/Room"
+import AvatarEdit from "../AvatarEdit"
 import SettingsModal from "../SettingsModal"
 import { UserBubble } from "../widgets"
 import { UserButton } from "./UserButton"
@@ -28,6 +29,7 @@ export function Navbar({ user, rooms, socket }: Props) {
 	const { chatId } = useParams()
 
 	const [isSettingsOpen, setIsSettingsOpen] = useState(true)
+	const [isAvatarEditOpen, setIsAvatarEditOpen] = useState(false)
 
 	return (
 		<NavbarUI
@@ -110,6 +112,11 @@ export function Navbar({ user, rooms, socket }: Props) {
 				user={user}
 				open={isSettingsOpen}
 				onClose={() => setIsSettingsOpen(false)}
+				openAvatarEdit={() => setIsAvatarEditOpen(true)}
+			/>
+			<AvatarEdit
+				open={isAvatarEditOpen}
+				onClose={() => setIsAvatarEditOpen(false)}
 			/>
 		</NavbarUI>
 	)
