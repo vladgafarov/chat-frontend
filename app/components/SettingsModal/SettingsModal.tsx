@@ -11,8 +11,7 @@ import {
 import { useFetcher } from "@remix-run/react"
 import { useInterpret, useSelector } from "@xstate/react"
 import type { FC } from "react"
-import { useMemo } from "react"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { MdClose, MdEdit } from "react-icons/md"
 import { avatarMachine } from "~/machines"
 import type { User } from "~/models/user/user.server"
@@ -84,8 +83,8 @@ const SettingsModal: FC<Props> = ({ onClose, open, user }) => {
 			},
 		},
 	})
+
 	const { send } = avatarService
-	const avatarUrl = useSelector(avatarService, (state) => state.context.url)
 	const avatarThumbnailUrl = useSelector(
 		avatarService,
 		(state) => state.context.thumbnailUrl,
@@ -204,18 +203,16 @@ const SettingsModal: FC<Props> = ({ onClose, open, user }) => {
 						onChange={(e) => setEmail(e.currentTarget.value)}
 					/>
 
-					<input type="hidden" name="avatarUrl" defaultValue={avatarUrl} />
-
-					<input
-						type="hidden"
-						name="avatarThumbnailUrl"
-						defaultValue={avatarThumbnailUrl}
-					/>
-
 					<input
 						type="hidden"
 						name="avatarThumbnail"
 						defaultValue={avatarThumbnail}
+					/>
+
+					<input
+						type="hidden"
+						name="action"
+						defaultValue={avatarService.getSnapshot().value as string}
 					/>
 
 					<Button
