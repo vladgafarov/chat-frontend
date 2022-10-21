@@ -231,7 +231,7 @@ const SettingsModal: FC<Props> = ({ onClose, open, user }) => {
 			<AvatarEdit
 				open={isAvatarEditOpen}
 				onClose={() => {
-					send({ type: "RESET_URL" })
+					send({ type: "RESET_UPLOAD" })
 					setIsAvatarEditOpen(false)
 				}}
 			/>

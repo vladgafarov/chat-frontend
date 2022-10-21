@@ -25,7 +25,7 @@ export type AvatarEvent =
 			}
 	  }
 	| {
-			type: "RESET_URL"
+			type: "RESET_UPLOAD"
 	  }
 
 export type AvatarTypestate =

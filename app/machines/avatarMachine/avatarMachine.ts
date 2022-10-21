@@ -52,7 +52,7 @@ const avatarMachine =
 					target: "uploadingAvatar",
 					actions: ["uploadAvatar"],
 				},
-				RESET_URL: {
+				RESET_UPLOAD: {
 					cond: "isUploadedImageEditingCanceled",
 					actions: ["resetAfterUploadCancel"],
 				},
