@@ -62,14 +62,6 @@ export const updateProfile = async (
 	formData: FormData,
 	request: Request,
 ): Promise<User> => {
-	const avatarFile = formData.get("avatar") as File
-
-	if (avatarFile.name) {
-		formData.delete("avatarUrl")
-	} else {
-		formData.delete("avatarThumbnail")
-	}
-
 	try {
 		const response = await fetch(`${process.env.BACKEND_URL}/user/update`, {
 			method: "POST",

@@ -71,6 +71,7 @@ interface Props {
 }
 
 const SettingsModal: FC<Props> = ({ onClose, open, user, openAvatarEdit }) => {
+	const avatarUrl = useAvatarStore((state) => state.avatarUrl)
 	const avatarThumbnailUrl = useAvatarStore(
 		(state) => state.avatarThumbnailUrl,
 	)
@@ -79,6 +80,9 @@ const SettingsModal: FC<Props> = ({ onClose, open, user, openAvatarEdit }) => {
 	const updateAvatarThumbnailUrl = useAvatarStore(
 		(state) => state.updateAvatarThumbnailUrl,
 	)
+	const updateAvatarThumbnail = useAvatarStore(
+		(state) => state.updateAvatarThumbnail,
+	)
 
 	const fetcher = useFetcher()
 
@@ -86,16 +90,17 @@ const SettingsModal: FC<Props> = ({ onClose, open, user, openAvatarEdit }) => {
 	const [email, setEmail] = useState(user.email)
 
 	const [file, setFile] = useState<File | null>(null)
-	const [fileUrl, setFileUrl] = useState<string | null>(user.avatarUrl)
 	const resetRef = useRef<() => void>(null)
 
-	const { classes } = useStyles({ isAvatar: !!file || !!avatarThumbnailUrl })
+	const { classes } = useStyles({
+		isAvatar: !!file || !!avatarThumbnailUrl,
+	})
 
 	function clearFile() {
 		setFile(null)
-		setFileUrl(null)
 		updateAvatarUrl("")
 		updateAvatarThumbnailUrl("")
+		updateAvatarThumbnail("")
 
 		resetRef.current?.()
 	}
@@ -105,8 +110,20 @@ const SettingsModal: FC<Props> = ({ onClose, open, user, openAvatarEdit }) => {
 			name !== user.name ||
 			email !== user.email ||
 			!!file ||
-			!!fileUrl !== !!user.avatarUrl,
-		[name, email, file, fileUrl, user],
+			!!avatarThumbnailUrl !== !!user.avatarUrl ||
+			avatarThumbnail !== user.avatarThumbnail,
+
+		[
+			name,
+			user.name,
+			user.email,
+			user.avatarUrl,
+			user.avatarThumbnail,
+			email,
+			file,
+			avatarThumbnailUrl,
+			avatarThumbnail,
+		],
 	)
 
 	useEffect(() => {
@@ -116,7 +133,7 @@ const SettingsModal: FC<Props> = ({ onClose, open, user, openAvatarEdit }) => {
 
 		const objectUrl = URL.createObjectURL(file)
 
-		setFileUrl(objectUrl)
+		updateAvatarThumbnailUrl(objectUrl)
 		updateAvatarUrl(objectUrl)
 		openAvatarEdit()
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -127,13 +144,16 @@ const SettingsModal: FC<Props> = ({ onClose, open, user, openAvatarEdit }) => {
 			setName(user.name)
 			setEmail(user.email)
 			setFile(null)
-			setFileUrl(user.avatarUrl)
+			// updateAvatarThumbnailUrl(user.avatarUrl)
 		}
 	}, [open, user.avatarUrl, user.email, user.name])
 
-	// useEffect(() => {
-
-	// }, [])
+	useEffect(() => {
+		updateAvatarUrl(user.avatarUrl!)
+		updateAvatarThumbnailUrl(user.avatarThumbnailUrl!)
+		updateAvatarThumbnail(user.avatarThumbnail!)
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [])
 
 	return (
 		<Modal title="Settings" opened={open} onClose={onClose}>
@@ -152,7 +172,7 @@ const SettingsModal: FC<Props> = ({ onClose, open, user, openAvatarEdit }) => {
 						{(props) => (
 							<UnstyledButton {...props}>
 								<Avatar
-									src={avatarThumbnailUrl ?? fileUrl}
+									src={avatarThumbnailUrl}
 									size="xl"
 									radius={"xl"}
 									className={classes.avatar}
@@ -187,10 +207,12 @@ const SettingsModal: FC<Props> = ({ onClose, open, user, openAvatarEdit }) => {
 					onChange={(e) => setEmail(e.currentTarget.value)}
 				/>
 
+				<input type="hidden" name="avatarUrl" defaultValue={avatarUrl} />
+
 				<input
 					type="hidden"
-					name="avatarUrl"
-					defaultValue={fileUrl ?? ""}
+					name="avatarThumbnailUrl"
+					defaultValue={avatarThumbnailUrl}
 				/>
 
 				<input

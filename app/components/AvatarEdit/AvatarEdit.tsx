@@ -21,6 +21,7 @@ const AvatarEdit: FC<Props> = ({ onClose, open }) => {
 	const { classes } = useStyles()
 
 	const avatarUrl = useAvatarStore((state) => state.avatarUrl)
+	const avatarThumbnail = useAvatarStore((state) => state.avatarThumbnail)
 	const updateAvatarThumbnailUrl = useAvatarStore(
 		(state) => state.updateAvatarThumbnailUrl,
 	)
@@ -31,6 +32,7 @@ const AvatarEdit: FC<Props> = ({ onClose, open }) => {
 	const [crop, setCrop] = useState({ x: 0, y: 0 })
 	const [zoom, setZoom] = useState(1)
 	const [croppedAreaPixels, setCroppedAreaPixels] = useState(null)
+	//@ts-ignore
 	const onCropComplete = useCallback((_croppedArea, croppedAreaPixels) => {
 		setCroppedAreaPixels(croppedAreaPixels)
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -64,6 +66,9 @@ const AvatarEdit: FC<Props> = ({ onClose, open }) => {
 					onCropChange={setCrop}
 					onCropComplete={onCropComplete}
 					onZoomChange={setZoom}
+					initialCroppedAreaPixels={
+						avatarThumbnail && JSON.parse(avatarThumbnail)
+					}
 				/>
 			</div>
 
