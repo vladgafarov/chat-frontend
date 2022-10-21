@@ -9,11 +9,15 @@ import {
 	UnstyledButton,
 } from "@mantine/core"
 import { useFetcher } from "@remix-run/react"
+import { useInterpret, useSelector } from "@xstate/react"
 import type { FC } from "react"
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useMemo } from "react"
+import { useEffect, useRef, useState } from "react"
 import { MdClose, MdEdit } from "react-icons/md"
+import { avatarMachine } from "~/machines"
 import type { User } from "~/models/user/user.server"
-import { useAvatarStore } from "~/stores"
+import AvatarEdit from "../AvatarEdit"
+import { AvatarContext } from "./context"
 
 const useStyles = createStyles(
 	(theme, params: { isAvatar: boolean }, getRef) => ({
@@ -67,22 +71,31 @@ interface Props {
 	open: boolean
 	onClose: () => void
 	user: User
-	openAvatarEdit: () => void
 }
 
-const SettingsModal: FC<Props> = ({ onClose, open, user, openAvatarEdit }) => {
-	const avatarUrl = useAvatarStore((state) => state.avatarUrl)
-	const avatarThumbnailUrl = useAvatarStore(
-		(state) => state.avatarThumbnailUrl,
+const SettingsModal: FC<Props> = ({ onClose, open, user }) => {
+	const avatarService = useInterpret(avatarMachine, {
+		devTools: true,
+		context: {
+			initial: {
+				url: user.avatarUrl ?? "",
+				thumbnailUrl: user.avatarThumbnailUrl ?? "",
+				thumbnail: user.avatarThumbnail ?? "",
+			},
+		},
+	})
+	const { send } = avatarService
+	const avatarUrl = useSelector(avatarService, (state) => state.context.url)
+	const avatarThumbnailUrl = useSelector(
+		avatarService,
+		(state) => state.context.thumbnailUrl,
 	)
-	const avatarThumbnail = useAvatarStore((state) => state.avatarThumbnail)
-	const updateAvatarUrl = useAvatarStore((state) => state.updateAvatarUrl)
-	const updateAvatarThumbnailUrl = useAvatarStore(
-		(state) => state.updateAvatarThumbnailUrl,
+	const avatarThumbnail = useSelector(
+		avatarService,
+		(state) => state.context.thumbnail,
 	)
-	const updateAvatarThumbnail = useAvatarStore(
-		(state) => state.updateAvatarThumbnail,
-	)
+
+	const [isAvatarEditOpen, setIsAvatarEditOpen] = useState(false)
 
 	const fetcher = useFetcher()
 
@@ -98,9 +111,7 @@ const SettingsModal: FC<Props> = ({ onClose, open, user, openAvatarEdit }) => {
 
 	function clearFile() {
 		setFile(null)
-		updateAvatarUrl("")
-		updateAvatarThumbnailUrl("")
-		updateAvatarThumbnail("")
+		send({ type: "DELETE" })
 
 		resetRef.current?.()
 	}
@@ -110,20 +121,10 @@ const SettingsModal: FC<Props> = ({ onClose, open, user, openAvatarEdit }) => {
 			name !== user.name ||
 			email !== user.email ||
 			!!file ||
-			!!avatarThumbnailUrl !== !!user.avatarUrl ||
-			avatarThumbnail !== user.avatarThumbnail,
+			avatarThumbnail !== user.avatarThumbnail!,
 
-		[
-			name,
-			user.name,
-			user.email,
-			user.avatarUrl,
-			user.avatarThumbnail,
-			email,
-			file,
-			avatarThumbnailUrl,
-			avatarThumbnail,
-		],
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[avatarThumbnail, email, file, name],
 	)
 
 	useEffect(() => {
@@ -132,10 +133,8 @@ const SettingsModal: FC<Props> = ({ onClose, open, user, openAvatarEdit }) => {
 		}
 
 		const objectUrl = URL.createObjectURL(file)
-
-		updateAvatarThumbnailUrl(objectUrl)
-		updateAvatarUrl(objectUrl)
-		openAvatarEdit()
+		send({ type: "UPLOAD", url: objectUrl })
+		setIsAvatarEditOpen(true)
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [file])
 
@@ -144,93 +143,99 @@ const SettingsModal: FC<Props> = ({ onClose, open, user, openAvatarEdit }) => {
 			setName(user.name)
 			setEmail(user.email)
 			setFile(null)
-			// updateAvatarThumbnailUrl(user.avatarUrl)
+			send({ type: "CLOSE" })
 		}
-	}, [open, user.avatarUrl, user.email, user.name])
-
-	useEffect(() => {
-		updateAvatarUrl(user.avatarUrl!)
-		updateAvatarThumbnailUrl(user.avatarThumbnailUrl!)
-		updateAvatarThumbnail(user.avatarThumbnail!)
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [])
+	}, [open])
 
 	return (
-		<Modal title="Settings" opened={open} onClose={onClose}>
-			<fetcher.Form
-				method="post"
-				action="/resources/updateProfile"
-				encType="multipart/form-data"
-			>
-				<div className={classes.fileWrapper}>
-					<FileButton
-						resetRef={resetRef}
-						onChange={setFile}
-						accept="image/*"
-						name="avatar"
-					>
-						{(props) => (
-							<UnstyledButton {...props}>
-								<Avatar
-									src={avatarThumbnailUrl}
-									size="xl"
-									radius={"xl"}
-									className={classes.avatar}
-								/>
-							</UnstyledButton>
-						)}
-					</FileButton>
-					<ActionIcon
-						color="red"
-						radius={"xl"}
-						className={classes.clearFile}
-						onClick={clearFile}
-					>
-						<MdClose />
-					</ActionIcon>
-					<div className={classes.edit} onClick={openAvatarEdit}>
-						<MdEdit />
-					</div>
-				</div>
-
-				<TextInput
-					name="name"
-					label="Name"
-					value={name}
-					onChange={(e) => setName(e.currentTarget.value)}
-				/>
-				<TextInput
-					name="email"
-					label="Email"
-					type="email"
-					value={email}
-					onChange={(e) => setEmail(e.currentTarget.value)}
-				/>
-
-				<input type="hidden" name="avatarUrl" defaultValue={avatarUrl} />
-
-				<input
-					type="hidden"
-					name="avatarThumbnailUrl"
-					defaultValue={avatarThumbnailUrl}
-				/>
-
-				<input
-					type="hidden"
-					name="avatarThumbnail"
-					defaultValue={avatarThumbnail}
-				/>
-
-				<Button
-					mt="md"
-					type="submit"
-					loading={fetcher.state === "submitting"}
-					disabled={!isDirty}
+		<AvatarContext.Provider value={{ avatarService }}>
+			<Modal title="Settings" opened={open} onClose={onClose}>
+				<fetcher.Form
+					method="post"
+					action="/resources/updateProfile"
+					encType="multipart/form-data"
 				>
-					Save
-				</Button>
-			</fetcher.Form>
-		</Modal>
+					<div className={classes.fileWrapper}>
+						<FileButton
+							resetRef={resetRef}
+							onChange={setFile}
+							accept="image/*"
+							name="avatar"
+						>
+							{(props) => (
+								<UnstyledButton {...props}>
+									<Avatar
+										src={avatarThumbnailUrl}
+										size="xl"
+										radius={"xl"}
+										className={classes.avatar}
+									/>
+								</UnstyledButton>
+							)}
+						</FileButton>
+						<ActionIcon
+							color="red"
+							radius={"xl"}
+							className={classes.clearFile}
+							onClick={clearFile}
+						>
+							<MdClose />
+						</ActionIcon>
+						<div
+							className={classes.edit}
+							onClick={() => setIsAvatarEditOpen(true)}
+						>
+							<MdEdit />
+						</div>
+					</div>
+
+					<TextInput
+						name="name"
+						label="Name"
+						value={name}
+						onChange={(e) => setName(e.currentTarget.value)}
+					/>
+					<TextInput
+						name="email"
+						label="Email"
+						type="email"
+						value={email}
+						onChange={(e) => setEmail(e.currentTarget.value)}
+					/>
+
+					<input type="hidden" name="avatarUrl" defaultValue={avatarUrl} />
+
+					<input
+						type="hidden"
+						name="avatarThumbnailUrl"
+						defaultValue={avatarThumbnailUrl}
+					/>
+
+					<input
+						type="hidden"
+						name="avatarThumbnail"
+						defaultValue={avatarThumbnail}
+					/>
+
+					<Button
+						mt="md"
+						type="submit"
+						loading={fetcher.state === "submitting"}
+						disabled={!isDirty}
+					>
+						Save
+					</Button>
+				</fetcher.Form>
+			</Modal>
+			<AvatarEdit
+				open={isAvatarEditOpen}
+				onClose={() => {
+					send({ type: "RESET_URL" })
+					setIsAvatarEditOpen(false)
+				}}
+			/>
+		</AvatarContext.Provider>
 	)
 }
 

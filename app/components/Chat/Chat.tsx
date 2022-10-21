@@ -4,7 +4,7 @@ import { useOutletContext, useParams } from "@remix-run/react"
 import { useInterpret } from "@xstate/react"
 import type { FC } from "react"
 import { useEffect, useMemo, useState } from "react"
-import chatMachine from "~/machines/chatMachine"
+import { chatMachine } from "~/machines"
 import type { IChatContext } from "~/types/ChatContext"
 import type { Message } from "~/types/Message"
 import {

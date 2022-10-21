@@ -1,6 +1,6 @@
 import { createContext, useContext } from "react"
 import type { InterpreterFrom } from "xstate"
-import type chatMachine from "~/machines/chatMachine"
+import type { chatMachine } from "~/machines"
 
 export const ChatContext = createContext({
 	chatService: {} as InterpreterFrom<typeof chatMachine>,

@@ -10,14 +10,12 @@ interface AvatarStore {
 	updateAvatarThumbnail: (avatarThumbnail: string) => void
 }
 
-export const useAvatarStore = create<AvatarStore>()(
-	devtools((set) => ({
-		avatarUrl: "",
-		avatarThumbnailUrl: "",
-		avatarThumbnail: "",
-		updateAvatarUrl: (avatarUrl) => set({ avatarUrl }),
-		updateAvatarThumbnailUrl: (avatarThumbnailUrl) =>
-			set({ avatarThumbnailUrl }),
-		updateAvatarThumbnail: (avatarThumbnail) => set({ avatarThumbnail }),
-	})),
-)
+export const useAvatarStore = create<AvatarStore>((set) => ({
+	avatarUrl: "",
+	avatarThumbnailUrl: "",
+	avatarThumbnail: "",
+	updateAvatarUrl: (avatarUrl) => set({ avatarUrl }),
+	updateAvatarThumbnailUrl: (avatarThumbnailUrl) =>
+		set({ avatarThumbnailUrl }),
+	updateAvatarThumbnail: (avatarThumbnail) => set({ avatarThumbnail }),
+}))

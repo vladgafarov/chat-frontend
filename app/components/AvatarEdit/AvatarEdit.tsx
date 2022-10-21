@@ -1,9 +1,10 @@
 import { Button, createStyles, Group, Modal, Slider } from "@mantine/core"
+import { useSelector } from "@xstate/react"
 import type { FC } from "react"
-import { useCallback, useState } from "react"
+import { useCallback, useContext, useState } from "react"
 import Cropper from "react-easy-crop"
-import { useAvatarStore } from "~/stores"
 import getCroppedImg from "~/utils/cropImage"
+import { AvatarContext } from "../SettingsModal/context"
 
 const useStyles = createStyles((theme) => ({
 	cropper: {
@@ -20,13 +21,13 @@ interface Props {
 const AvatarEdit: FC<Props> = ({ onClose, open }) => {
 	const { classes } = useStyles()
 
-	const avatarUrl = useAvatarStore((state) => state.avatarUrl)
-	const avatarThumbnail = useAvatarStore((state) => state.avatarThumbnail)
-	const updateAvatarThumbnailUrl = useAvatarStore(
-		(state) => state.updateAvatarThumbnailUrl,
-	)
-	const updateAvatarThumbnail = useAvatarStore(
-		(state) => state.updateAvatarThumbnail,
+	const { avatarService } = useContext(AvatarContext)
+	const { send } = avatarService
+
+	const avatarUrl = useSelector(avatarService, (state) => state.context.url)
+	const avatarThumbnail = useSelector(
+		avatarService,
+		(state) => state.context.thumbnail,
 	)
 
 	const [crop, setCrop] = useState({ x: 0, y: 0 })
@@ -39,9 +40,21 @@ const AvatarEdit: FC<Props> = ({ onClose, open }) => {
 	}, [])
 
 	async function onComplete() {
-		const croppedImage = await getCroppedImg(avatarUrl, croppedAreaPixels, 0)
-		updateAvatarThumbnail(JSON.stringify(croppedAreaPixels))
-		updateAvatarThumbnailUrl(croppedImage)
+		const croppedImageBlob = await getCroppedImg(
+			avatarUrl,
+			croppedAreaPixels,
+			0,
+		)
+
+		send({
+			type: "SAVE_THUMBNAIL",
+			payload: {
+				thumbnail: JSON.stringify(croppedAreaPixels),
+				thumbnailUrl: croppedImageBlob,
+			},
+		})
+		send({ type: "CHANGE_THUMBNAIL" })
+
 		onClose()
 	}
 
