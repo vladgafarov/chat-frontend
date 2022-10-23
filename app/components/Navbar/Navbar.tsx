@@ -10,7 +10,6 @@ import { Link, useParams, useSubmit } from "@remix-run/react"
 import { useState } from "react"
 import { BiExit, BiPlus } from "react-icons/bi"
 import { MdSettings } from "react-icons/md"
-import type { Socket } from "socket.io-client"
 import type { User } from "~/models/user/user.server"
 import type { Room } from "~/types/Room"
 import SettingsModal from "../SettingsModal"
@@ -20,14 +19,13 @@ import { UserButton } from "./UserButton"
 interface Props {
 	user: User
 	rooms: Room[]
-	socket: Socket
 }
 
-export function Navbar({ user, rooms, socket }: Props) {
+export function Navbar({ user, rooms }: Props) {
 	const submit = useSubmit()
 	const { chatId } = useParams()
 
-	const [isSettingsOpen, setIsSettingsOpen] = useState(true)
+	const [isSettingsOpen, setIsSettingsOpen] = useState(false)
 
 	return (
 		<NavbarUI
