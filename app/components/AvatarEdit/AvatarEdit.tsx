@@ -2,6 +2,7 @@ import { Button, createStyles, Group, Modal, Slider } from "@mantine/core"
 import { useSelector } from "@xstate/react"
 import type { FC } from "react"
 import { useCallback, useContext, useState } from "react"
+import type { Area } from "react-easy-crop"
 import Cropper from "react-easy-crop"
 import getCroppedImg from "~/utils/cropImage"
 import { AvatarContext } from "../SettingsModal/context"
@@ -32,12 +33,15 @@ const AvatarEdit: FC<Props> = ({ onClose, open }) => {
 
 	const [crop, setCrop] = useState({ x: 0, y: 0 })
 	const [zoom, setZoom] = useState(1)
-	const [croppedAreaPixels, setCroppedAreaPixels] = useState(null)
-	//@ts-ignore
-	const onCropComplete = useCallback((_croppedArea, croppedAreaPixels) => {
-		setCroppedAreaPixels(croppedAreaPixels)
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [])
+	const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null)
+	const onCropComplete = useCallback(
+		//@ts-ignore
+		(_croppedArea, croppedAreaPixels: Area) => {
+			setCroppedAreaPixels(croppedAreaPixels)
+			// eslint-disable-next-line react-hooks/exhaustive-deps
+		},
+		[],
+	)
 
 	async function onComplete() {
 		const croppedImageBlob = await getCroppedImg(

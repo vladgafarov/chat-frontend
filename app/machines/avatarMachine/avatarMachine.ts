@@ -56,6 +56,10 @@ const avatarMachine =
 					cond: "isUploadedImageEditingCanceled",
 					actions: ["resetAfterUploadCancel"],
 				},
+				UPDATE_INITIAL: {
+					actions: ["updateInitialContext"],
+					target: "initial",
+				},
 			},
 		},
 		{
@@ -97,6 +101,17 @@ const avatarMachine =
 					thumbnail: context.initial.thumbnail,
 					isUploadedImageEdited: true,
 				})),
+				updateInitialContext: assign((context, event) => {
+					if (event.type !== "UPDATE_INITIAL") return context
+
+					return {
+						initial: {
+							url: event.payload.avatarUrl!,
+							thumbnailUrl: event.payload.avatarThumbnailUrl!,
+							thumbnail: event.payload.avatarThumbnail!,
+						},
+					}
+				}),
 			},
 			guards: {
 				isUploadedImageEditingCanceled: (context) =>

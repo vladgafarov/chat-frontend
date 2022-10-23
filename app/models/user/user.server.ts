@@ -73,7 +73,7 @@ export const updateProfile = async (
 		})
 		const resData = await response.json()
 
-		if (response.status !== 200) {
+		if (response.status !== 201) {
 			throw new Error(resData.message)
 		}
 

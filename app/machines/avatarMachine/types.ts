@@ -1,3 +1,5 @@
+import type { User } from "~/models/user/user.server"
+
 interface AvatarStore {
 	url: string
 	thumbnailUrl: string
@@ -27,18 +29,32 @@ export type AvatarEvent =
 	| {
 			type: "RESET_UPLOAD"
 	  }
+	| {
+			type: "UPDATE_INITIAL"
+			payload: Pick<
+				User,
+				"avatarThumbnail" | "avatarThumbnailUrl" | "avatarUrl"
+			>
+	  }
+
+export enum AvatarState {
+	initial = "initial",
+	uploadingAvatar = "uploadingAvatar",
+	deletingAvatar = "deletingAvatar",
+	changeThumbnail = "changeThumbnail",
+}
 
 export type AvatarTypestate =
-	| { value: "initial"; context: AvatarContext }
+	| { value: AvatarState.initial; context: AvatarContext }
 	| {
-			value: "uploadingAvatar"
+			value: AvatarState.uploadingAvatar
 			context: AvatarContext & AvatarStore
 	  }
 	| {
-			value: "deletingAvatar"
+			value: AvatarState.deletingAvatar
 			context: AvatarContext & Record<keyof AvatarStore, undefined>
 	  }
 	| {
-			value: "changeThumbnail"
+			value: AvatarState.changeThumbnail
 			context: AvatarContext & { thumbnail: string }
 	  }

@@ -5,6 +5,7 @@ import {
 	createStyles,
 	FileButton,
 	Modal,
+	Text,
 	TextInput,
 	UnstyledButton,
 } from "@mantine/core"
@@ -14,6 +15,7 @@ import type { FC } from "react"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { MdClose, MdEdit } from "react-icons/md"
 import { avatarMachine } from "~/machines"
+import { AvatarState } from "~/machines/avatarMachine/types"
 import type { User } from "~/models/user/user.server"
 import AvatarEdit from "../AvatarEdit"
 import { AvatarContext } from "./context"
@@ -85,6 +87,7 @@ const SettingsModal: FC<Props> = ({ onClose, open, user }) => {
 	})
 
 	const { send } = avatarService
+	const avatarUrl = useSelector(avatarService, (state) => state.context.url)
 	const avatarThumbnailUrl = useSelector(
 		avatarService,
 		(state) => state.context.thumbnailUrl,
@@ -105,7 +108,7 @@ const SettingsModal: FC<Props> = ({ onClose, open, user }) => {
 	const resetRef = useRef<() => void>(null)
 
 	const { classes } = useStyles({
-		isAvatar: !!file || !!avatarThumbnailUrl,
+		isAvatar: !!avatarThumbnailUrl,
 	})
 
 	function clearFile() {
@@ -113,6 +116,10 @@ const SettingsModal: FC<Props> = ({ onClose, open, user }) => {
 		send({ type: "DELETE" })
 
 		resetRef.current?.()
+	}
+
+	function onSubmit() {
+		// send({ type: "CLOSE" })
 	}
 
 	const isDirty = useMemo(
@@ -125,6 +132,12 @@ const SettingsModal: FC<Props> = ({ onClose, open, user }) => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[avatarThumbnail, email, file, name],
 	)
+
+	const currentState = useMemo(
+		() => avatarService.getSnapshot().value,
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[avatarService.getSnapshot().value],
+	) as AvatarState
 
 	useEffect(() => {
 		if (!file) {
@@ -147,6 +160,13 @@ const SettingsModal: FC<Props> = ({ onClose, open, user }) => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [open])
 
+	useEffect(() => {
+		if (fetcher.data && !fetcher.data.error) {
+			send({ type: "UPDATE_INITIAL", payload: fetcher.data })
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [fetcher.data])
+
 	return (
 		<AvatarContext.Provider value={{ avatarService }}>
 			<Modal title="Settings" opened={open} onClose={onClose}>
@@ -154,6 +174,7 @@ const SettingsModal: FC<Props> = ({ onClose, open, user }) => {
 					method="post"
 					action="/resources/updateProfile"
 					encType="multipart/form-data"
+					onSubmit={onSubmit}
 				>
 					<div className={classes.fileWrapper}>
 						<FileButton
@@ -203,17 +224,34 @@ const SettingsModal: FC<Props> = ({ onClose, open, user }) => {
 						onChange={(e) => setEmail(e.currentTarget.value)}
 					/>
 
-					<input
-						type="hidden"
-						name="avatarThumbnail"
-						defaultValue={avatarThumbnail}
-					/>
+					{currentState !== AvatarState.initial && (
+						<input
+							type="hidden"
+							name="avatarThumbnail"
+							defaultValue={avatarThumbnail}
+						/>
+					)}
 
-					<input
-						type="hidden"
-						name="action"
-						defaultValue={avatarService.getSnapshot().value as string}
-					/>
+					{currentState === AvatarState.changeThumbnail && (
+						<input
+							type="hidden"
+							name="avatarUrl"
+							defaultValue={avatarUrl}
+						/>
+					)}
+
+					{currentState === AvatarState.deletingAvatar && (
+						<>
+							<input type="hidden" name="avatarUrl" defaultValue={""} />
+							<input
+								type="hidden"
+								name="avatarThumbnailUrl"
+								defaultValue={""}
+							/>
+						</>
+					)}
+
+					{fetcher.data && <Text color="red">{fetcher.data.error} </Text>}
 
 					<Button
 						mt="md"
