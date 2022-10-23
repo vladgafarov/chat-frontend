@@ -123,7 +123,7 @@ export default function ChatItem() {
 							return (
 								<Avatar
 									key={user.id}
-									src={user.avatarUrl}
+									src={user.avatarThumbnailUrl}
 									alt={user.name}
 									radius={"xl"}
 									size="sm"
@@ -145,7 +145,11 @@ export default function ChatItem() {
 				<Stack>
 					{room?.invitedUsers.map((user) => (
 						<Group key={user.id}>
-							<Avatar src={user.avatarUrl} alt={user.name} radius="xl">
+							<Avatar
+								src={user.avatarThumbnailUrl}
+								alt={user.name}
+								radius="xl"
+							>
 								{user.name[0]}
 							</Avatar>
 							<Group>
