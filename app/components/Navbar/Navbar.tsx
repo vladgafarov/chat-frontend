@@ -20,14 +20,13 @@ import { UserButton } from "./UserButton"
 interface Props {
 	user: User
 	rooms: Room[]
-	socket: Socket
 }
 
-export function Navbar({ user, rooms, socket }: Props) {
+export function Navbar({ user, rooms }: Props) {
 	const submit = useSubmit()
 	const { chatId } = useParams()
 
-	const [isSettingsOpen, setIsSettingsOpen] = useState(true)
+	const [isSettingsOpen, setIsSettingsOpen] = useState(false)
 
 	return (
 		<NavbarUI

@@ -97,7 +97,7 @@ export default function Chat() {
 
 	return (
 		<>
-			<Navbar user={user} rooms={rooms} socket={socket} />
+			<Navbar user={user} rooms={rooms} />
 			<Box
 				sx={() => ({
 					width: "calc(100% - 300px)",
