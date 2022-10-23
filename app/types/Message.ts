@@ -20,6 +20,7 @@ export interface Message {
 		name: string
 		email: string
 		avatarUrl: string
+		avatarThumbnailUrl: string
 		online: boolean
 	}
 	forwardedMessages: {

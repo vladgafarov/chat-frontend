@@ -224,7 +224,7 @@ export const MessageBubble: FC<Props & Message> = ({
 		>
 			{isGroupChat && (
 				<Avatar
-					src={author.avatarUrl}
+					src={author.avatarThumbnailUrl}
 					variant="light"
 					radius={"md"}
 					sx={() => ({

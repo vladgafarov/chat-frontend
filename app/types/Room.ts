@@ -11,6 +11,7 @@ export interface Room {
 	isGroupChat: boolean
 	countUnreadMessages: number
 	isCurrentUserAuthor: boolean
+	image?: string
 	author: {
 		email: string
 		name: string

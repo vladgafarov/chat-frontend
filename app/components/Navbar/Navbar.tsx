@@ -66,6 +66,7 @@ export function Navbar({ user, rooms }: Props) {
 							userId={user.id}
 							countUnreadMessages={room.countUnreadMessages}
 							isOnline={isOnline}
+							imageUrl={room?.image}
 						/>
 					)
 				})}
