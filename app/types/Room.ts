@@ -5,7 +5,7 @@ export interface Room {
 	id: number
 	title: string
 	messages: Message[]
-	authorId: number
+	authorId: number | null
 	createdAt: string
 	invitedUsers: User[]
 	isGroupChat: boolean
@@ -18,5 +18,5 @@ export interface Room {
 		name: string
 		online: boolean
 		avatarThumbnailUrl: string
-	}
+	} | null
 }

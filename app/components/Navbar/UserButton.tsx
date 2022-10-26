@@ -1,4 +1,4 @@
-import { Group, Avatar, Text, Menu, UnstyledButton } from "@mantine/core"
+import { Avatar, Group, Text, UnstyledButton } from "@mantine/core"
 import { forwardRef } from "react"
 import { BiChevronRight } from "react-icons/bi"
 

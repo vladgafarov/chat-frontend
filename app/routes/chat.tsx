@@ -79,7 +79,6 @@ export default function Chat() {
 
 	useEffect(() => {
 		socket.on("SERVER@UPDATE-SIDEBAR", (data) => {
-			console.log(data)
 			setRooms(data.userRooms)
 		})
 

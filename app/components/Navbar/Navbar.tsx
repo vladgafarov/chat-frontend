@@ -53,11 +53,12 @@ export function Navbar({ user, rooms }: Props) {
 					const isOnline =
 						(room.isCurrentUserAuthor
 							? room.invitedUsers[0].online
-							: room.author.online) && !room.isGroupChat
+							: room.author?.online) && !room.isGroupChat
 
 					return (
 						<UserBubble
 							key={room.id}
+							roomId={room.id}
 							link={`/chat/${room.id}`}
 							title={room.title}
 							isGroupChat={room.isGroupChat}
@@ -65,7 +66,7 @@ export function Navbar({ user, rooms }: Props) {
 							lastMessage={room.messages[0]}
 							userId={user.id}
 							countUnreadMessages={room.countUnreadMessages}
-							isOnline={isOnline}
+							isOnline={isOnline || false}
 							imageUrl={room?.image}
 						/>
 					)

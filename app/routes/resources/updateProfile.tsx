@@ -22,9 +22,6 @@ export const action = async ({ request }: ActionArgs) => {
 		uploadHandler,
 	)
 
-	console.log([...formData.entries()])
-	// return null
-
 	try {
 		const res = await updateProfile(formData, request)
 

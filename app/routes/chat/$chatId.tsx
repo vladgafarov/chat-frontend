@@ -59,9 +59,9 @@ export default function ChatItem() {
 		() =>
 			(room.isCurrentUserAuthor
 				? room.invitedUsers[0].online
-				: room.author.online) && !room.isGroupChat,
+				: room.author?.online) && !room.isGroupChat,
 		[
-			room.author.online,
+			room.author?.online,
 			room.invitedUsers,
 			room.isCurrentUserAuthor,
 			room.isGroupChat,
@@ -72,9 +72,9 @@ export default function ChatItem() {
 		() =>
 			room.isCurrentUserAuthor
 				? room.invitedUsers
-				: [room.author, ...room.invitedUsers].filter(
-						(u) => u.id !== user.id,
-				  ),
+				: [room.author, ...room.invitedUsers]
+						.filter(Boolean)
+						.filter((u) => u?.id !== user.id),
 		[room.author, room.invitedUsers, room.isCurrentUserAuthor, user.id],
 	)
 
@@ -153,25 +153,29 @@ export default function ChatItem() {
 				title="Group members"
 			>
 				<Stack>
-					{usersWithoutCurrentUser?.map((user) => (
-						<Group key={user.id}>
-							<Avatar
-								src={user.avatarThumbnailUrl}
-								alt={user.name}
-								radius="xl"
-							>
-								{user.name[0]}
-							</Avatar>
-							<Group>
-								<Text>{user.name}</Text>
-								{user.online && (
-									<Badge pl="xs" variant="dot" size="sm">
-										Online
-									</Badge>
-								)}
+					{usersWithoutCurrentUser?.map((user) => {
+						if (!user) return null
+
+						return (
+							<Group key={user.id}>
+								<Avatar
+									src={user.avatarThumbnailUrl}
+									alt={user.name}
+									radius="xl"
+								>
+									{user.name[0]}
+								</Avatar>
+								<Group>
+									<Text>{user.name}</Text>
+									{user.online && (
+										<Badge pl="xs" variant="dot" size="sm">
+											Online
+										</Badge>
+									)}
+								</Group>
 							</Group>
-						</Group>
-					))}
+						)
+					})}
 				</Stack>
 			</Modal>
 		</Box>
