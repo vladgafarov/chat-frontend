@@ -13,8 +13,10 @@ export interface Room {
 	isCurrentUserAuthor: boolean
 	image?: string
 	author: {
+		id: number
 		email: string
 		name: string
 		online: boolean
+		avatarThumbnailUrl: string
 	}
 }

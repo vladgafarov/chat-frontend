@@ -68,6 +68,16 @@ export default function ChatItem() {
 		],
 	)
 
+	const usersWithoutCurrentUser = useMemo(
+		() =>
+			room.isCurrentUserAuthor
+				? room.invitedUsers
+				: [room.author, ...room.invitedUsers].filter(
+						(u) => u.id !== user.id,
+				  ),
+		[room.author, room.invitedUsers, room.isCurrentUserAuthor, user.id],
+	)
+
 	useEffect(() => {
 		socket.emit("CLIENT@ROOM:JOIN", { roomId: chatId, user })
 
@@ -143,7 +153,7 @@ export default function ChatItem() {
 				title="Group members"
 			>
 				<Stack>
-					{room?.invitedUsers.map((user) => (
+					{usersWithoutCurrentUser?.map((user) => (
 						<Group key={user.id}>
 							<Avatar
 								src={user.avatarThumbnailUrl}
