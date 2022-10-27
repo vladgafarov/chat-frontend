@@ -74,7 +74,7 @@ export const getRoom = async (id: string, request: Request): Promise<Room> => {
 export const leaveRoom = async (
 	id: number,
 	request: Request,
-): Promise<void> => {
+): Promise<Room> => {
 	try {
 		const res = await fetch(`${process.env.BACKEND_URL}/rooms/leave`, {
 			method: "POST",
@@ -89,14 +89,14 @@ export const leaveRoom = async (
 		if (res.status >= 400) {
 			const error = await res.json()
 
-			console.log(error)
-
 			throw new Error(
 				typeof error.message === "object"
 					? error.message[0]
 					: error.message,
 			)
 		}
+
+		return await res.json()
 	} catch (error: any) {
 		throw new Error(error.message)
 	}

@@ -8,6 +8,7 @@ import {
 	Title,
 	UnstyledButton,
 } from "@mantine/core"
+import type { FetcherWithComponents } from "@remix-run/react"
 import { Link } from "@remix-run/react"
 import { RiGroupLine } from "react-icons/ri"
 import type { Message } from "~/types/Message"
@@ -58,6 +59,7 @@ interface Props {
 	countUnreadMessages: number
 	isOnline: boolean
 	roomId: number
+	deleteFetcher: FetcherWithComponents<any>
 	imageUrl?: string
 }
 
@@ -72,6 +74,7 @@ export const UserBubble = ({
 	countUnreadMessages,
 	isOnline,
 	roomId,
+	deleteFetcher,
 }: Props) => {
 	const { classes } = useStyles()
 
@@ -143,7 +146,11 @@ export const UserBubble = ({
 					)}
 				</Group>
 			</UnstyledButton>
-			<UserBubbleMenu className={classes.menuTarget} roomId={roomId} />
+			<UserBubbleMenu
+				className={classes.menuTarget}
+				roomId={roomId}
+				deleteFetcher={deleteFetcher}
+			/>
 		</div>
 	)
 }

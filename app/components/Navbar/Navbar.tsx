@@ -6,26 +6,53 @@ import {
 	ScrollArea,
 	Title,
 } from "@mantine/core"
-import { Link, useParams, useSubmit } from "@remix-run/react"
-import { useState } from "react"
+import {
+	Link,
+	useFetcher,
+	useLoaderData,
+	useParams,
+	useSubmit,
+} from "@remix-run/react"
+import { useEffect, useState } from "react"
 import { BiExit, BiPlus } from "react-icons/bi"
 import { MdSettings } from "react-icons/md"
-import type { User } from "~/models/user/user.server"
+import type { Socket } from "socket.io-client"
+import type { ChatLoader } from "~/routes/chat"
 import type { Room } from "~/types/Room"
 import SettingsModal from "../SettingsModal"
 import { UserBubble } from "../widgets"
 import { UserButton } from "./UserButton"
 
 interface Props {
-	user: User
-	rooms: Room[]
+	socket: Socket
 }
 
-export function Navbar({ user, rooms }: Props) {
+export function Navbar({ socket }: Props) {
+	const { user, rooms: loaderRooms } = useLoaderData<ChatLoader>()
+	const [rooms, setRooms] = useState<Room[]>(loaderRooms)
+
 	const submit = useSubmit()
 	const { chatId } = useParams()
+	const deleteChatFetcher = useFetcher()
 
 	const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+
+	useEffect(() => {
+		socket.on("SERVER@UPDATE-SIDEBAR", (data) => {
+			setRooms(data.userRooms)
+		})
+
+		return () => {
+			socket.off("SERVER@UPDATE-SIDEBAR")
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [])
+
+	useEffect(() => {
+		if (loaderRooms) {
+			setRooms(loaderRooms)
+		}
+	}, [loaderRooms])
 
 	return (
 		<NavbarUI
@@ -68,6 +95,7 @@ export function Navbar({ user, rooms }: Props) {
 							countUnreadMessages={room.countUnreadMessages}
 							isOnline={isOnline || false}
 							imageUrl={room?.image}
+							deleteFetcher={deleteChatFetcher}
 						/>
 					)
 				})}

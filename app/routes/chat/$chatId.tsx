@@ -182,6 +182,15 @@ export default function ChatItem() {
 	)
 }
 
+export function CatchBoundary() {
+	const { chatId } = useParams()
+	return (
+		<div>
+			<h2>We couldn't find that chat with id {chatId}!</h2>
+		</div>
+	)
+}
+
 export function ErrorBoundary({ error }: { error: Error }) {
 	const { chatId } = useParams()
 

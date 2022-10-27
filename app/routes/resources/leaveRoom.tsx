@@ -14,7 +14,7 @@ export const action = async ({ request }: ActionArgs) => {
 	try {
 		await leaveRoom(+data.id, request)
 
-		return null
+		return redirect("/chat")
 	} catch (error: any) {
 		return json({ error: error.message })
 	}
