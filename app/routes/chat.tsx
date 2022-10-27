@@ -66,12 +66,13 @@ export const action: ActionFunction = async ({ request }) => {
 export type ChatLoader = typeof loader
 
 export default function Chat() {
-	const { user } = useLoaderData<ChatLoader>()
+	const { user, rooms } = useLoaderData<ChatLoader>()
 
 	const socket = useSocket(user.id)
 	const context: IChatContext = {
 		socket,
 		user,
+		rooms,
 	}
 	const outlet = <Outlet context={context} />
 
