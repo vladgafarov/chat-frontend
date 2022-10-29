@@ -66,13 +66,14 @@ const Chat: FC<Props> = ({ messages: defaultMessages, isGroupChat }) => {
 		setMessages(defaultMessages)
 		scrollIntoView({ alignment: "end" })
 
-		// socket.on("SERVER@MESSAGE:ADD", (message) => {
-		// 	setMessages((messages) => [...messages, message])
+		socket.on("SERVER@MESSAGE:ADD", (message) => {
+			console.log({ message })
+			// setMessages((messages) => [...messages, message])
 
-		// 	if (message.author.id === user.id) {
-		// 		scrollIntoView()
-		// 	}
-		// })
+			// if (message.author.id === user.id) {
+			// 	scrollIntoView()
+			// }
+		})
 
 		socket.on("SERVER@MESSAGE:IS-TYPING", (data) => {
 			if (data.userId !== user.id) {
@@ -192,6 +193,11 @@ const Chat: FC<Props> = ({ messages: defaultMessages, isGroupChat }) => {
 				{/* @ts-ignore */}
 				<div ref={targetRef} />
 			</ScrollArea>
+			{addMessageFetcher.submission && (
+				<p>
+					{Object.fromEntries(addMessageFetcher.submission.formData).text}
+				</p>
+			)}
 			{typingUser.length > 0 && (
 				<Text color="gray.6">
 					{typingUser.join(", ")} {typingUser.length === 1 ? "is" : "are"}{" "}

@@ -1,7 +1,7 @@
 import { Box, Button, TextInput } from "@mantine/core"
 import { shallowEqual, useDebouncedValue } from "@mantine/hooks"
 import { showNotification } from "@mantine/notifications"
-import { Form, useFetcher, useOutletContext, useParams } from "@remix-run/react"
+import { useOutletContext, useParams } from "@remix-run/react"
 import { useSelector } from "@xstate/react"
 import { AnimatePresence, motion } from "framer-motion"
 import { useEffect, useRef } from "react"
@@ -41,8 +41,6 @@ export const SendMessageArea = () => {
 	)
 	const { send } = chatContext.chatService
 
-	const sendMessageFetcher = useFetcher()
-
 	const [debouncedMessage] = useDebouncedValue(message, 200)
 
 	const addMessage = () => {
@@ -60,12 +58,12 @@ export const SendMessageArea = () => {
 			return
 		}
 
-		socket.emit("CLIENT@MESSAGE:ADD", {
-			authorId: user.id,
-			text: message,
-			roomId: +chatId,
-			repliedMessageId: messageForReply?.messageId,
-		})
+		// socket.emit("CLIENT@MESSAGE:ADD", {
+		// 	authorId: user.id,
+		// 	text: message,
+		// 	roomId: +chatId,
+		// 	repliedMessageId: messageForReply?.messageId,
+		// })
 
 		if (messageForReply?.messageId) {
 			send({ type: "REPLY.DONE" })
@@ -139,14 +137,14 @@ export const SendMessageArea = () => {
 					</motion.div>
 				)}
 				<motion.div layout>
-					<Form
+					<addMessageFetcher.Form
 						method="post"
 						onSubmit={isEditState ? updateMessage : addMessage}
 					>
 						<TextInput
 							// @ts-ignore
 							ref={inputRef}
-							name="message"
+							name="text"
 							placeholder="Enter a message"
 							value={message}
 							onChange={(e) => {
@@ -162,7 +160,6 @@ export const SendMessageArea = () => {
 									px="xs"
 									radius={"xs"}
 									type="submit"
-									loading={sendMessageFetcher.state === "loading"}
 									disabled={
 										!message || message === messageForEdit?.text
 									}
@@ -171,7 +168,7 @@ export const SendMessageArea = () => {
 								</Button>
 							}
 						/>
-					</Form>
+					</addMessageFetcher.Form>
 				</motion.div>
 			</Box>
 		</AnimatePresence>

@@ -8,12 +8,19 @@ import {
 	Text,
 	Title,
 } from "@mantine/core"
+import { showNotification } from "@mantine/notifications"
 import type { ActionArgs, LoaderArgs, MetaFunction } from "@remix-run/node"
 import { json } from "@remix-run/node"
-import { useLoaderData, useOutletContext, useParams } from "@remix-run/react"
+import {
+	useActionData,
+	useLoaderData,
+	useOutletContext,
+	useParams,
+} from "@remix-run/react"
 import { useEffect, useMemo, useState } from "react"
 import invariant from "tiny-invariant"
 import { Chat } from "~/components/Chat"
+import { addMessage } from "~/models/message/message.server"
 import { getRoom } from "~/models/room/room.server"
 import type { IChatContext } from "~/types/ChatContext"
 import type { Room } from "~/types/Room"
@@ -49,14 +56,23 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 
 export const action = async ({ request, params }: ActionArgs) => {
 	const formData = await request.formData()
-	console.log("formData", [...formData.entries()])
-	console.log("hey")
 
-	return json({ message: "ok" })
+	invariant(params.chatId, "chatId is required")
+	formData.append("roomId", params.chatId)
+	console.log("formData", [...formData.entries()])
+
+	try {
+		const message = await addMessage(formData, request)
+
+		return json({ message: "ok" })
+	} catch (error: any) {
+		return json({ error: error.message })
+	}
 }
 
 export default function ChatItem() {
 	const { room } = useLoaderData<typeof loader>()
+	const actionData = useActionData<typeof action>()
 
 	const { socket, user } = useOutletContext<IChatContext>()
 	const { chatId } = useParams()
@@ -99,6 +115,16 @@ export default function ChatItem() {
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [chatId])
+
+	useEffect(() => {
+		if (actionData?.error) {
+			showNotification({
+				title: "Error",
+				message: actionData.error,
+				color: "red",
+			})
+		}
+	}, [actionData])
 
 	return (
 		<Box
