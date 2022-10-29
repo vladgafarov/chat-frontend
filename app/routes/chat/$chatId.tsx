@@ -8,7 +8,7 @@ import {
 	Text,
 	Title,
 } from "@mantine/core"
-import type { LoaderArgs, MetaFunction } from "@remix-run/node"
+import type { ActionArgs, LoaderArgs, MetaFunction } from "@remix-run/node"
 import { json } from "@remix-run/node"
 import { useLoaderData, useOutletContext, useParams } from "@remix-run/react"
 import { useEffect, useMemo, useState } from "react"
@@ -45,6 +45,14 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 
 		throw new Error(error)
 	}
+}
+
+export const action = async ({ request, params }: ActionArgs) => {
+	const formData = await request.formData()
+	console.log("formData", [...formData.entries()])
+	console.log("hey")
+
+	return json({ message: "ok" })
 }
 
 export default function ChatItem() {

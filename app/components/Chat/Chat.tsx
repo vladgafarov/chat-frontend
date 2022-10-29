@@ -22,7 +22,7 @@ interface Props {
 }
 
 const Chat: FC<Props> = ({ messages: defaultMessages, isGroupChat }) => {
-	const { socket, user } = useOutletContext<IChatContext>()
+	const { socket, user, addMessageFetcher } = useOutletContext<IChatContext>()
 	const { chatId } = useParams()
 
 	const chatService = useInterpret(chatMachine)
@@ -66,13 +66,13 @@ const Chat: FC<Props> = ({ messages: defaultMessages, isGroupChat }) => {
 		setMessages(defaultMessages)
 		scrollIntoView({ alignment: "end" })
 
-		socket.on("SERVER@MESSAGE:ADD", (message) => {
-			setMessages((messages) => [...messages, message])
+		// socket.on("SERVER@MESSAGE:ADD", (message) => {
+		// 	setMessages((messages) => [...messages, message])
 
-			if (message.author.id === user.id) {
-				scrollIntoView()
-			}
-		})
+		// 	if (message.author.id === user.id) {
+		// 		scrollIntoView()
+		// 	}
+		// })
 
 		socket.on("SERVER@MESSAGE:IS-TYPING", (data) => {
 			if (data.userId !== user.id) {
@@ -96,6 +96,10 @@ const Chat: FC<Props> = ({ messages: defaultMessages, isGroupChat }) => {
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [chatId])
+
+	useEffect(() => {
+		scrollIntoView({ alignment: "end" })
+	}, [defaultMessages])
 
 	useEffect(() => {
 		if (typingUser.length === 0) return
@@ -151,7 +155,7 @@ const Chat: FC<Props> = ({ messages: defaultMessages, isGroupChat }) => {
 							>
 								{date}
 							</Text>
-							{messages.map((message, i) => {
+							{defaultMessages.map((message, i) => {
 								const isNextMessageFromSameUser =
 									messages[i + 1]?.author.id === message.author?.id
 								const isPrevMessageFromSameUser =

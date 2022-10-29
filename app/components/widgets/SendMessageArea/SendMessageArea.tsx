@@ -1,7 +1,7 @@
 import { Box, Button, TextInput } from "@mantine/core"
 import { shallowEqual, useDebouncedValue } from "@mantine/hooks"
 import { showNotification } from "@mantine/notifications"
-import { useFetcher, useOutletContext, useParams } from "@remix-run/react"
+import { Form, useFetcher, useOutletContext, useParams } from "@remix-run/react"
 import { useSelector } from "@xstate/react"
 import { AnimatePresence, motion } from "framer-motion"
 import { useEffect, useRef } from "react"
@@ -13,7 +13,7 @@ import EditMessage from "../EditMessage"
 import ReplyMessage from "../ReplyMessage"
 
 export const SendMessageArea = () => {
-	const { socket, user } = useOutletContext<IChatContext>()
+	const { socket, user, addMessageFetcher } = useOutletContext<IChatContext>()
 	const { chatId } = useParams()
 
 	const inputRef = useRef<HTMLInputElement>()
@@ -139,12 +139,14 @@ export const SendMessageArea = () => {
 					</motion.div>
 				)}
 				<motion.div layout>
-					<sendMessageFetcher.Form
+					<Form
+						method="post"
 						onSubmit={isEditState ? updateMessage : addMessage}
 					>
 						<TextInput
 							// @ts-ignore
 							ref={inputRef}
+							name="message"
 							placeholder="Enter a message"
 							value={message}
 							onChange={(e) => {
@@ -169,7 +171,7 @@ export const SendMessageArea = () => {
 								</Button>
 							}
 						/>
-					</sendMessageFetcher.Form>
+					</Form>
 				</motion.div>
 			</Box>
 		</AnimatePresence>

@@ -1,7 +1,7 @@
 import { Box } from "@mantine/core"
 import type { ActionFunction, LoaderArgs } from "@remix-run/node"
 import { json, redirect } from "@remix-run/node"
-import { Outlet, useLoaderData } from "@remix-run/react"
+import { Outlet, useFetcher, useLoaderData } from "@remix-run/react"
 import { Navbar } from "~/components/Navbar"
 import { useSocket } from "~/hooks/useSocket"
 import {
@@ -68,11 +68,14 @@ export type ChatLoader = typeof loader
 export default function Chat() {
 	const { user, rooms } = useLoaderData<ChatLoader>()
 
+	const addMessageFetcher = useFetcher()
+
 	const socket = useSocket(user.id)
 	const context: IChatContext = {
 		socket,
 		user,
 		rooms,
+		addMessageFetcher,
 	}
 	const outlet = <Outlet context={context} />
 
