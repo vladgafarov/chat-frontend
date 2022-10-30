@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState } from "react"
 import { chatMachine } from "~/machines"
 import type { IChatContext } from "~/types/ChatContext"
 import type { Message } from "~/types/Message"
+import BaseMessageBubble from "../BaseMessageBubble"
 import {
 	GoToChatBottom,
 	MessageBubble,
@@ -63,16 +64,20 @@ const Chat: FC<Props> = ({ messages: defaultMessages, isGroupChat }) => {
 	}, [messages])
 
 	useEffect(() => {
+		let timeout: NodeJS.Timeout
 		setMessages(defaultMessages)
 		scrollIntoView({ alignment: "end" })
 
 		socket.on("SERVER@MESSAGE:ADD", (message) => {
-			console.log({ message })
-			// setMessages((messages) => [...messages, message])
+			if (addMessageFetcher.submission === undefined) {
+				timeout = setTimeout(() => {
+					setMessages((messages) => [...messages, message])
+				}, 0)
+			}
 
-			// if (message.author.id === user.id) {
-			// 	scrollIntoView()
-			// }
+			if (message.author.id === user.id) {
+				scrollIntoView()
+			}
 		})
 
 		socket.on("SERVER@MESSAGE:IS-TYPING", (data) => {
@@ -94,13 +99,10 @@ const Chat: FC<Props> = ({ messages: defaultMessages, isGroupChat }) => {
 			socket.off("SERVER@MESSAGE:ADD")
 			socket.off("SERVER@MESSAGE:IS-TYPING")
 			socket.off("SERVER@MESSAGE:DELETE")
+			clearTimeout(timeout)
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [chatId])
-
-	useEffect(() => {
-		scrollIntoView({ alignment: "end" })
-	}, [defaultMessages])
 
 	useEffect(() => {
 		if (typingUser.length === 0) return
@@ -156,7 +158,7 @@ const Chat: FC<Props> = ({ messages: defaultMessages, isGroupChat }) => {
 							>
 								{date}
 							</Text>
-							{defaultMessages.map((message, i) => {
+							{messages.map((message, i) => {
 								const isNextMessageFromSameUser =
 									messages[i + 1]?.author.id === message.author?.id
 								const isPrevMessageFromSameUser =
@@ -194,9 +196,13 @@ const Chat: FC<Props> = ({ messages: defaultMessages, isGroupChat }) => {
 				<div ref={targetRef} />
 			</ScrollArea>
 			{addMessageFetcher.submission && (
-				<p>
-					{Object.fromEntries(addMessageFetcher.submission.formData).text}
-				</p>
+				<BaseMessageBubble
+					text={
+						Object.fromEntries(addMessageFetcher.submission.formData)
+							.text as string
+					}
+					createdAt={String(new Date())}
+				/>
 			)}
 			{typingUser.length > 0 && (
 				<Text color="gray.6">

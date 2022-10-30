@@ -59,10 +59,9 @@ export const action = async ({ request, params }: ActionArgs) => {
 
 	invariant(params.chatId, "chatId is required")
 	formData.append("roomId", params.chatId)
-	console.log("formData", [...formData.entries()])
 
 	try {
-		const message = await addMessage(formData, request)
+		await addMessage(formData, request)
 
 		return json({ message: "ok" })
 	} catch (error: any) {
@@ -72,7 +71,7 @@ export const action = async ({ request, params }: ActionArgs) => {
 
 export default function ChatItem() {
 	const { room } = useLoaderData<typeof loader>()
-	const actionData = useActionData<typeof action>()
+	const actionData = useActionData()
 
 	const { socket, user } = useOutletContext<IChatContext>()
 	const { chatId } = useParams()
