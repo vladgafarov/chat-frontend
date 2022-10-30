@@ -1,4 +1,5 @@
 import {
+	Avatar,
 	createStyles,
 	Group,
 	Stack,
@@ -22,9 +23,16 @@ const useStyles = createStyles((theme) => ({
 interface Props {
 	text: string
 	createdAt: string
+	avatarUrl?: string | null
+	username?: string
 }
 
-const BaseMessageBubble: FC<Props> = ({ text, createdAt }) => {
+const BaseMessageBubble: FC<Props> = ({
+	text,
+	createdAt,
+	username,
+	avatarUrl,
+}) => {
 	const { classes } = useStyles()
 	const theme = useMantineTheme()
 
@@ -35,16 +43,23 @@ const BaseMessageBubble: FC<Props> = ({ text, createdAt }) => {
 
 	return (
 		<Stack align="start" mb="md">
-			<div className={classes.message}>
-				<Text>{text}</Text>
+			<Group align="flex-end" spacing="sm">
+				{username && (
+					<Avatar src={avatarUrl} variant="light" radius={"md"}>
+						{username[0]}
+					</Avatar>
+				)}
+				<div className={classes.message}>
+					<Text>{text}</Text>
 
-				<Group position="right" spacing={5} ml={"xl"} color="gray">
-					<Text size="xs" color="gray">
-						{parsedTime}
-					</Text>
-					<TbCheck color={`${theme.colors["gray"][6]}`} />
-				</Group>
-			</div>
+					<Group position="right" spacing={5} ml={"xl"} color="gray">
+						<Text size="xs" color="gray">
+							{parsedTime}
+						</Text>
+						<TbCheck color={`${theme.colors["gray"][6]}`} />
+					</Group>
+				</div>
+			</Group>
 		</Stack>
 	)
 }

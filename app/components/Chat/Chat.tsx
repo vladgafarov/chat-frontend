@@ -202,6 +202,8 @@ const Chat: FC<Props> = ({ messages: defaultMessages, isGroupChat }) => {
 							.text as string
 					}
 					createdAt={String(new Date())}
+					avatarUrl={isGroupChat ? user.avatarThumbnailUrl : undefined}
+					username={isGroupChat ? user.name : undefined}
 				/>
 			)}
 			{typingUser.length > 0 && (
