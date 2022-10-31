@@ -1,7 +1,7 @@
 import { createStyles, Text } from "@mantine/core"
 import type { FC } from "react"
 import { CgClose } from "react-icons/cg"
-import { FaRegFile, FaRegFileImage } from "react-icons/fa"
+import { FaRegFile } from "react-icons/fa"
 
 const useStyle = createStyles((theme, params, getRef) => ({
 	root: {
@@ -11,8 +11,8 @@ const useStyle = createStyles((theme, params, getRef) => ({
 		borderRadius: theme.radius.md,
 		backgroundColor: "white",
 		display: "flex",
-		alignItems: "center",
 		flexDirection: "column",
+		alignItems: "center",
 		justifyContent: "center",
 		width: "70px",
 		[`&:hover .${getRef("deleteButton")}`]: {
@@ -21,6 +21,9 @@ const useStyle = createStyles((theme, params, getRef) => ({
 	},
 	fileImage: {
 		fontSize: theme.fontSizes.xl,
+		img: {
+			maxWidth: "100%",
+		},
 	},
 	deleteButton: {
 		ref: getRef("deleteButton"),
@@ -64,7 +67,7 @@ const FileItem: FC<Props> = ({ id, file, onDelete }) => {
 			<div className={classes.fileImage}>
 				{fileExtension &&
 				imageExtensions.includes(fileExtension.toLowerCase()) ? (
-					<FaRegFileImage />
+					<img src={URL.createObjectURL(file)} alt={file.name} />
 				) : (
 					<FaRegFile />
 				)}

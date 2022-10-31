@@ -186,7 +186,7 @@ export const SendMessageArea = () => {
 					</motion.div>
 				)}
 				{files.length > 0 && (
-					<Group mb="md">
+					<Group align="stretch" mb="md">
 						{files.map((item, i) => (
 							<FileItem
 								key={i}
