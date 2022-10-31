@@ -1,4 +1,11 @@
-import { ActionIcon, Box, Button, FileButton, TextInput } from "@mantine/core"
+import {
+	ActionIcon,
+	Box,
+	Button,
+	FileButton,
+	Group,
+	TextInput,
+} from "@mantine/core"
 import { shallowEqual, useDebouncedValue } from "@mantine/hooks"
 import { showNotification } from "@mantine/notifications"
 import { useOutletContext, useParams } from "@remix-run/react"
@@ -9,6 +16,7 @@ import { BiSend } from "react-icons/bi"
 import { GrAttachment } from "react-icons/gr"
 import { MdOutlineDone } from "react-icons/md"
 import { useChatContext } from "~/components/Chat/ChatContext"
+import FileItem from "~/components/FileItem"
 import type { IChatContext } from "~/types/ChatContext"
 import EditMessage from "../EditMessage"
 import ReplyMessage from "../ReplyMessage"
@@ -96,16 +104,19 @@ export const SendMessageArea = () => {
 		send({ type: "EDIT.DONE" })
 	}
 
-	function handleAddFiles(files: File[]) {
-		const newFiles = files.map((file) => ({
+	function handleAddFiles(formFiles: File[]) {
+		if (!formFiles.length) return
+
+		const newFiles = formFiles.map((file) => ({
 			id: file.name + Date.now(),
 			file,
 		}))
+		const allFiles = [...files, ...newFiles]
 
-		setFiles((prev) => [...prev, ...newFiles])
+		setFiles(allFiles)
 
 		const dt = new DataTransfer()
-		newFiles.forEach((item) => dt.items.add(item.file))
+		allFiles.forEach((item) => dt.items.add(item.file))
 
 		if (fileInput.current) {
 			fileInput.current.files = dt.files
@@ -174,12 +185,18 @@ export const SendMessageArea = () => {
 						<ReplyMessage />
 					</motion.div>
 				)}
-				{files.map((item, i) => (
-					<span key={i}>
-						{item.file.name} {item.file.size}
-						<button onClick={() => deleteFile(item.id)}>&#10006;</button>
-					</span>
-				))}
+				{files.length > 0 && (
+					<Group mb="md">
+						{files.map((item, i) => (
+							<FileItem
+								key={i}
+								id={item.id}
+								file={item.file}
+								onDelete={deleteFile}
+							/>
+						))}
+					</Group>
+				)}
 				<motion.div layout>
 					<addMessageFetcher.Form
 						method="post"
