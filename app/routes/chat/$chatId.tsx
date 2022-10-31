@@ -10,7 +10,13 @@ import {
 } from "@mantine/core"
 import { showNotification } from "@mantine/notifications"
 import type { ActionArgs, LoaderArgs, MetaFunction } from "@remix-run/node"
-import { json } from "@remix-run/node"
+import {
+	json,
+	unstable_composeUploadHandlers,
+	unstable_createFileUploadHandler,
+	unstable_createMemoryUploadHandler,
+	unstable_parseMultipartFormData,
+} from "@remix-run/node"
 import {
 	useActionData,
 	useLoaderData,
@@ -55,18 +61,35 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 }
 
 export const action = async ({ request, params }: ActionArgs) => {
-	const formData = await request.formData()
+	const formData = await request.clone().formData()
 
 	invariant(params.chatId, "chatId is required")
-	formData.append("roomId", params.chatId)
 
-	try {
-		await addMessage(formData, request)
+	if (formData.get("intent") === "add") {
+		const uploadHandler = unstable_composeUploadHandlers(
+			unstable_createFileUploadHandler({
+				maxPartSize: 3_000_000,
+				file: ({ filename }) => filename,
+			}),
+			unstable_createMemoryUploadHandler(),
+		)
 
-		return json({ message: "ok" })
-	} catch (error: any) {
-		return json({ error: error.message })
+		const formData = await unstable_parseMultipartFormData(
+			request,
+			uploadHandler,
+		)
+		formData.append("roomId", params.chatId)
+
+		try {
+			await addMessage(formData, request)
+
+			return json({ message: "ok" })
+		} catch (error: any) {
+			return json({ error: error.message })
+		}
 	}
+
+	return null
 }
 
 export default function ChatItem() {

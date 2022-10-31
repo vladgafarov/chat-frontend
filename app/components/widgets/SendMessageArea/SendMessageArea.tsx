@@ -1,22 +1,31 @@
-import { Box, Button, TextInput } from "@mantine/core"
+import { ActionIcon, Box, Button, FileButton, TextInput } from "@mantine/core"
 import { shallowEqual, useDebouncedValue } from "@mantine/hooks"
 import { showNotification } from "@mantine/notifications"
 import { useOutletContext, useParams } from "@remix-run/react"
 import { useSelector } from "@xstate/react"
 import { AnimatePresence, motion } from "framer-motion"
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { BiSend } from "react-icons/bi"
+import { GrAttachment } from "react-icons/gr"
 import { MdOutlineDone } from "react-icons/md"
 import { useChatContext } from "~/components/Chat/ChatContext"
 import type { IChatContext } from "~/types/ChatContext"
 import EditMessage from "../EditMessage"
 import ReplyMessage from "../ReplyMessage"
 
+interface StateFile {
+	id: string
+	file: File
+}
+
 export const SendMessageArea = () => {
 	const { socket, user, addMessageFetcher } = useOutletContext<IChatContext>()
 	const { chatId } = useParams()
 
 	const inputRef = useRef<HTMLInputElement>()
+
+	const [files, setFiles] = useState<StateFile[]>([])
+	const fileInput = useRef<HTMLInputElement>(null)
 
 	const chatContext = useChatContext()
 	const message = useSelector(
@@ -87,6 +96,35 @@ export const SendMessageArea = () => {
 		send({ type: "EDIT.DONE" })
 	}
 
+	function handleAddFiles(files: File[]) {
+		const newFiles = files.map((file) => ({
+			id: file.name + Date.now(),
+			file,
+		}))
+
+		setFiles((prev) => [...prev, ...newFiles])
+
+		const dt = new DataTransfer()
+		newFiles.forEach((item) => dt.items.add(item.file))
+
+		if (fileInput.current) {
+			fileInput.current.files = dt.files
+		}
+	}
+
+	function deleteFile(id: string) {
+		const newFiles = files.filter((file) => file.id !== id)
+
+		setFiles(newFiles)
+
+		const dt = new DataTransfer()
+		newFiles.forEach((item) => dt.items.add(item.file))
+
+		if (fileInput.current) {
+			fileInput.current.files = dt.files
+		}
+	}
+
 	useEffect(() => {
 		if (debouncedMessage) {
 			socket.emit("CLIENT@MESSAGE:IS-TYPING", {
@@ -136,11 +174,25 @@ export const SendMessageArea = () => {
 						<ReplyMessage />
 					</motion.div>
 				)}
+				{files.map((item, i) => (
+					<span key={i}>
+						{item.file.name} {item.file.size}
+						<button onClick={() => deleteFile(item.id)}>&#10006;</button>
+					</span>
+				))}
 				<motion.div layout>
 					<addMessageFetcher.Form
 						method="post"
 						onSubmit={isEditState ? updateMessage : addMessage}
+						encType="multipart/form-data"
 					>
+						<input
+							ref={fileInput}
+							name="files"
+							type="file"
+							multiple
+							style={{ display: "none" }}
+						/>
 						<TextInput
 							// @ts-ignore
 							ref={inputRef}
@@ -154,6 +206,20 @@ export const SendMessageArea = () => {
 								})
 							}}
 							autoComplete="off"
+							icon={
+								<FileButton onChange={handleAddFiles} multiple>
+									{(props) => (
+										<ActionIcon
+											{...props}
+											sx={(theme) => ({
+												pointerEvents: "visible",
+											})}
+										>
+											<GrAttachment />
+										</ActionIcon>
+									)}
+								</FileButton>
+							}
 							rightSection={
 								<Button
 									variant="subtle"
@@ -168,6 +234,13 @@ export const SendMessageArea = () => {
 								</Button>
 							}
 						/>
+						{messageForReply?.messageId && (
+							<input
+								name="repliedMessageId"
+								value={messageForReply.messageId}
+							/>
+						)}
+						<input type="hidden" name="intent" value="add" />
 					</addMessageFetcher.Form>
 				</motion.div>
 			</Box>

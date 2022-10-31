@@ -5,6 +5,7 @@ export const addMessage = async (
 	formData: FormData,
 	request: Request,
 ): Promise<Message> => {
+	console.log([...formData.entries()])
 	try {
 		const res = await fetch(`${process.env.BACKEND_URL}/message`, {
 			method: "POST",
