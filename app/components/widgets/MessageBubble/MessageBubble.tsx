@@ -4,6 +4,7 @@ import { shallowEqual, useSelector } from "@xstate/react"
 import type { FC } from "react"
 import { useEffect, useRef, useState } from "react"
 import { useChatContext } from "~/components/Chat/ChatContext"
+import MessageFile from "~/components/MessageFile"
 import useIntersectionObserver from "~/hooks/useIntersectionObserver"
 import type { IChatContext } from "~/types/ChatContext"
 import type { Message } from "~/types/Message"
@@ -109,6 +110,7 @@ export const MessageBubble: FC<Props & Message> = ({
 	isPrevMessageFromSameUser,
 	isForwarded,
 	forwardedMessages,
+	files,
 }) => {
 	const { socket } = useOutletContext<IChatContext>()
 	const { chatId } = useParams()
@@ -235,6 +237,20 @@ export const MessageBubble: FC<Props & Message> = ({
 				</Avatar>
 			)}
 			<div className={classes.message}>
+				{files && (
+					<Group>
+						{files.map((file) => (
+							<MessageFile
+								key={file.id}
+								url={file.url}
+								name={file.name}
+								size={file.size}
+								mimetype={file.mimetype}
+							/>
+						))}
+					</Group>
+				)}
+
 				{replyTo && (
 					<a
 						href={`#${replyTo.id}`}
@@ -244,7 +260,7 @@ export const MessageBubble: FC<Props & Message> = ({
 					>
 						<div className={classes.reply}>
 							<Text size="sm" color="blue" weight={500}>
-								{replyTo.author.name}
+								{replyTo.author?.name}
 							</Text>
 							<Text size="sm">{replyTo.text}</Text>
 						</div>

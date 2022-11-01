@@ -1,5 +1,7 @@
-import { createStyles, Text } from "@mantine/core"
+import { createStyles, Image, Modal, Text } from "@mantine/core"
 import type { FC } from "react"
+import { useState } from "react"
+import { BiZoomIn } from "react-icons/bi"
 import { CgClose } from "react-icons/cg"
 import { FaRegFile } from "react-icons/fa"
 
@@ -15,14 +17,23 @@ const useStyle = createStyles((theme, params, getRef) => ({
 		alignItems: "center",
 		justifyContent: "center",
 		width: "70px",
+		height: "100px",
 		[`&:hover .${getRef("deleteButton")}`]: {
+			opacity: 1,
+		},
+		[`&:hover .${getRef("zoom")}`]: {
 			opacity: 1,
 		},
 	},
 	fileImage: {
-		fontSize: theme.fontSizes.xl,
+		position: "absolute",
+		inset: 0,
+		borderRadius: theme.radius.md,
+		overflow: "hidden",
 		img: {
-			maxWidth: "100%",
+			height: "100%",
+			width: "100%",
+			objectFit: "contain",
 		},
 	},
 	deleteButton: {
@@ -48,6 +59,20 @@ const useStyle = createStyles((theme, params, getRef) => ({
 			color: theme.colors.red[6],
 		},
 	},
+	zoom: {
+		ref: getRef("zoom"),
+		position: "absolute",
+		inset: 0,
+		backgroundColor: "rgba(0, 0, 0, 0.5)",
+		display: "flex",
+		alignItems: "center",
+		justifyContent: "center",
+		cursor: "pointer",
+		color: "white",
+		fontSize: theme.fontSizes.xl,
+		opacity: 0,
+		transition: "opacity 0.2s ease-in-out",
+	},
 }))
 
 const imageExtensions = ["jpg", "jpeg", "png", "gif", "webp", "svg"]
@@ -59,24 +84,54 @@ interface Props {
 
 const FileItem: FC<Props> = ({ id, file, onDelete }) => {
 	const { classes } = useStyle()
+	const [isImageModalOpen, setIsImageModalOpen] = useState(false)
 
 	const fileExtension = file.name.split(".").pop()
 
+	const imageBlob =
+		fileExtension && imageExtensions.includes(fileExtension.toLowerCase())
+			? URL.createObjectURL(file)
+			: undefined
+
 	return (
-		<div className={classes.root} title={file.name}>
-			<div className={classes.fileImage}>
-				{fileExtension &&
-				imageExtensions.includes(fileExtension.toLowerCase()) ? (
-					<img src={URL.createObjectURL(file)} alt={file.name} />
+		<>
+			<div className={classes.root} title={file.name}>
+				{imageBlob ? (
+					<div className={classes.fileImage}>
+						<img src={URL.createObjectURL(file)} alt={file.name} />
+
+						<div
+							className={classes.zoom}
+							onClick={() => setIsImageModalOpen(true)}
+						>
+							<BiZoomIn />
+						</div>
+
+						<Modal
+							opened={isImageModalOpen}
+							onClose={() => setIsImageModalOpen(false)}
+							title={file.name}
+							size="lg"
+						>
+							<Image
+								src={imageBlob}
+								alt={file.name}
+								height={600}
+								fit="contain"
+							/>
+						</Modal>
+					</div>
 				) : (
-					<FaRegFile />
+					<>
+						<FaRegFile />
+						<Text>.{fileExtension}</Text>
+					</>
 				)}
+				<div className={classes.deleteButton} onClick={() => onDelete(id)}>
+					<CgClose />
+				</div>
 			</div>
-			<Text>.{fileExtension}</Text>
-			<div className={classes.deleteButton} onClick={() => onDelete(id)}>
-				<CgClose />
-			</div>
-		</div>
+		</>
 	)
 }
 

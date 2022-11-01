@@ -60,12 +60,12 @@ export const SendMessageArea = () => {
 
 	const [debouncedMessage] = useDebouncedValue(message, 200)
 
-	const addMessage = () => {
+	function addMessage() {
 		if (!chatId) {
 			return
 		}
 
-		if (!message.trim()) {
+		if (!message.trim() && files.length === 0) {
 			showNotification({
 				title: "Message is empty",
 				message: "Please, enter your message",
@@ -74,14 +74,6 @@ export const SendMessageArea = () => {
 
 			return
 		}
-
-		// socket.emit("CLIENT@MESSAGE:ADD", {
-		// 	authorId: user.id,
-		// 	text: message,
-		// 	roomId: +chatId,
-		// 	repliedMessageId: messageForReply?.messageId,
-		// })
-
 		if (messageForReply?.messageId) {
 			send({ type: "REPLY.DONE" })
 		} else {
@@ -112,6 +104,16 @@ export const SendMessageArea = () => {
 			file,
 		}))
 		const allFiles = [...files, ...newFiles]
+
+		if (allFiles.length > 3) {
+			showNotification({
+				title: "Too many files",
+				message: "You can't send more than 3 files",
+				color: "orange",
+			})
+
+			return
+		}
 
 		setFiles(allFiles)
 
@@ -155,6 +157,14 @@ export const SendMessageArea = () => {
 		}
 	}, [isEditState, isReplyState, messageForEdit, messageForReply])
 
+	useEffect(() => {
+		if (files && fileInput.current && addMessageFetcher.data) {
+			setFiles([])
+			fileInput.current.value = ""
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [addMessageFetcher.data])
+
 	return (
 		<AnimatePresence>
 			<Box
@@ -187,9 +197,9 @@ export const SendMessageArea = () => {
 				)}
 				{files.length > 0 && (
 					<Group align="stretch" mb="md">
-						{files.map((item, i) => (
+						{files.map((item) => (
 							<FileItem
-								key={i}
+								key={item.id}
 								id={item.id}
 								file={item.file}
 								onDelete={deleteFile}
@@ -244,7 +254,8 @@ export const SendMessageArea = () => {
 									radius={"xs"}
 									type="submit"
 									disabled={
-										!message || message === messageForEdit?.text
+										(!message || message === messageForEdit?.text) &&
+										files.length === 0
 									}
 								>
 									{isEditState ? <MdOutlineDone /> : <BiSend />}
@@ -255,6 +266,7 @@ export const SendMessageArea = () => {
 							<input
 								name="repliedMessageId"
 								value={messageForReply.messageId}
+								type="hidden"
 							/>
 						)}
 						<input type="hidden" name="intent" value="add" />

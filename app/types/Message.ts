@@ -41,4 +41,12 @@ export interface Message {
 			}
 		}
 	}[]
+	files: {
+		id: string
+		name: string
+		url: string
+		size: number
+		mimetype: string
+		createAt: string
+	}[]
 }
