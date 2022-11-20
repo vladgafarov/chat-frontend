@@ -1,4 +1,5 @@
 import {
+	ActionIcon,
 	Avatar,
 	Badge,
 	Box,
@@ -24,6 +25,8 @@ import {
 	useParams,
 } from "@remix-run/react"
 import { useEffect, useMemo, useState } from "react"
+import { BsCameraVideoFill } from "react-icons/bs"
+import { RiPhoneFill } from "react-icons/ri"
 import invariant from "tiny-invariant"
 import { Chat } from "~/components/Chat"
 import { addMessage } from "~/models/message/message.server"
@@ -200,7 +203,17 @@ export default function ChatItem() {
 						})}
 					</Avatar.Group>
 				)}
+
+				<Group spacing={5}>
+					<ActionIcon size="lg" color="dark" variant="transparent">
+						<RiPhoneFill size={22} />
+					</ActionIcon>
+					<ActionIcon size="lg" color="dark" variant="transparent">
+						<BsCameraVideoFill size={20} />
+					</ActionIcon>
+				</Group>
 			</Group>
+
 			<Chat messages={room.messages} isGroupChat={room.isGroupChat} />
 
 			<Modal
