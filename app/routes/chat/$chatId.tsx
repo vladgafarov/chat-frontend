@@ -28,6 +28,7 @@ import { useEffect, useMemo, useState } from "react"
 import { BsCameraVideoFill } from "react-icons/bs"
 import { RiPhoneFill } from "react-icons/ri"
 import invariant from "tiny-invariant"
+import CallRoom from "~/components/CallRoom"
 import { Chat } from "~/components/Chat"
 import { addMessage } from "~/models/message/message.server"
 import { getRoom } from "~/models/room/room.server"
@@ -103,6 +104,7 @@ export default function ChatItem() {
 	const { chatId } = useParams()
 
 	const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+	const [isCallModalOpen, setIsCallModalOpen] = useState<boolean>(false)
 
 	const isOnline = useMemo(
 		() =>
@@ -133,6 +135,10 @@ export default function ChatItem() {
 		socket.on("SERVER@ROOM:JOIN", (user) => {
 			console.log("SERVER@ROOM:JOIN ", user)
 		})
+
+		// socket.on("SERVER@ROOM:CALL", (data) => {
+		// 	console.log("SERVER@ROOM:CALL ", data)
+		// })
 
 		return () => {
 			socket.emit("CLIENT@ROOM:LEAVE", { roomId: chatId, user })
@@ -205,7 +211,12 @@ export default function ChatItem() {
 				)}
 
 				<Group spacing={5}>
-					<ActionIcon size="lg" color="dark" variant="transparent">
+					<ActionIcon
+						size="lg"
+						color="dark"
+						variant="transparent"
+						onClick={() => setIsCallModalOpen(true)}
+					>
 						<RiPhoneFill size={22} />
 					</ActionIcon>
 					<ActionIcon size="lg" color="dark" variant="transparent">
@@ -247,6 +258,13 @@ export default function ChatItem() {
 					})}
 				</Stack>
 			</Modal>
+
+			{isCallModalOpen && (
+				<CallRoom
+					isOpen={isCallModalOpen}
+					onClose={() => setIsCallModalOpen(false)}
+				/>
+			)}
 		</Box>
 	)
 }
