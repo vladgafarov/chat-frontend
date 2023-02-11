@@ -12,6 +12,7 @@
 -  Групповые чаты
 -  Смена аватара
 
+![login](login.png)
 ![chat](chat.png)
 ![files in chat](files.png)
 ![settings](settings.png)
